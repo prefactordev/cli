@@ -5,7 +5,7 @@ agent_versions retrieve | v1
 agent_versions create | --agent_id a1 --external_identifier ext
 agent_versions create | --agent_id a1 --external_identifier ext --agent_schema_version_id s1 --execution_mode hosted
 agent_versions create | --agent_id a1 --external_identifier ext --agent_schema_version_id "" --execution_mode remote
-framework: agent_versions create | --agent_id a1 --external_identifier ext --execution_mode bogus
+agent_versions create | --agent_id a1 --external_identifier ext --execution_mode bogus
 framework: agent_versions create | --agent_id a1
 
 # agent_schema_versions
@@ -52,8 +52,8 @@ agent_associations list_from | --agent_ids a1 --sort_field id --sort_direction a
 agent_associations list_from | --agent_ids " , "
 agent_associations list_from | --agent_ids ", " --sort_direction asc
 agent_associations list_from | --agent_ids a1 --sort_direction asc
-framework: agent_associations list_from | --agent_ids a1 --sort_field name
-framework: agent_associations list_from | --agent_ids a1 --sort_direction up
+agent_associations list_from | --agent_ids a1 --sort_field name
+agent_associations list_from | --agent_ids a1 --sort_direction up
 agent_associations list_from | --agent_ids a1 --pagination_offset -1
 agent_associations list_from | --agent_ids a1 --pagination_page_size 0
 agent_associations list_from | --agent_ids a1 --pagination_page_size 3abc
@@ -67,11 +67,11 @@ agent_associations retrieve | as1
 agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_demand
 agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_completion --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
 agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_completion --id bad
-framework: agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger sometimes
+agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger sometimes
 framework: agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge
 framework: agent_associations create | --trigger on_demand
 agent_associations update | as1 --trigger on_completion
-framework: agent_associations update | as1 --trigger never
+agent_associations update | as1 --trigger never
 framework: agent_associations update | as1
 agent_associations delete | as1
 
@@ -80,7 +80,7 @@ agent_instance_associations list_from | --agent_instance_ids i1,i2
 agent_instance_associations list_from | --agent_instance_ids i1 --sort_field id --sort_direction desc --pagination_offset 1 --pagination_page_size 5
 agent_instance_associations list_from | --agent_instance_ids ","
 agent_instance_associations list_from | --agent_instance_ids i1 --sort_direction desc
-framework: agent_instance_associations list_from | --agent_instance_ids i1 --sort_field other
+agent_instance_associations list_from | --agent_instance_ids i1 --sort_field other
 framework: agent_instance_associations list_from |
 agent_instance_associations list_to | --agent_instance_id i1
 agent_instance_associations list_to | --agent_instance_id i1 --sort_field id --pagination_offset 3 --pagination_page_size 7
@@ -99,7 +99,7 @@ judges show |
 judges create | --name Judge
 judges create | --name Judge --description D --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --team_id t1 --owner_person_id p1 --execution_mode remote
 judges create | --name Judge --description "" --team_id "" --owner_person_id ""
-framework: judges create | --name Judge --execution_mode cloud
+judges create | --name Judge --execution_mode cloud
 judges create | --name Judge --id bad
 framework: judges create |
 judges update | j1 --name N --description D --team_id t1 --owner_person_id p1
@@ -128,7 +128,7 @@ llm_providers create | --name P --provider custom_openai --api_key @fixtures/api
 llm_providers create | --name P --provider openai --api_key k --api_base_url "" --account_id "" --id ""
 llm_providers create | --name P --provider ollama_cloud --api_key k
 llm_providers create | --name P --provider together --api_key k
-framework: llm_providers create | --name P --provider gemini --api_key k
+llm_providers create | --name P --provider gemini --api_key k
 llm_providers create | --name P --provider openai --api_key k --id bad
 framework: llm_providers create | --name P --api_key k
 framework: llm_providers create | --name P --provider openai

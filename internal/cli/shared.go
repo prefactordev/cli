@@ -252,6 +252,16 @@ func parsePaginationFlags(cmd *cobra.Command) (listQuery, error) {
 	return q, nil
 }
 
+// UsageError is an error in how a command was called. Like Commander,
+// the CLI prints a pointer to --help after it.
+type UsageError struct {
+	Message string
+}
+
+func (e *UsageError) Error() string {
+	return e.Message
+}
+
 // checkChoice mirrors Commander's .choices() check.
 func checkChoice(option, value string, choices []string) error {
 	for _, choice := range choices {
@@ -260,7 +270,7 @@ func checkChoice(option, value string, choices []string) error {
 		}
 	}
 
-	return fmt.Errorf("error: option '%s' argument '%s' is invalid. Allowed choices are %s.", option, value, strings.Join(choices, ", "))
+	return &UsageError{Message: fmt.Sprintf("error: option '%s' argument '%s' is invalid. Allowed choices are %s.", option, value, strings.Join(choices, ", "))}
 }
 
 var nonNegativeInteger = regexp.MustCompile(`^\d+$`)

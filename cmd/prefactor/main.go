@@ -29,6 +29,12 @@ func main() {
 func printError(err error) {
 	fmt.Fprintln(os.Stderr, err)
 
+	var usageErr *cli.UsageError
+	if errors.As(err, &usageErr) {
+		fmt.Fprintln(os.Stderr, "(run with --help for usage)")
+		return
+	}
+
 	var httpErr *client.HTTPError
 	if !errors.As(err, &httpErr) || len(bytes.TrimSpace(httpErr.Body)) == 0 {
 		return

@@ -34,7 +34,7 @@ agent_instances register | --agent_id a1 --agent_version_external_identifier v1 
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --span_schemas '{}' --span_type_schemas '[]'
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --span_result_schemas '{}'
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --id not-a-pfid
-framework: agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --purpose bogus
+agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --purpose bogus
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --span_schemas @fixtures/array.json
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --span_type_schemas @fixtures/object.json
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --span_schemas '{}' --span_result_schemas '[]'
@@ -57,7 +57,7 @@ agent_instances finish | i1
 agent_instances finish | i1 --timestamp 2026-01-01T00:00:00Z --status complete --result_payload '{"ok":true}'
 agent_instances finish | i1 --status failed --result_payload @fixtures/object.json
 agent_instances finish | i1 --status cancelled
-framework: agent_instances finish | i1 --status done
+agent_instances finish | i1 --status done
 agent_instances finish | i1 --result_payload '[1]'
 
 # agent_instances prepare
@@ -98,7 +98,7 @@ agent_spans create | --agent_instance_id i1 --payload '{"a":1}' --schema_name s:
 agent_spans create | --agent_instance_id i1 --payload @fixtures/object.json --schema_name s:llm --status complete --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --parent_span_id 01m6jcdypz3tq23qmke2ckg5jpt7k0fh --started_at 2026-01-01T00:00:00Z --finished_at 2026-01-01T00:01:00Z --result_payload '{"r":2}'
 agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status failed --result_payload @fixtures/object.json
 agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status cancelled --id "" --parent_span_id "" --started_at "" --finished_at "" --result_payload ""
-framework: agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status bogus
+agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status bogus
 agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status active --id bad
 agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status active --parent_span_id bad
 agent_spans create | --agent_instance_id i1 --payload '[]' --schema_name s --status active
@@ -112,7 +112,7 @@ agent_spans finish | sp1
 agent_spans finish | sp1 --timestamp 2026-01-01T00:00:00Z --status complete --result_payload '{"r":1}'
 agent_spans finish | sp1 --status failed --result_payload @fixtures/object.json
 agent_spans finish | sp1 --status cancelled --timestamp ""
-framework: agent_spans finish | sp1 --status active
+agent_spans finish | sp1 --status active
 agent_spans finish | sp1 --result_payload @fixtures/array.json
 
 # agent_spans discard_sensitive
@@ -125,8 +125,8 @@ alerts list | --status cleared --severity error --active_during_start_at today
 alerts list | --severity warning --active_during_finish_at later --pagination_offset 10
 alerts list | --severity info --pagination_page_size 3abc
 alerts list | --agent_instance_id "" --agent_id "" --environment_id "" --name "" --sorting "" --active_during_start_at "" --active_during_finish_at ""
-framework: alerts list | --status bogus
-framework: alerts list | --severity bogus
+alerts list | --status bogus
+alerts list | --severity bogus
 alerts list | --pagination_offset -1
 alerts list | --pagination_offset 1.5
 alerts list | --pagination_page_size 0
@@ -139,14 +139,14 @@ alerts retrieve | al1
 alerts count |
 alerts count | --status raised --severity critical
 alerts count | --status cleared
-framework: alerts count | --status bogus
-framework: alerts count | --severity bogus
+alerts count | --status bogus
+alerts count | --severity bogus
 
 # alerts raise
 alerts raise | --agent_instance_id i1 --name high_cost --severity warning --payload '{"cost":12}'
 alerts raise | --agent_instance_id i1 --name high_cost --severity critical --payload @fixtures/object.json --raised_at 2026-01-01T00:00:00Z --payload_sensitive_encoding
 alerts raise | --agent_instance_id i1 --name n --severity error --payload '{}' --raised_at ""
-framework: alerts raise | --agent_instance_id i1 --name n --severity bogus --payload '{}'
+alerts raise | --agent_instance_id i1 --name n --severity bogus --payload '{}'
 alerts raise | --agent_instance_id i1 --name n --severity info --payload '[]'
 framework: alerts raise | --agent_instance_id i1 --name n --payload '{}'
 framework: alerts raise | --agent_instance_id i1 --name n --severity info
@@ -156,7 +156,7 @@ alerts clear | --agent_instance_id i1 --name high_cost
 alerts clear | --agent_instance_id i1 --name high_cost --payload '{"c":1}' --severity info --cleared_at 2026-01-01T00:00:00Z --payload_sensitive_encoding
 alerts clear | --agent_instance_id i1 --name n --payload @fixtures/object.json --severity critical
 alerts clear | --agent_instance_id i1 --name n --payload "" --cleared_at ""
-framework: alerts clear | --agent_instance_id i1 --name n --severity bogus
+alerts clear | --agent_instance_id i1 --name n --severity bogus
 alerts clear | --agent_instance_id i1 --name n --payload '[]'
 framework: alerts clear | --agent_instance_id i1
 

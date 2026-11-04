@@ -1,0 +1,170 @@
+# Every operationId in api/openapi.json, mapped to the prefactor command that
+# calls it. An operation with no command is marked excluded (with the reason)
+# or pending (with the issue that adds it). The coverage tests in
+# internal/cli/coverage_test.go fail when an operation is missing here.
+
+Action.Account.Implode: {excluded: "Wipes the whole account; left out of the CLI on purpose."}
+Action.Account.Update: accounts update
+Action.AccountIntegration.Create: integrations update
+Action.AccountIntegration.Delete: integrations delete
+Action.AccountIntegration.Test: integrations test
+Action.AccountIntegration.Update: integrations update
+Action.AdminUser.Update: admin-users update
+Action.AdminUser.UpdateRole: {pending: PRE-710}
+Action.AdminUserInvite.Create: admin-user-invites create
+Action.AdminUserInvite.Resend: {pending: PRE-710}
+Action.AdminUserInvite.Revoke: admin-user-invites revoke
+Action.Agent.Create: agents create
+Action.Agent.Delete: agents delete
+Action.Agent.Reinstate: agents reinstate
+Action.Agent.Retire: agents retire
+Action.Agent.Update: agents update
+Action.AgentAssociation.Create: agent-associations create
+Action.AgentAssociation.Delete: agent-associations delete
+Action.AgentAssociation.Update: agent-associations update
+Action.AgentDeployment.Create: agent-deployments create
+Action.AgentDeployment.Delete: agent-deployments delete
+Action.AgentDeployment.Promote: agent-deployments promote
+Action.AgentDeployment.Update: agent-deployments update
+Action.AgentInstance.Create: {pending: PRE-710}
+Action.AgentInstance.DiscardSensitive: agent-instances discard-sensitive
+Action.AgentInstance.Finish: agent-instances finish
+Action.AgentInstance.Judge: judges score
+Action.AgentInstance.Prepare: agent-instances prepare
+Action.AgentInstance.RecordQuality: agent-instances record-quality
+Action.AgentInstance.Register: agent-instances register
+Action.AgentInstance.SendMessage: {pending: PRE-710}
+Action.AgentInstance.Start: agent-instances start
+Action.AgentInstance.Terminate: agent-instances terminate
+Action.AgentKnowledgebaseLink.Create: {pending: PRE-710}
+Action.AgentKnowledgebaseLink.Delete: {pending: PRE-710}
+Action.AgentSchemaVersion.Create: agent-schema-versions create
+Action.AgentSpan.Create: agent-spans create
+Action.AgentSpan.DiscardSensitive: agent-spans discard-sensitive
+Action.AgentSpan.Finish: agent-spans finish
+Action.AgentVersion.Create: agent-versions create
+Action.AgentVersion.CreateHostedJudge: judges create-version
+Action.Alert.Clear: alerts clear
+Action.Alert.Raise: alerts raise
+Action.ApiToken.Activate: api-tokens activate
+Action.ApiToken.Create: api-tokens create
+Action.ApiToken.Delete: api-tokens delete
+Action.ApiToken.Revoke: api-tokens revoke
+Action.ApiToken.Suspend: api-tokens suspend
+Action.ApiToken.Update: {pending: PRE-710}
+Action.Environment.Create: environments create
+Action.Environment.Delete: environments delete
+Action.Environment.Update: environments update
+Action.Knowledgebase.Archive: knowledgebases archive
+Action.Knowledgebase.Create: knowledgebases create
+Action.Knowledgebase.Delete: knowledgebases delete
+Action.Knowledgebase.Unarchive: knowledgebases unarchive
+Action.Knowledgebase.Update: knowledgebases update
+Action.KnowledgebaseDocument.Archive: knowledgebase-documents archive
+Action.KnowledgebaseDocument.Create: knowledgebase-documents create
+Action.KnowledgebaseDocument.Delete: knowledgebase-documents delete
+Action.KnowledgebaseDocument.Rename: knowledgebase-documents rename
+Action.KnowledgebaseDocument.Unarchive: knowledgebase-documents unarchive
+Action.KnowledgebaseDocument.Update: knowledgebase-documents update
+Action.LlmProvider.Create: llm-providers create
+Action.LlmProvider.Delete: llm-providers delete
+Action.LlmProvider.Update: llm-providers update
+Action.LlmProviderModel.Create: llm-provider-models create
+Action.LlmProviderModel.Delete: llm-provider-models delete
+Action.LlmProviderModel.Update: llm-provider-models update
+Action.Person.Create: people create
+Action.Person.Delete: people delete
+Action.Person.Update: people update
+Action.Pfid.Generate: pfid generate
+Action.Playground.CreateCustomerSupportAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.CreateFirstAccountAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.CreateLoanApplicationReviewAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.CreateNorthstarSupportAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.CreateOpenclawAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.CreateQualityReviewAgent: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordCustomerSupportAgentSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordFirstAccountSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordLoanApplicationReviewAgentSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordNorthstarSupportSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordOpenclawAgentSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RecordQualityReviewSpans: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterCustomerSupportAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterFirstAccountAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterLoanApplicationReviewAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterNorthstarSupportAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterOpenclawAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.Playground.RegisterQualityReviewAgentInstance: {excluded: "Seeds demo data; not part of the user-facing CLI."}
+Action.RiskProfile.Create: risk-profiles create
+Action.RiskProfile.Delete: risk-profiles delete
+Action.RiskProfile.Update: risk-profiles update
+Action.Team.Create: teams create
+Action.Team.Delete: teams delete
+Action.Team.Update: teams update
+Action.Utils.ProcessSensitivePayload: {pending: PRE-710}
+Action.Utils.RenderLiquidTemplate: {pending: PRE-710}
+Action.Utils.ValidateSchema: {pending: PRE-710}
+Bulk.Execute: bulk execute
+Query.Account.GetDetails: accounts retrieve
+Query.Account.List: accounts list
+Query.AccountIntegration.GetDetails: integrations retrieve
+Query.AccountIntegration.List: integrations list
+Query.AdminUser.GetDetails: admin-users retrieve
+Query.AdminUser.List: admin-users list
+Query.AdminUserInvite.GetDetails: admin-user-invites retrieve
+Query.AdminUserInvite.List: admin-user-invites list
+Query.Agent.GetDetailsById: agents retrieve
+Query.Agent.GetDetailsByLookup: agents show
+Query.Agent.List: agents list
+Query.AgentAssociation.GetDetails: agent-associations retrieve
+Query.AgentAssociation.ListFrom: agent-associations list-from
+Query.AgentAssociation.ListTo: agent-associations list-to
+Query.AgentDeployment.GetDetails: agent-deployments retrieve
+Query.AgentDeployment.List: agent-deployments list
+Query.AgentDeployment.ListPromotions: agent-deployments list-promotions
+Query.AgentInstance.GetAgentContext: agent-instances agent-context
+Query.AgentInstance.GetDetailsById: agent-instances retrieve
+Query.AgentInstance.GetDetailsByLookup: agent-instances show
+Query.AgentInstance.List: agent-instances list
+Query.AgentInstanceAssociation.GetDetails: agent-instance-associations retrieve
+Query.AgentInstanceAssociation.ListFrom: agent-instance-associations list-from
+Query.AgentInstanceAssociation.ListTo: agent-instance-associations list-to
+Query.AgentKnowledgebaseLink.GetDetails: {pending: PRE-710}
+Query.AgentKnowledgebaseLink.List: {pending: PRE-710}
+Query.AgentRiskVersion.GetDetails: {pending: PRE-710}
+Query.AgentRiskVersion.List: {pending: PRE-710}
+Query.AgentSchemaVersion.GetDetails: agent-schema-versions retrieve
+Query.AgentSchemaVersion.List: agent-schema-versions list
+Query.AgentSpan.GetDetails: agent-spans retrieve
+Query.AgentSpan.List: agent-spans list
+Query.AgentVersion.GetDetails: agent-versions retrieve
+Query.AgentVersion.List: agent-versions list
+Query.AgentVersion.ListJudgeTemplates: judges templates
+Query.Alert.Count: alerts count
+Query.Alert.GetDetails: alerts retrieve
+Query.Alert.List: alerts list
+Query.ApiToken.GetDetails: api-tokens retrieve
+Query.ApiToken.List: api-tokens list
+Query.Environment.GetDetailsById: environments retrieve
+Query.Environment.GetDetailsByLookup: environments show
+Query.Environment.List: environments list
+Query.Knowledgebase.GetDetails: knowledgebases retrieve
+Query.Knowledgebase.List: knowledgebases list
+Query.KnowledgebaseDocument.GetDetails: knowledgebase-documents retrieve
+Query.KnowledgebaseDocument.List: knowledgebase-documents list
+Query.KnowledgebaseDocumentRevision.GetDetails: knowledgebase-document-revisions retrieve
+Query.KnowledgebaseDocumentRevision.List: knowledgebase-document-revisions list
+Query.KnowledgebaseRevision.GetDetails: knowledgebase-revisions retrieve
+Query.KnowledgebaseRevision.List: knowledgebase-revisions list
+Query.KnowledgebaseRevision.ListDocuments: knowledgebase-revisions list-documents
+Query.LlmProvider.GetDetails: llm-providers retrieve
+Query.LlmProvider.List: llm-providers list
+Query.LlmProviderModel.GetDetails: llm-provider-models retrieve
+Query.LlmProviderModel.List: llm-provider-models list
+Query.Person.GetDetails: people retrieve
+Query.Person.List: people list
+Query.Ping.Get: ping
+Query.RiskProfile.GetDetails: risk-profiles retrieve
+Query.RiskProfile.GetTemplateRuleset: risk-profiles template
+Query.RiskProfile.List: risk-profiles list
+Query.Team.GetDetails: teams retrieve
+Query.Team.List: teams list

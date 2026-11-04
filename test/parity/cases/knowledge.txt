@@ -4,9 +4,9 @@ knowledgebases list | --account_id acc --status active --sort_field name --sort_
 knowledgebases list | --status archived --sort_field id
 knowledgebases list | --sort_field id --sort_direction asc
 knowledgebases list | --account_id ""
-framework: knowledgebases list | --status bogus
-framework: knowledgebases list | --sort_field path
-framework: knowledgebases list | --sort_direction up --sort_field id
+knowledgebases list | --status bogus
+knowledgebases list | --sort_field path
+knowledgebases list | --sort_direction up --sort_field id
 knowledgebases list | --sort_direction desc
 knowledgebases list | --pagination_offset -1
 knowledgebases list | --pagination_offset 1.5
@@ -34,8 +34,8 @@ knowledgebases delete | kb1
 knowledgebase_documents list | --knowledgebase_id kb1
 knowledgebase_documents list | --knowledgebase_id kb1 --path_prefix docs/ --status active --sort_field path --sort_direction desc --pagination_offset 10 --pagination_page_size 20
 knowledgebase_documents list | --knowledgebase_id kb1 --path_prefix "" --status archived --sort_field id
-framework: knowledgebase_documents list | --knowledgebase_id kb1 --status bogus
-framework: knowledgebase_documents list | --knowledgebase_id kb1 --sort_field name
+knowledgebase_documents list | --knowledgebase_id kb1 --status bogus
+knowledgebase_documents list | --knowledgebase_id kb1 --sort_field name
 knowledgebase_documents list | --knowledgebase_id kb1 --sort_direction asc
 knowledgebase_documents list | --knowledgebase_id kb1 --pagination_offset x
 knowledgebase_documents list | --knowledgebase_id kb1 --pagination_page_size -2
