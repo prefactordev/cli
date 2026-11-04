@@ -93,7 +93,7 @@ func newLoginHarness(t *testing.T, server *deviceServer) *loginHarness {
 	h.Login = LoginDeps{
 		HTTPClient:      server.Client(),
 		OpenBrowser:     func(url string) { h.opened = append(h.opened, url) },
-		PromptForToken:  func(p string) (string, error) { h.prompts = append(h.prompts, p); return h.pasted, nil },
+		PromptForToken:  func(_ io.Writer, p string) (string, error) { h.prompts = append(h.prompts, p); return h.pasted, nil },
 		Sleep:           h.clock.Sleep,
 		Now:             h.clock.Now,
 		TerminalColumns: func() (int, bool) { return h.columns, h.columns > 0 },

@@ -12,9 +12,11 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"os/signal"
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 	"unicode/utf8"
 
@@ -34,7 +36,7 @@ const (
 type LoginDeps struct {
 	HTTPClient      *http.Client
 	OpenBrowser     func(url string)
-	PromptForToken  func(prompt string) (string, error)
+	PromptForToken  func(out io.Writer, prompt string) (string, error)
 	Sleep           func(ctx context.Context, d time.Duration) error
 	Now             func() time.Time
 	TerminalColumns func() (int, bool)
@@ -156,7 +158,7 @@ func loginByPastingToken(out io.Writer, baseURL string, deps LoginDeps) (deviceL
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "After authenticating, copy your API token from the browser.")
 
-	token, err := deps.PromptForToken("Paste your API token here: ")
+	token, err := deps.PromptForToken(out, "Paste your API token here: ")
 	if err != nil {
 		return deviceLoginGrant{}, err
 	}
@@ -466,26 +468,70 @@ func openBrowser(target string) {
 	go func() { _ = cmd.Wait() }()
 }
 
-// promptForToken reads a token without echoing it when stdin is a terminal.
-func promptForToken(prompt string) (string, error) {
-	fmt.Fprint(os.Stdout, prompt)
+// promptForToken reads a token the way the TypeScript CLI does: the prompt
+// goes to out, a terminal is put in raw mode so nothing is echoed, Enter
+// finishes, Backspace deletes and Ctrl+C restores the terminal and exits 1.
+// Any signal that ends the CLI while it waits also restores the terminal.
+func promptForToken(out io.Writer, prompt string) (string, error) {
+	fmt.Fprint(out, prompt)
 
 	fd := int(os.Stdin.Fd())
-	if term.IsTerminal(fd) {
-		token, err := term.ReadPassword(fd)
-		fmt.Fprintln(os.Stdout)
-		if err != nil {
+	if !term.IsTerminal(fd) {
+		line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		fmt.Fprintln(out)
+		if err != nil && !errors.Is(err, io.EOF) {
 			return "", err
 		}
-		return strings.TrimSpace(string(token)), nil
+		return strings.TrimSpace(line), nil
 	}
 
-	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	fmt.Fprintln(os.Stdout)
-	if err != nil && !errors.Is(err, io.EOF) {
+	state, err := term.MakeRaw(fd)
+	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(line), nil
+	restore := func() { _ = term.Restore(fd, state) }
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
+	defer signal.Stop(signals)
+	go func() {
+		if _, ok := <-signals; ok {
+			restore()
+			fmt.Fprintln(out)
+			os.Exit(1)
+		}
+	}()
+
+	var input []rune
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		r, _, err := reader.ReadRune()
+		if err != nil {
+			restore()
+			fmt.Fprintln(out)
+			if errors.Is(err, io.EOF) {
+				return strings.TrimSpace(string(input)), nil
+			}
+			return "", err
+		}
+
+		switch r {
+		case '\r', '\n':
+			restore()
+			fmt.Fprintln(out)
+			return strings.TrimSpace(string(input)), nil
+		case 3: // Ctrl+C
+			restore()
+			fmt.Fprintln(out)
+			return "", &exitError{code: 1}
+		case 127, 8: // Backspace
+			if len(input) > 0 {
+				input = input[:len(input)-1]
+			}
+		default:
+			input = append(input, r)
+		}
+	}
 }
 
 func terminalColumns() (int, bool) {

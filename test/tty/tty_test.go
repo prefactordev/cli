@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/creack/pty"
+	"golang.org/x/sys/unix"
 )
 
 var binary string
@@ -51,10 +52,13 @@ func TestMain(m *testing.M) {
 type session struct {
 	t    *testing.T
 	cmd  *exec.Cmd
+	work string
 	tty  *os.File
-	mu   sync.Mutex
-	out  bytes.Buffer
-	done chan struct{}
+	// slave stays open so the terminal's settings can be read after exit.
+	slave *os.File
+	mu    sync.Mutex
+	out   bytes.Buffer
+	done  chan struct{}
 }
 
 // start runs the CLI in a work directory with a default profile for
@@ -93,9 +97,8 @@ func start(t *testing.T, serverURL string, stderr io.Writer, args ...string) *se
 	if err := cmd.Start(); err != nil {
 		t.Fatal(err)
 	}
-	_ = tty.Close()
 
-	s := &session{t: t, cmd: cmd, tty: ptmx, done: make(chan struct{})}
+	s := &session{t: t, cmd: cmd, work: work, tty: ptmx, slave: tty, done: make(chan struct{})}
 	go func() {
 		buf := make([]byte, 4096)
 		for {
@@ -115,6 +118,7 @@ func start(t *testing.T, serverURL string, stderr io.Writer, args ...string) *se
 	t.Cleanup(func() {
 		_ = cmd.Process.Kill()
 		_ = ptmx.Close()
+		_ = tty.Close()
 	})
 	return s
 }
@@ -213,5 +217,89 @@ func TestCommandsDoNotQueryTheTerminal(t *testing.T) {
 				t.Fatalf("wrote escape sequences: %q", s.output())
 			}
 		})
+	}
+}
+
+// echoOn reports whether the terminal echoes input. It reads the settings
+// through the master side, which shares them and stays usable after the
+// session ends.
+func (s *session) echoOn() bool {
+	s.t.Helper()
+	settings, err := unix.IoctlGetTermios(int(s.tty.Fd()), ioctlGetTermios)
+	if err != nil {
+		s.t.Fatal(err)
+	}
+	return settings.Lflag&unix.ECHO != 0
+}
+
+func (s *session) savedToken() string {
+	raw, err := os.ReadFile(filepath.Join(s.work, "prefactor.json"))
+	if err != nil {
+		s.t.Fatal(err)
+	}
+	return string(raw)
+}
+
+// A server without the device login endpoints makes login ask for a token.
+var noDeviceLogin = map[string]string{}
+
+func TestTokenPromptSavesTheTypedToken(t *testing.T) {
+	server := jsonServer(t, noDeviceLogin)
+	s := start(t, server.URL, nil, "login")
+
+	s.waitFor("Paste your API token here: ")
+	s.send("secret-token\r")
+	if code := s.wait(5 * time.Second); code != 0 {
+		t.Fatalf("exit %d: %q", code, s.output())
+	}
+	if strings.Contains(s.output(), "secret-token") {
+		t.Fatalf("the token was echoed: %q", s.output())
+	}
+	if !strings.Contains(s.savedToken(), `"api_key": "secret-token"`) {
+		t.Fatalf("profile = %s", s.savedToken())
+	}
+	if !s.echoOn() {
+		t.Fatal("echo is off after login")
+	}
+}
+
+func TestCtrlCAtTheTokenPromptRestoresTheTerminal(t *testing.T) {
+	server := jsonServer(t, noDeviceLogin)
+	s := start(t, server.URL, nil, "login")
+
+	s.waitFor("Paste your API token here: ")
+	s.send("ab")
+	s.send("\x03")
+	if code := s.wait(5 * time.Second); code != 1 {
+		t.Fatalf("exit %d, want 1 as in the TypeScript CLI", code)
+	}
+	if !s.echoOn() {
+		t.Fatal("echo is still off after Ctrl+C")
+	}
+	if !strings.Contains(s.savedToken(), `"api_key":"tok"`) {
+		t.Fatalf("profile changed: %s", s.savedToken())
+	}
+}
+
+func TestLoginJSONKeepsThePromptOffStdout(t *testing.T) {
+	server := jsonServer(t, noDeviceLogin)
+	var stderr bytes.Buffer
+	s := start(t, server.URL, &stderr, "login", "--json")
+
+	deadline := time.Now().Add(10 * time.Second)
+	for !strings.Contains(stderr.String(), "Paste your API token here: ") && time.Now().Before(deadline) {
+		time.Sleep(20 * time.Millisecond)
+	}
+	s.send("secret-token\r")
+	if code := s.wait(5 * time.Second); code != 0 {
+		t.Fatalf("exit %d: stdout %q stderr %q", code, s.output(), stderr.String())
+	}
+
+	stdout := strings.TrimSpace(strings.ReplaceAll(s.output(), "\r", ""))
+	if !strings.HasPrefix(stdout, "{") || !strings.HasSuffix(stdout, "}") || strings.Contains(stdout, "Paste") {
+		t.Fatalf("stdout is not only JSON: %q", stdout)
+	}
+	if !strings.Contains(stderr.String(), "Paste your API token here: ") {
+		t.Fatalf("stderr = %q", stderr.String())
 	}
 }
