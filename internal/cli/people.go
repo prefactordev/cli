@@ -43,13 +43,13 @@ func newPeopleCommand(app *App) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params := &api.QueryPersonListParams{Sorting: q.Sorting, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
+			params := &api.QueryPersonListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			if teamID := stringFlag(cmd, "team-id"); teamID != "" {
 				params.TeamId = &teamID
 			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryPersonList(ctx, params)
+				return c.QueryPersonList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}

@@ -22,10 +22,10 @@ func newRiskProfilesCommand(app *App) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params := &api.QueryRiskProfileListParams{Sorting: q.Sorting, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
+			params := &api.QueryRiskProfileListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryRiskProfileList(ctx, params)
+				return c.QueryRiskProfileList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}

@@ -100,13 +100,13 @@ var (
 		o, n := p.params()
 		return c.QueryAgentDeploymentList(ctx, &api.QueryAgentDeploymentListParams{AgentId: &agentID, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
 	}}
-	agentAssociationKind = &resourceKind{name: "agent association", plural: "agent associations", parent: agentKind, list: func(ctx context.Context, c *api.Client, agentID string, p pageRequest) (*http.Response, error) {
+	agentAssociationKind = &resourceKind{name: "agent association", plural: "agent associations", parent: judgeKind, list: func(ctx context.Context, c *api.Client, judgeID string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
-		return c.QueryAgentAssociationListFrom(ctx, &api.QueryAgentAssociationListFromParams{AgentIds: []api.AgentId{agentID}, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
+		return c.QueryAgentAssociationListFrom(ctx, &api.QueryAgentAssociationListFromParams{PaginationOffset: o, PaginationPageSize: n}, idListQuery("agent_ids", []string{judgeID}), newestFirst())
 	}}
 	agentInstanceAssociationKind = &resourceKind{name: "agent instance association", plural: "agent instance associations", parent: agentInstanceKind, list: func(ctx context.Context, c *api.Client, instanceID string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
-		return c.QueryAgentInstanceAssociationListFrom(ctx, &api.QueryAgentInstanceAssociationListFromParams{AgentInstanceIds: []api.AgentInstanceId{instanceID}, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
+		return c.QueryAgentInstanceAssociationListFrom(ctx, &api.QueryAgentInstanceAssociationListFromParams{PaginationOffset: o, PaginationPageSize: n}, idListQuery("agent_instance_ids", []string{instanceID}), newestFirst())
 	}}
 	teamKind = &resourceKind{name: "team", plural: "teams", list: func(ctx context.Context, c *api.Client, _ string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
@@ -177,7 +177,7 @@ var flagKinds = map[string]*resourceKind{
 	"account-id":                   accountKind,
 	"environment-id":               environmentKind,
 	"agent-id":                     agentKind,
-	"agent-ids":                    agentKind,
+	"agent-ids":                    judgeKind,
 	"to-agent-id":                  agentKind,
 	"from-agent-id":                judgeKind,
 	"judge-agent-id":               judgeKind,

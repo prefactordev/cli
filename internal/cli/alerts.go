@@ -70,8 +70,9 @@ func newAlertsCommand(app *App) *cobra.Command {
 			if value := stringFlag(cmd, "name"); value != "" {
 				params.Name = &value
 			}
+			var sorting *string
 			if value := stringFlag(cmd, "sorting"); value != "" {
-				params.Sorting = &value
+				sorting = &value
 			}
 
 			// active_during values are sent as typed, not parsed as times.
@@ -84,7 +85,7 @@ func newAlertsCommand(app *App) *cobra.Command {
 			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAlertList(ctx, params, withQuery(activeDuring))
+				return c.QueryAlertList(ctx, params, withQuery(activeDuring), sortingQuery(sorting))
 			})
 		},
 	}

@@ -33,13 +33,11 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 		}
 
 		params := &api.QueryAgentAssociationListFromParams{
-			AgentIds:           ids,
-			Sorting:            q.Sorting,
 			PaginationOffset:   q.Offset,
 			PaginationPageSize: q.PageSize,
 		}
 		return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-			return c.QueryAgentAssociationListFrom(ctx, params)
+			return c.QueryAgentAssociationListFrom(ctx, params, idListQuery("agent_ids", ids), sortingQuery(q.Sorting))
 		})
 	}
 	associations.AddCommand(listFrom)
@@ -60,12 +58,11 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 
 		params := &api.QueryAgentAssociationListToParams{
 			AgentId:            stringFlag(cmd, "agent-id"),
-			Sorting:            q.Sorting,
 			PaginationOffset:   q.Offset,
 			PaginationPageSize: q.PageSize,
 		}
 		return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-			return c.QueryAgentAssociationListTo(ctx, params)
+			return c.QueryAgentAssociationListTo(ctx, params, sortingQuery(q.Sorting))
 		})
 	}
 	associations.AddCommand(listTo)

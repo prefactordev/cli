@@ -42,10 +42,10 @@ func newTeamsCommand(app *App) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params := &api.QueryTeamListParams{Sorting: q.Sorting, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
+			params := &api.QueryTeamListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryTeamList(ctx, params)
+				return c.QueryTeamList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}

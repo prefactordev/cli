@@ -51,7 +51,6 @@ func newKnowledgebasesCommand(app *App) *cobra.Command {
 		}
 
 		params := &api.QueryKnowledgebaseListParams{
-			Sorting:            query.Sorting,
 			PaginationOffset:   query.Offset,
 			PaginationPageSize: query.PageSize,
 		}
@@ -65,7 +64,7 @@ func newKnowledgebasesCommand(app *App) *cobra.Command {
 		}
 
 		return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-			return c.QueryKnowledgebaseList(ctx, params)
+			return c.QueryKnowledgebaseList(ctx, params, sortingQuery(query.Sorting))
 		})
 	}
 	knowledgebases.AddCommand(list)

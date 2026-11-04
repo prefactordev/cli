@@ -158,7 +158,7 @@ func TestParity(t *testing.T) {
 			if ts.exit != got.exit {
 				t.Errorf("exit: ts=%d go=%d\nts stderr: %s\ngo stderr: %s", ts.exit, got.exit, ts.stderr, got.stderr)
 			}
-			if !reflect.DeepEqual(normalizeGenerated(ts.requests), normalizeGenerated(got.requests)) {
+			if !reflect.DeepEqual(normalizeGenerated(asP2Accepts(ts.requests)), normalizeGenerated(got.requests)) {
 				t.Errorf("requests differ\nts: %s\ngo: %s", dump(ts.requests), dump(got.requests))
 			}
 			if tc.help {
@@ -351,4 +351,34 @@ func kebabMessage(s string) string {
 func dump(requests []recordedRequest) string {
 	raw, _ := json.MarshalIndent(requests, "", "  ")
 	return string(raw)
+}
+
+// asP2Accepts rewrites the TypeScript CLI's requests where this CLI
+// deliberately sends the form p2 accepts instead (see the README):
+// sorting=name or sorting=-name becomes sorting[field] and
+// sorting[direction], and repeated agent_ids / agent_instance_ids become
+// agent_ids[] / agent_instance_ids[]. Everything else must match exactly.
+func asP2Accepts(requests []recordedRequest) []recordedRequest {
+	out := make([]recordedRequest, len(requests))
+	for i, r := range requests {
+		query := url.Values{}
+		for key, values := range r.Query {
+			switch key {
+			case "sorting":
+				field, direction := values[0], "asc"
+				if rest, ok := strings.CutPrefix(field, "-"); ok {
+					field, direction = rest, "desc"
+				}
+				query["sorting[field]"] = []string{field}
+				query["sorting[direction]"] = []string{direction}
+			case "agent_ids", "agent_instance_ids":
+				query[key+"[]"] = values
+			default:
+				query[key] = values
+			}
+		}
+		r.Query = query
+		out[i] = r
+	}
+	return out
 }

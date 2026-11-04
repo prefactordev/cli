@@ -455,3 +455,25 @@ func printDocumentContent(cmd *cobra.Command, raw []byte) error {
 func emptyObject() io.Reader {
 	return strings.NewReader("{}")
 }
+
+// sortingQuery sends a sorting value ("name", or "-name" for descending) as
+// sorting[field] and sorting[direction], the form p2 accepts. The
+// TypeScript CLI sends the documented sorting=-name form, which p2 rejects.
+func sortingQuery(sorting *string) api.RequestEditorFn {
+	return func(ctx context.Context, req *http.Request) error {
+		if sorting == nil {
+			return nil
+		}
+		field, direction := *sorting, "asc"
+		if rest, ok := strings.CutPrefix(field, "-"); ok {
+			field, direction = rest, "desc"
+		}
+		return withQuery(url.Values{"sorting[field]": {field}, "sorting[direction]": {direction}})(ctx, req)
+	}
+}
+
+// idListQuery sends IDs as name[]=id, the form p2 accepts for list
+// parameters. The TypeScript CLI repeats name=id, which p2 rejects.
+func idListQuery(name string, ids []string) api.RequestEditorFn {
+	return withQuery(url.Values{name + "[]": ids})
+}
