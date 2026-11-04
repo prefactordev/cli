@@ -1,0 +1,162 @@
+# accounts
+accounts list |
+accounts retrieve | acc1
+accounts update | acc1 --name Acme
+accounts update | acc1 --name ""
+framework: accounts update | acc1
+framework: accounts retrieve |
+
+# environments
+environments list | --account_id acc1
+environments list | --account_id ""
+framework: environments list |
+environments retrieve | env1
+environments show | --environment_id env1
+environments show | --external_identifier ext1
+environments show | --environment_id env1 --external_identifier ext1
+environments show |
+environments show | --environment_id "" --external_identifier ""
+environments create | --name Prod --account_id acc1
+environments create | --name Prod --account_id acc1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+environments create | --name Prod --account_id acc1 --id bad
+environments create | --name Prod --account_id acc1 --id ""
+framework: environments create | --name Prod
+framework: environments create | --account_id acc1
+environments update | env1 --name Staging
+environments update | env1 --name "  "
+environments update | env1
+environments update | env1 --name " padded "
+environments delete | env1
+
+# teams
+teams list |
+teams list | --sorting name --pagination_offset 0 --pagination_page_size 10
+teams list | --sorting -name
+teams list | --sorting ""
+teams list | --pagination_offset 5
+teams list | --pagination_page_size 3abc
+teams list | --pagination_offset -1
+teams list | --pagination_offset abc
+teams list | --pagination_page_size 0
+teams list | --pagination_page_size abc
+teams retrieve | team1
+teams create | --name Core
+teams create | --name Core --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+teams create | --name Core --id bad
+framework: teams create |
+teams update | team1 --name Renamed
+teams update | team1 --name ""
+teams update | team1
+teams delete | team1
+
+# people
+people list |
+people list | --team_id team1 --sorting email --pagination_offset 2 --pagination_page_size 20
+people list | --team_id "" --sorting ""
+people list | --pagination_offset x
+people list | --pagination_page_size -4
+people retrieve | p1
+people create | --email a@example.com --name Ann
+people create | --email a@example.com --name Ann --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --team_ids '["t1","t2"]' --title Engineer
+people create | --email a@example.com --name Ann --team_ids @fixtures/team-ids.json
+people create | --email a@example.com --name Ann --team_ids "" --title ""
+people create | --email a@example.com --name Ann --team_ids '[1,2]'
+people create | --email a@example.com --name Ann --team_ids @fixtures/array.json
+people create | --email a@example.com --name Ann --team_ids @fixtures/object.json
+people create | --email a@example.com --name Ann --team_ids '{"a":1}'
+people create | --email a@example.com --name Ann --id bad --team_ids '[1]'
+framework: people create | --email a@example.com
+framework: people create | --name Ann
+people update | p1 --email b@example.com
+people update | p1 --name Bob --title CTO
+people update | p1 --team_ids '["t1"]'
+people update | p1 --team_ids @fixtures/team-ids.json
+people update | p1 --team_ids '[]'
+people update | p1 --team_ids '[true]'
+people update | p1 --email "" --name "" --title ""
+people update | p1
+people delete | p1
+
+# risk_profiles
+risk_profiles list |
+risk_profiles list | --sorting name --pagination_offset 1 --pagination_page_size 5
+risk_profiles list | --sorting ""
+risk_profiles list | --pagination_offset 1.5
+risk_profiles list | --pagination_page_size 0
+risk_profiles retrieve | rp1
+risk_profiles template | --template_name default
+risk_profiles template | --template_name ""
+framework: risk_profiles template |
+risk_profiles create | --name Strict --ruleset '{"thresholds":{"critical":9,"high":6,"medium":3}}'
+risk_profiles create | --name Strict --ruleset @fixtures/object.json --description "Very strict" --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+risk_profiles create | --name Strict --ruleset @fixtures/array.json
+risk_profiles create | --name Strict --ruleset '[1]'
+risk_profiles create | --name Strict --ruleset '{}' --id bad
+risk_profiles create | --name Strict --ruleset '{}' --description ""
+framework: risk_profiles create | --name Strict
+framework: risk_profiles create | --ruleset '{}'
+risk_profiles update | rp1 --name Lenient
+risk_profiles update | rp1 --description ""
+risk_profiles update | rp1 --ruleset @fixtures/object.json
+risk_profiles update | rp1 --ruleset '"text"'
+risk_profiles update | rp1 --name "" --description D --ruleset '{"a":[1,2]}'
+risk_profiles update | rp1
+risk_profiles delete | rp1
+
+# integrations
+integrations list |
+integrations retrieve | slack
+integrations delete | slack
+integrations test | slack
+integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events "agent.created, alert.raised"
+integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events ""
+integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events "  "
+integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events "a,,b"
+integrations update | teams --webhook_url https://hooks.example.com/x --enabled_events a
+framework: integrations update | slack --enabled_events a
+framework: integrations update | slack --webhook_url https://hooks.example.com/x
+
+# api_tokens
+api_tokens list |
+api_tokens list | --account_id acc1
+api_tokens list | --account_id ""
+api_tokens retrieve | tok1
+api_tokens create | --token_scope account
+api_tokens create | --token_scope account --account_id acc1 --expires_at 2030-01-01T00:00:00Z
+api_tokens create | --token_scope account --account_id "" --expires_at ""
+api_tokens create | --token_scope agent_deployment --agent_id " ag1 " --environment_id " env1 "
+api_tokens create | --token_scope agent_deployment --agent_id ag1
+api_tokens create | --token_scope agent_deployment --environment_id env1 --agent_id "  "
+api_tokens create | --token_scope account --agent_id ag1
+api_tokens create | --token_scope account --environment_id env1
+api_tokens create | --token_scope account --agent_id "  "
+api_tokens create | --token_scope bogus
+api_tokens create | --token_scope ""
+framework: api_tokens create |
+api_tokens suspend | tok1
+api_tokens activate | tok1
+api_tokens revoke | tok1
+api_tokens delete | tok1
+
+# admin_users
+admin_users list |
+admin_users list | --account_id acc1
+admin_users list | --account_id ""
+admin_users retrieve | u1
+admin_users update | u1 --name Ann
+admin_users update | u1 --name ""
+admin_users update | u1 --job_title Engineer --profile_completed_at 2030-01-01T00:00:00Z
+admin_users update | u1 --job_title null --profile_completed_at null
+admin_users update | u1 --job_title ""
+admin_users update | u1
+
+# admin_user_invites
+admin_user_invites list |
+admin_user_invites list | --account_id acc1
+admin_user_invites list | --account_id ""
+admin_user_invites retrieve | inv1
+admin_user_invites create | --email a@example.com
+admin_user_invites create | --email a@example.com --account_id acc1
+admin_user_invites create | --email a@example.com --account_id ""
+framework: admin_user_invites create |
+admin_user_invites revoke | inv1
