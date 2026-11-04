@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/prefactordev/cli/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -466,4 +468,81 @@ func TestLatestInsideAnIDList(t *testing.T) {
 	if !strings.Contains(last, "agent_instance_ids%5B%5D="+inst1) || !strings.Contains(last, "agent_instance_ids%5B%5D="+inst2) {
 		t.Fatalf("request = %s", last)
 	}
+}
+
+// TestPickersListTheRightResource pins each resource kind to the list
+// request it sends and the parent it needs, so a binding cannot quietly
+// list the wrong kind of resource (as associations once listed all agents
+// instead of judges).
+func TestPickersListTheRightResource(t *testing.T) {
+	cases := []struct {
+		kind   *resourceKind
+		parent *resourceKind
+		want   string // method, path and the query keys that identify the list
+	}{
+		{accountKind, nil, "GET /api/v1/account"},
+		{environmentKind, accountKind, "GET /api/v1/environment account_id=P"},
+		{agentKind, nil, "GET /api/v1/agent"},
+		{judgeKind, nil, "GET /api/v1/agent role=judge"},
+		{agentInstanceKind, agentKind, "GET /api/v1/agent_instance agent_id=P"},
+		{agentSpanKind, agentInstanceKind, "GET /api/v1/agent_spans agent_instance_id=P"},
+		{alertKind, nil, "GET /api/v1/alerts"},
+		{apiTokenKind, nil, "GET /api/v1/api_token"},
+		{adminUserKind, nil, "GET /api/v1/admin_user"},
+		{adminUserInviteKind, nil, "GET /api/v1/admin_user_invite"},
+		{agentVersionKind, agentKind, "GET /api/v1/agent_version agent_id=P"},
+		{agentSchemaVersionKind, agentKind, "GET /api/v1/agent_schema_version agent_id=P"},
+		{agentDeploymentKind, agentKind, "GET /api/v1/agent_deployment agent_id=P"},
+		{agentAssociationKind, judgeKind, "GET /api/v1/agent_association/from agent_ids[]=P"},
+		{agentInstanceAssociationKind, agentInstanceKind, "GET /api/v1/agent_instance_association/from agent_instance_ids[]=P"},
+		{teamKind, nil, "GET /api/v1/team"},
+		{personKind, nil, "GET /api/v1/person"},
+		{riskProfileKind, nil, "GET /api/v1/risk_profile"},
+		{llmProviderKind, nil, "GET /api/v1/llm_provider"},
+		{llmProviderModelKind, llmProviderKind, "GET /api/v1/llm_provider_model llm_provider_id=P"},
+		{knowledgebaseKind, nil, "GET /api/v1/knowledgebase"},
+		{knowledgebaseDocumentKind, knowledgebaseKind, "GET /api/v1/knowledgebase_document knowledgebase_id=P"},
+		{knowledgebaseDocumentRevisionKind, knowledgebaseDocumentKind, "GET /api/v1/knowledgebase_document_revision knowledgebase_document_id=P"},
+		{knowledgebaseRevisionKind, knowledgebaseKind, "GET /api/v1/knowledgebase_revision knowledgebase_id=P"},
+	}
+
+	var got string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.Method + " " + r.URL.Path
+		for _, key := range []string{"role", "account_id", "agent_id", "agent_instance_id", "agent_ids[]", "agent_instance_ids[]", "llm_provider_id", "knowledgebase_id", "knowledgebase_document_id"} {
+			if v := r.URL.Query().Get(key); v != "" {
+				got += " " + key + "=" + v
+			}
+		}
+		_, _ = io.WriteString(w, `{"summaries":[]}`)
+	}))
+	defer server.Close()
+
+	c, err := client.New(server.URL, "tok", "1.2.3")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tc := range cases {
+		if tc.kind.parent != tc.parent {
+			t.Errorf("%s: parent is %v, want %v", tc.kind.name, kindName(tc.kind.parent), kindName(tc.parent))
+		}
+		if _, _, err := listChoices(context.Background(), c, tc.kind, "P"); err != nil {
+			t.Fatalf("%s: %v", tc.kind.name, err)
+		}
+		if got != tc.want {
+			t.Errorf("%s lists %q, want %q", tc.kind.name, got, tc.want)
+		}
+	}
+
+	if len(cases) != len(groupKinds) {
+		t.Errorf("%d kinds tested, %d groups have pickers", len(cases), len(groupKinds))
+	}
+}
+
+func kindName(k *resourceKind) string {
+	if k == nil {
+		return "none"
+	}
+	return k.name
 }

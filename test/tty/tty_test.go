@@ -283,8 +283,8 @@ func TestCtrlCAtTheTokenPromptRestoresTheTerminal(t *testing.T) {
 
 func TestLoginJSONKeepsThePromptOffStdout(t *testing.T) {
 	server := jsonServer(t, noDeviceLogin)
-	var stderr bytes.Buffer
-	s := start(t, server.URL, &stderr, "login", "--json")
+	stderr := &lockedBuffer{}
+	s := start(t, server.URL, stderr, "login", "--json")
 
 	deadline := time.Now().Add(10 * time.Second)
 	for !strings.Contains(stderr.String(), "Paste your API token here: ") && time.Now().Before(deadline) {
@@ -302,4 +302,83 @@ func TestLoginJSONKeepsThePromptOffStdout(t *testing.T) {
 	if !strings.Contains(stderr.String(), "Paste your API token here: ") {
 		t.Fatalf("stderr = %q", stderr.String())
 	}
+}
+
+// TestThePickerDrawsOnStderr runs the real picker with stdout and stderr on
+// separate terminals: the picker must appear only on stderr, so stdout holds
+// only the command's output.
+func TestThePickerDrawsOnStderr(t *testing.T) {
+	server := jsonServer(t, map[string]string{
+		"GET /api/v1/agent": `{"status":"success","summaries":[{"id":"01m6aaaaaaaaaaaaaaaaaaaaaaaaaaaa","name":"Support bot","status":"active"},{"id":"01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Billing bot","status":"active"}],"pagination":{"next_page_offset":null}}`,
+		"GET /api/v1/agent/01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb": `{"status":"success","details":{"id":"01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Billing bot"}}`,
+	})
+
+	errMaster, errTTY, err := pty.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = errMaster.Close(); _ = errTTY.Close() }()
+	if err := pty.Setsize(errMaster, &pty.Winsize{Rows: 40, Cols: 120}); err != nil {
+		t.Fatal(err)
+	}
+	var stderr bytes.Buffer
+	var stderrMu sync.Mutex
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := errMaster.Read(buf)
+			stderrMu.Lock()
+			stderr.Write(buf[:n])
+			stderrMu.Unlock()
+			if err != nil {
+				return
+			}
+		}
+	}()
+	stderrText := func() string {
+		stderrMu.Lock()
+		defer stderrMu.Unlock()
+		return stderr.String()
+	}
+
+	s := start(t, server.URL, errTTY, "agents", "retrieve")
+
+	deadline := time.Now().Add(10 * time.Second)
+	for !strings.Contains(stderrText(), "Choose an agent") && time.Now().Before(deadline) {
+		time.Sleep(20 * time.Millisecond)
+	}
+	if !strings.Contains(stderrText(), "Choose an agent") {
+		t.Fatalf("no picker on stderr; stderr %q, stdout %q", stderrText(), s.output())
+	}
+	s.send("/Billing")
+	s.send("\r")
+	if code := s.wait(5 * time.Second); code != 0 {
+		t.Fatalf("exit %d: stdout %q stderr %q", code, s.output(), stderrText())
+	}
+
+	stdout := strings.TrimSpace(strings.ReplaceAll(s.output(), "\r", ""))
+	if strings.Contains(stdout, "Choose") || strings.ContainsRune(stdout, '\x1b') {
+		t.Fatalf("the picker drew on stdout: %q", stdout)
+	}
+	if !strings.HasPrefix(stdout, "{") || !strings.Contains(stdout, `"name": "Billing bot"`) {
+		t.Fatalf("stdout = %q", stdout)
+	}
+}
+
+// lockedBuffer collects output written by another goroutine.
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
 }
