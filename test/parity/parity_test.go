@@ -33,7 +33,11 @@ import (
 	"testing"
 )
 
-const responseBody = `{"status":"success","details":{"id":"01m6jcdypz3tq23qmke2ckg5jpt7k0fg","content":"document body\n"},"summaries":[]}`
+// responseBody includes a float written as 1.0, an escaped non-ASCII
+// character and U+2028, which JSON.stringify prints differently from the raw
+// text, so every case checks the CLI re-encodes JSON as the TypeScript CLI
+// does.
+const responseBody = `{"status":"success","details":{"id":"01m6jcdypz3tq23qmke2ckg5jpt7k0fg","content":"document body\n","score":1.0,"label":"caf\u00e9 \u2028"},"summaries":[]}`
 
 var goBinary string
 

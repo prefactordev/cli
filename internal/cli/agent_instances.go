@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/output"
 )
 
 var agentInstanceStatuses = []string{"preparing", "pending", "active", "complete", "failed", "cancelled", "terminated"}
@@ -204,12 +205,11 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 				return err
 			}
 
-			var buf bytes.Buffer
-			if err := json.Indent(&buf, body, "", "  "); err != nil {
+			formatted, err := output.Format(body)
+			if err != nil {
 				return err
 			}
-			buf.WriteByte('\n')
-			return os.WriteFile(outputPath, buf.Bytes(), 0o644)
+			return os.WriteFile(outputPath, append(formatted, '\n'), 0o644)
 		},
 	}
 	agentContext.Flags().String("output", "", "Write context JSON body to this file")
