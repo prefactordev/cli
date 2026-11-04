@@ -35,3 +35,11 @@ help: agents | --help
 help: agents create | --help
 help: help |
 help: help | agents
+# --version and -V work anywhere before --.
+agents list | --version
+agents create | --version
+| agentz --version
+agents | -V
+agent_instances register | --version 1.0.0
+agents list | --profile --version
+agents list | -- --version

@@ -19,7 +19,7 @@ var version = "0.0.0-dev"
 
 func main() {
 	if err := cli.NewRootCommand(version).Execute(); err != nil {
-		if code := cli.ExitCode(err); code != 0 {
+		if code, ok := cli.ExitCode(err); ok {
 			os.Exit(code)
 		}
 		printError(err)

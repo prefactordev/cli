@@ -26,13 +26,13 @@ func (e *exitError) Error() string {
 	return fmt.Sprintf("exit status %d", e.code)
 }
 
-// ExitCode returns the status for an error that only ends the run, or 0.
-func ExitCode(err error) int {
+// ExitCode reports the status for an error that only ends the run.
+func ExitCode(err error) (int, bool) {
 	var exit *exitError
 	if errors.As(err, &exit) {
-		return exit.code
+		return exit.code, true
 	}
-	return 0
+	return 0, false
 }
 
 // requiredAnnotation marks a flag as required, as MarkFlagRequired does.
@@ -66,6 +66,17 @@ func prepareCommandLine(root *cobra.Command) {
 // checkCommandLine reports the first command-line mistake the way Commander
 // would. argv is the full argument list given to the CLI.
 func checkCommandLine(cmd *cobra.Command, args, argv []string) error {
+	// Commander handles the root's --version and -V wherever they appear,
+	// before any other check.
+	if versionRequested(cmd, argv) {
+		root := cmd.Root()
+		_, err := fmt.Fprintln(cmd.OutOrStdout(), root.Version)
+		if err != nil {
+			return err
+		}
+		return &exitError{code: 0}
+	}
+
 	if isGroup(cmd) {
 		if len(args) > 0 {
 			return &UsageError{Message: fmt.Sprintf("error: unknown command '%s'%s", args[0], suggestSimilar(args[0], subcommandNames(cmd)))}
@@ -169,6 +180,31 @@ func declaredArguments(cmd *cobra.Command) []declaredArgument {
 		declared = append(declared, arg)
 	}
 	return declared
+}
+
+// versionRequested reports whether --version or -V appears in argv as an
+// option rather than as another option's value or after --.
+func versionRequested(cmd *cobra.Command, argv []string) bool {
+	flags := cmd.Flags()
+	for i := 0; i < len(argv); i++ {
+		token := argv[i]
+		switch {
+		case token == "--":
+			return false
+		case token == "--version" || token == "-V":
+			return true
+		case strings.HasPrefix(token, "--"):
+			name, _, hasValue := strings.Cut(token[2:], "=")
+			if f := flags.Lookup(name); f != nil && takesValue(f) && !hasValue {
+				i++
+			}
+		case strings.HasPrefix(token, "-") && len(token) == 2:
+			if f := flags.ShorthandLookup(token[1:]); f != nil && takesValue(f) {
+				i++
+			}
+		}
+	}
+	return false
 }
 
 // firstUnknownOption returns the first option in argv that the command does
