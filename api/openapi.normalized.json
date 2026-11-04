@@ -14197,17 +14197,8 @@
             "name": "risk_profile_id",
             "required": false,
             "schema": {
-              "description": "When a profile id, return only agents using that risk profile. When `null`, return only agents with no risk profile. When omitted, return all agents (after permission filtering).",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/RiskProfile_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/RiskProfile_Id",
+              "description": "When a profile id, return only agents using that risk profile. When `null`, return only agents with no risk profile. When omitted, return all agents (after permission filtering)."
             }
           },
           {
@@ -14215,17 +14206,8 @@
             "name": "team_id",
             "required": false,
             "schema": {
-              "description": "When a team id, return only agents on that team. When `null`, return only agents with no team. When omitted, return all agents (after permission filtering).",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Team_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Team_Id",
+              "description": "When a team id, return only agents on that team. When `null`, return only agents with no team. When omitted, return all agents (after permission filtering)."
             }
           },
           {
@@ -14233,17 +14215,8 @@
             "name": "owner_person_id",
             "required": false,
             "schema": {
-              "description": "When a person id, return only agents owned by that person. When `null`, return only agents with no owner. When omitted, return all agents (after permission filtering).",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Person_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Person_Id",
+              "description": "When a person id, return only agents owned by that person. When `null`, return only agents with no owner. When omitted, return all agents (after permission filtering)."
             }
           },
           {
@@ -14282,18 +14255,9 @@
             "required": false,
             "schema": {
               "description": "When set with finish_at, instance_counts only include instances whose active range overlaps [start_at, finish_at). Does not filter which agents are listed.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -14304,18 +14268,9 @@
             "required": false,
             "schema": {
               "description": "When set with start_at, instance_counts only include instances whose active range overlaps [start_at, finish_at). Does not filter which agents are listed.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -14549,17 +14504,8 @@
             "name": "environment_id",
             "required": false,
             "schema": {
-              "description": "When set, risk rollup uses the deployment current version for this environment. When `include_counts` is true, instance counts are scoped to this environment, and observed risk is scoped to activity spans in this environment.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Environment_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Environment_Id",
+              "description": "When set, risk rollup uses the deployment current version for this environment. When `include_counts` is true, instance counts are scoped to this environment, and observed risk is scoped to activity spans in this environment."
             }
           },
           {
@@ -14592,18 +14538,9 @@
             "required": false,
             "schema": {
               "description": "Filters instance_counts to instances whose active range overlaps the half-open [start_at, finish_at) range and filters observed risk to activity spans started in the same range. Theoretical risk remains based on the current schema.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -14614,18 +14551,9 @@
             "required": false,
             "schema": {
               "description": "Filters instance_counts to instances whose active range overlaps the half-open [start_at, finish_at) range and filters observed risk to activity spans started in the same range. Theoretical risk remains based on the current schema.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -14786,17 +14714,8 @@
             "name": "environment_id",
             "required": false,
             "schema": {
-              "description": "When set, risk rollup uses the deployment current version for this environment. When `include_counts` is true, instance counts are scoped to this environment, and observed risk is scoped to activity spans in this environment.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Environment_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Environment_Id",
+              "description": "When set, risk rollup uses the deployment current version for this environment. When `include_counts` is true, instance counts are scoped to this environment, and observed risk is scoped to activity spans in this environment."
             }
           },
           {
@@ -14829,18 +14748,9 @@
             "required": false,
             "schema": {
               "description": "Filters instance_counts to instances whose active range overlaps the half-open [start_at, finish_at) range and filters observed risk to activity spans started in the same range. Theoretical risk remains based on the current schema.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -14851,18 +14761,9 @@
             "required": false,
             "schema": {
               "description": "Filters instance_counts to instances whose active range overlaps the half-open [start_at, finish_at) range and filters observed risk to activity spans started in the same range. Theoretical risk remains based on the current schema.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -16385,18 +16286,9 @@
             "required": false,
             "schema": {
               "description": "When set with finish_at, only instances whose active range overlaps [start_at, finish_at).",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -16407,18 +16299,9 @@
             "required": false,
             "schema": {
               "description": "When set with start_at, only instances whose active range overlaps [start_at, finish_at).",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -17246,18 +17129,9 @@
             "name": "time_range[start_at]",
             "required": false,
             "schema": {
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -17267,18 +17141,9 @@
             "name": "time_range[finish_at]",
             "required": false,
             "schema": {
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -17419,18 +17284,9 @@
             "name": "time_range[start_at]",
             "required": false,
             "schema": {
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -17440,18 +17296,9 @@
             "name": "time_range[finish_at]",
             "required": false,
             "schema": {
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -18728,17 +18575,8 @@
             "name": "agent_id",
             "required": false,
             "schema": {
-              "description": "Agent ID. At least one of agent_id or knowledgebase_id is required.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Agent_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Agent_Id",
+              "description": "Agent ID. At least one of agent_id or knowledgebase_id is required."
             }
           },
           {
@@ -18746,17 +18584,8 @@
             "name": "knowledgebase_id",
             "required": false,
             "schema": {
-              "description": "Knowledgebase ID. At least one of agent_id or knowledgebase_id is required.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Knowledgebase_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Knowledgebase_Id",
+              "description": "Knowledgebase ID. At least one of agent_id or knowledgebase_id is required."
             }
           },
           {
@@ -19625,17 +19454,8 @@
             "name": "environment_id",
             "required": false,
             "schema": {
-              "description": "When set with agent_id, only spans from agent instances in this environment are listed.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Environment_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Environment_Id",
+              "description": "When set with agent_id, only spans from agent instances in this environment are listed."
             }
           },
           {
@@ -19666,22 +19486,13 @@
             "required": false,
             "schema": {
               "description": "When set, only spans with this purpose are listed: 'activity' (normal agent activity), 'quality' (system-written quality payload updates), or 'alert' (system-written alert lifecycle events). Omit or null to list spans of every purpose.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "activity",
-                    "quality",
-                    "alert"
-                  ],
-                  "example": "activity",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "activity",
+                "quality",
+                "alert"
               ],
+              "example": "activity",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -19691,17 +19502,8 @@
             "name": "alert_id",
             "required": false,
             "schema": {
-              "description": "When set, only spans for this alert are listed. Typically used with purpose=alert.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Alert_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Alert_Id",
+              "description": "When set, only spans for this alert are listed. Typically used with purpose=alert."
             }
           },
           {
@@ -20674,17 +20476,8 @@
             "name": "agent_instance_id",
             "required": false,
             "schema": {
-              "description": "When set, only alerts for this agent instance are listed.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/AgentInstance_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/AgentInstance_Id",
+              "description": "When set, only alerts for this agent instance are listed."
             }
           },
           {
@@ -20692,17 +20485,8 @@
             "name": "agent_id",
             "required": false,
             "schema": {
-              "description": "When set, only alerts for this agent are listed.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Agent_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Agent_Id",
+              "description": "When set, only alerts for this agent are listed."
             }
           },
           {
@@ -20710,17 +20494,8 @@
             "name": "environment_id",
             "required": false,
             "schema": {
-              "description": "When set, only alerts in this environment are listed.",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Environment_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Environment_Id",
+              "description": "When set, only alerts in this environment are listed."
             }
           },
           {
@@ -20729,21 +20504,12 @@
             "required": false,
             "schema": {
               "description": "When set, only alerts with this status are listed.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "raised",
-                    "cleared"
-                  ],
-                  "example": "raised",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "raised",
+                "cleared"
               ],
+              "example": "raised",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -20754,23 +20520,14 @@
             "required": false,
             "schema": {
               "description": "When set, only alerts with this severity are listed.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "critical",
-                    "error",
-                    "warning",
-                    "info"
-                  ],
-                  "example": "warning",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "critical",
+                "error",
+                "warning",
+                "info"
               ],
+              "example": "warning",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -20781,17 +20538,8 @@
             "required": false,
             "schema": {
               "description": "When set, only alerts with this name (alert schema key) are listed.",
-              "oneOf": [
-                {
-                  "example": "high_error_rate",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "high_error_rate",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -20802,18 +20550,9 @@
             "required": false,
             "schema": {
               "description": "When set with finish_at, only alerts whose raised range overlaps [start_at, finish_at).",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -20824,18 +20563,9 @@
             "required": false,
             "schema": {
               "description": "When set with start_at, only alerts whose raised range overlaps [start_at, finish_at).",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -21095,21 +20825,12 @@
             "required": false,
             "schema": {
               "description": "When set, only alerts with this status are counted.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "raised",
-                    "cleared"
-                  ],
-                  "example": "raised",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "raised",
+                "cleared"
               ],
+              "example": "raised",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -21120,23 +20841,14 @@
             "required": false,
             "schema": {
               "description": "When set, only alerts with this severity are counted.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "critical",
-                    "error",
-                    "warning",
-                    "info"
-                  ],
-                  "example": "warning",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "critical",
+                "error",
+                "warning",
+                "info"
               ],
+              "example": "warning",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -21147,18 +20859,9 @@
             "required": false,
             "schema": {
               "description": "When set with finish_at, only alerts active during the range are counted.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -21169,18 +20872,9 @@
             "required": false,
             "schema": {
               "description": "When set with start_at, only alerts active during the range are counted.",
-              "oneOf": [
-                {
-                  "example": "2024-01-01T00:00:00Z",
-                  "format": "date-time",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "2024-01-01T00:00:00Z",
+              "format": "date-time",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -22854,21 +22548,12 @@
             "required": false,
             "schema": {
               "description": "When set, only knowledgebases with this status are listed. When omitted, only active knowledgebases are listed.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "active",
-                    "archived"
-                  ],
-                  "example": "active",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "active",
+                "archived"
               ],
+              "example": "active",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -23478,17 +23163,8 @@
             "required": false,
             "schema": {
               "description": "When set, only documents whose path starts with this prefix, ignoring case",
-              "oneOf": [
-                {
-                  "example": "guides/",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "guides/",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -23499,21 +23175,12 @@
             "required": false,
             "schema": {
               "description": "When set, only documents with this status are listed. When omitted, only active documents are listed.",
-              "oneOf": [
-                {
-                  "enum": [
-                    "active",
-                    "archived"
-                  ],
-                  "example": "active",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
+              "enum": [
+                "active",
+                "archived"
               ],
+              "example": "active",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -24643,17 +24310,8 @@
             "required": false,
             "schema": {
               "description": "When set, only documents whose path starts with this prefix, ignoring case",
-              "oneOf": [
-                {
-                  "example": "guides/",
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
+              "example": "guides/",
+              "type": "string",
               "x-struct": null,
               "x-validate": null
             }
@@ -25665,17 +25323,8 @@
             "name": "team_id",
             "required": false,
             "schema": {
-              "description": "When a team id, return only people on that team. When `null`, return only people with no team. When omitted, return all people (after permission filtering).",
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Team_Id"
-                },
-                {
-                  "$ref": "#/components/schemas/Null"
-                }
-              ],
-              "x-struct": null,
-              "x-validate": null
+              "$ref": "#/components/schemas/Team_Id",
+              "description": "When a team id, return only people on that team. When `null`, return only people with no team. When omitted, return all people (after permission filtering)."
             }
           },
           {

@@ -1,0 +1,15 @@
+# agents
+agents list |
+agents retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+agents show | --agent_id abc
+agents show | --external_identifier ext --environment_id env --include_counts --include_risk_rollup
+agents show |
+agents create | --name Bot
+agents create | --name Bot --description "A bot" --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+agents create | --name Bot --id not-a-pfid
+framework: agents create |
+agents update | abc --name New --description D
+agents update | abc
+agents delete | abc
+agents retire | abc
+agents reinstate | abc

@@ -65,3 +65,25 @@ func TestNormalizeRejectsBodyParametersBesideARequestBody(t *testing.T) {
 		t.Fatal("normalize succeeded, want an error")
 	}
 }
+
+func TestNormalizeDropsTheNullBranchOfParameters(t *testing.T) {
+	doc := map[string]any{"paths": map[string]any{"/x": map[string]any{"get": map[string]any{
+		"parameters": []any{map[string]any{"in": "query", "name": "environment_id", "schema": map[string]any{
+			"description": "Environment",
+			"oneOf": []any{
+				map[string]any{"$ref": "#/components/schemas/Environment_Id"},
+				map[string]any{"$ref": "#/components/schemas/Null"},
+			},
+		}}},
+	}}}}
+
+	if err := normalize(doc); err != nil {
+		t.Fatal(err)
+	}
+
+	param := doc["paths"].(map[string]any)["/x"].(map[string]any)["get"].(map[string]any)["parameters"].([]any)[0].(map[string]any)
+	want := map[string]any{"$ref": "#/components/schemas/Environment_Id", "description": "Environment"}
+	if !reflect.DeepEqual(param["schema"], want) {
+		t.Fatalf("schema = %#v", param["schema"])
+	}
+}

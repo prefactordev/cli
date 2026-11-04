@@ -1,9 +1,6 @@
 package cli
 
 import (
-	"errors"
-	"strconv"
-
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
@@ -96,20 +93,4 @@ func newPingCommand(app *App) *cobra.Command {
 	cmd.Flags().String("api-url", "", "API URL to use with --api-token")
 
 	return cmd
-}
-
-// parsePositiveInt matches the TypeScript CLI's parsePositiveInt, which uses
-// parseInt and so accepts a leading integer such as "3abc".
-func parsePositiveInt(value string) (int, error) {
-	end := 0
-	for end < len(value) && (value[end] >= '0' && value[end] <= '9' || (end == 0 && (value[end] == '-' || value[end] == '+'))) {
-		end++
-	}
-
-	parsed, err := strconv.Atoi(value[:end])
-	if err != nil || parsed <= 0 {
-		return 0, errors.New("Value must be a positive integer.")
-	}
-
-	return parsed, nil
 }

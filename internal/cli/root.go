@@ -26,6 +26,7 @@ func newRootCommand(app *App) *cobra.Command {
 	root.AddCommand(
 		newLoginCommand(app),
 		newProfilesCommand(app),
+		newAgentsCommand(app),
 		newPfidCommand(app),
 		newPingCommand(app),
 		newVersionCommand(app.Version),

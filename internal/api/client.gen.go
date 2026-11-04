@@ -5030,21 +5030,21 @@ func (e QueryAgentSchemaVersionGetDetails200JSONResponseBodyStatus) Valid() bool
 	}
 }
 
-// Defines values for QueryAgentSpanListParamsPurpose0.
+// Defines values for QueryAgentSpanListParamsPurpose.
 const (
-	QueryAgentSpanListParamsPurpose0Activity QueryAgentSpanListParamsPurpose0 = "activity"
-	QueryAgentSpanListParamsPurpose0Alert    QueryAgentSpanListParamsPurpose0 = "alert"
-	QueryAgentSpanListParamsPurpose0Quality  QueryAgentSpanListParamsPurpose0 = "quality"
+	QueryAgentSpanListParamsPurposeActivity QueryAgentSpanListParamsPurpose = "activity"
+	QueryAgentSpanListParamsPurposeAlert    QueryAgentSpanListParamsPurpose = "alert"
+	QueryAgentSpanListParamsPurposeQuality  QueryAgentSpanListParamsPurpose = "quality"
 )
 
-// Valid indicates whether the value is a known member of the QueryAgentSpanListParamsPurpose0 enum.
-func (e QueryAgentSpanListParamsPurpose0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryAgentSpanListParamsPurpose enum.
+func (e QueryAgentSpanListParamsPurpose) Valid() bool {
 	switch e {
-	case QueryAgentSpanListParamsPurpose0Activity:
+	case QueryAgentSpanListParamsPurposeActivity:
 		return true
-	case QueryAgentSpanListParamsPurpose0Alert:
+	case QueryAgentSpanListParamsPurposeAlert:
 		return true
-	case QueryAgentSpanListParamsPurpose0Quality:
+	case QueryAgentSpanListParamsPurposeQuality:
 		return true
 	default:
 		return false
@@ -5222,42 +5222,42 @@ func (e QueryAgentVersionGetDetails200JSONResponseBodyStatus) Valid() bool {
 	}
 }
 
-// Defines values for QueryAlertListParamsStatus0.
+// Defines values for QueryAlertListParamsStatus.
 const (
-	QueryAlertListParamsStatus0Cleared QueryAlertListParamsStatus0 = "cleared"
-	QueryAlertListParamsStatus0Raised  QueryAlertListParamsStatus0 = "raised"
+	QueryAlertListParamsStatusCleared QueryAlertListParamsStatus = "cleared"
+	QueryAlertListParamsStatusRaised  QueryAlertListParamsStatus = "raised"
 )
 
-// Valid indicates whether the value is a known member of the QueryAlertListParamsStatus0 enum.
-func (e QueryAlertListParamsStatus0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryAlertListParamsStatus enum.
+func (e QueryAlertListParamsStatus) Valid() bool {
 	switch e {
-	case QueryAlertListParamsStatus0Cleared:
+	case QueryAlertListParamsStatusCleared:
 		return true
-	case QueryAlertListParamsStatus0Raised:
+	case QueryAlertListParamsStatusRaised:
 		return true
 	default:
 		return false
 	}
 }
 
-// Defines values for QueryAlertListParamsSeverity0.
+// Defines values for QueryAlertListParamsSeverity.
 const (
-	QueryAlertListParamsSeverity0Critical QueryAlertListParamsSeverity0 = "critical"
-	QueryAlertListParamsSeverity0Error    QueryAlertListParamsSeverity0 = "error"
-	QueryAlertListParamsSeverity0Info     QueryAlertListParamsSeverity0 = "info"
-	QueryAlertListParamsSeverity0Warning  QueryAlertListParamsSeverity0 = "warning"
+	QueryAlertListParamsSeverityCritical QueryAlertListParamsSeverity = "critical"
+	QueryAlertListParamsSeverityError    QueryAlertListParamsSeverity = "error"
+	QueryAlertListParamsSeverityInfo     QueryAlertListParamsSeverity = "info"
+	QueryAlertListParamsSeverityWarning  QueryAlertListParamsSeverity = "warning"
 )
 
-// Valid indicates whether the value is a known member of the QueryAlertListParamsSeverity0 enum.
-func (e QueryAlertListParamsSeverity0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryAlertListParamsSeverity enum.
+func (e QueryAlertListParamsSeverity) Valid() bool {
 	switch e {
-	case QueryAlertListParamsSeverity0Critical:
+	case QueryAlertListParamsSeverityCritical:
 		return true
-	case QueryAlertListParamsSeverity0Error:
+	case QueryAlertListParamsSeverityError:
 		return true
-	case QueryAlertListParamsSeverity0Info:
+	case QueryAlertListParamsSeverityInfo:
 		return true
-	case QueryAlertListParamsSeverity0Warning:
+	case QueryAlertListParamsSeverityWarning:
 		return true
 	default:
 		return false
@@ -5318,42 +5318,42 @@ func (e ActionAlertClear200JSONResponseBodyStatus) Valid() bool {
 	}
 }
 
-// Defines values for QueryAlertCountParamsStatus0.
+// Defines values for QueryAlertCountParamsStatus.
 const (
-	QueryAlertCountParamsStatus0Cleared QueryAlertCountParamsStatus0 = "cleared"
-	QueryAlertCountParamsStatus0Raised  QueryAlertCountParamsStatus0 = "raised"
+	QueryAlertCountParamsStatusCleared QueryAlertCountParamsStatus = "cleared"
+	QueryAlertCountParamsStatusRaised  QueryAlertCountParamsStatus = "raised"
 )
 
-// Valid indicates whether the value is a known member of the QueryAlertCountParamsStatus0 enum.
-func (e QueryAlertCountParamsStatus0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryAlertCountParamsStatus enum.
+func (e QueryAlertCountParamsStatus) Valid() bool {
 	switch e {
-	case QueryAlertCountParamsStatus0Cleared:
+	case QueryAlertCountParamsStatusCleared:
 		return true
-	case QueryAlertCountParamsStatus0Raised:
+	case QueryAlertCountParamsStatusRaised:
 		return true
 	default:
 		return false
 	}
 }
 
-// Defines values for QueryAlertCountParamsSeverity0.
+// Defines values for QueryAlertCountParamsSeverity.
 const (
-	QueryAlertCountParamsSeverity0Critical QueryAlertCountParamsSeverity0 = "critical"
-	QueryAlertCountParamsSeverity0Error    QueryAlertCountParamsSeverity0 = "error"
-	QueryAlertCountParamsSeverity0Info     QueryAlertCountParamsSeverity0 = "info"
-	QueryAlertCountParamsSeverity0Warning  QueryAlertCountParamsSeverity0 = "warning"
+	QueryAlertCountParamsSeverityCritical QueryAlertCountParamsSeverity = "critical"
+	QueryAlertCountParamsSeverityError    QueryAlertCountParamsSeverity = "error"
+	QueryAlertCountParamsSeverityInfo     QueryAlertCountParamsSeverity = "info"
+	QueryAlertCountParamsSeverityWarning  QueryAlertCountParamsSeverity = "warning"
 )
 
-// Valid indicates whether the value is a known member of the QueryAlertCountParamsSeverity0 enum.
-func (e QueryAlertCountParamsSeverity0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryAlertCountParamsSeverity enum.
+func (e QueryAlertCountParamsSeverity) Valid() bool {
 	switch e {
-	case QueryAlertCountParamsSeverity0Critical:
+	case QueryAlertCountParamsSeverityCritical:
 		return true
-	case QueryAlertCountParamsSeverity0Error:
+	case QueryAlertCountParamsSeverityError:
 		return true
-	case QueryAlertCountParamsSeverity0Info:
+	case QueryAlertCountParamsSeverityInfo:
 		return true
-	case QueryAlertCountParamsSeverity0Warning:
+	case QueryAlertCountParamsSeverityWarning:
 		return true
 	default:
 		return false
@@ -5654,18 +5654,18 @@ func (e ActionEnvironmentUpdate200JSONResponseBodyStatus) Valid() bool {
 	}
 }
 
-// Defines values for QueryKnowledgebaseListParamsStatus0.
+// Defines values for QueryKnowledgebaseListParamsStatus.
 const (
-	QueryKnowledgebaseListParamsStatus0Active   QueryKnowledgebaseListParamsStatus0 = "active"
-	QueryKnowledgebaseListParamsStatus0Archived QueryKnowledgebaseListParamsStatus0 = "archived"
+	QueryKnowledgebaseListParamsStatusActive   QueryKnowledgebaseListParamsStatus = "active"
+	QueryKnowledgebaseListParamsStatusArchived QueryKnowledgebaseListParamsStatus = "archived"
 )
 
-// Valid indicates whether the value is a known member of the QueryKnowledgebaseListParamsStatus0 enum.
-func (e QueryKnowledgebaseListParamsStatus0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryKnowledgebaseListParamsStatus enum.
+func (e QueryKnowledgebaseListParamsStatus) Valid() bool {
 	switch e {
-	case QueryKnowledgebaseListParamsStatus0Active:
+	case QueryKnowledgebaseListParamsStatusActive:
 		return true
-	case QueryKnowledgebaseListParamsStatus0Archived:
+	case QueryKnowledgebaseListParamsStatusArchived:
 		return true
 	default:
 		return false
@@ -5777,18 +5777,18 @@ func (e ActionKnowledgebaseUnarchive200JSONResponseBodyStatus) Valid() bool {
 	}
 }
 
-// Defines values for QueryKnowledgebaseDocumentListParamsStatus0.
+// Defines values for QueryKnowledgebaseDocumentListParamsStatus.
 const (
-	QueryKnowledgebaseDocumentListParamsStatus0Active   QueryKnowledgebaseDocumentListParamsStatus0 = "active"
-	QueryKnowledgebaseDocumentListParamsStatus0Archived QueryKnowledgebaseDocumentListParamsStatus0 = "archived"
+	QueryKnowledgebaseDocumentListParamsStatusActive   QueryKnowledgebaseDocumentListParamsStatus = "active"
+	QueryKnowledgebaseDocumentListParamsStatusArchived QueryKnowledgebaseDocumentListParamsStatus = "archived"
 )
 
-// Valid indicates whether the value is a known member of the QueryKnowledgebaseDocumentListParamsStatus0 enum.
-func (e QueryKnowledgebaseDocumentListParamsStatus0) Valid() bool {
+// Valid indicates whether the value is a known member of the QueryKnowledgebaseDocumentListParamsStatus enum.
+func (e QueryKnowledgebaseDocumentListParamsStatus) Valid() bool {
 	switch e {
-	case QueryKnowledgebaseDocumentListParamsStatus0Active:
+	case QueryKnowledgebaseDocumentListParamsStatusActive:
 		return true
-	case QueryKnowledgebaseDocumentListParamsStatus0Archived:
+	case QueryKnowledgebaseDocumentListParamsStatusArchived:
 		return true
 	default:
 		return false
@@ -14474,26 +14474,16 @@ type ActionAdminUserInviteRevoke200JSONResponseBodyStatus string
 
 // QueryAgentListParams defines parameters for QueryAgentList.
 type QueryAgentListParams struct {
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	RiskProfileId  *struct {
-		union json.RawMessage
-	} `form:"risk_profile_id,omitempty" json:"risk_profile_id,omitempty"`
-	TeamId *struct {
-		union json.RawMessage
-	} `form:"team_id,omitempty" json:"team_id,omitempty"`
-	OwnerPersonId *struct {
-		union json.RawMessage
-	} `form:"owner_person_id,omitempty" json:"owner_person_id,omitempty"`
-	Role *QueryAgentListParamsRole `form:"role,omitempty" json:"role,omitempty"`
+	IdempotencyKey *IdempotencyKeyOrNull     `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	RiskProfileId  *RiskProfileId            `form:"risk_profile_id,omitempty" json:"risk_profile_id,omitempty"`
+	TeamId         *TeamId                   `form:"team_id,omitempty" json:"team_id,omitempty"`
+	OwnerPersonId  *PersonId                 `form:"owner_person_id,omitempty" json:"owner_person_id,omitempty"`
+	Role           *QueryAgentListParamsRole `form:"role,omitempty" json:"role,omitempty"`
 
 	// AgentIds When set, return only these agents. Ids the caller cannot see are left out.
-	AgentIds                     *[]AgentId `form:"agent_ids,omitempty" json:"agent_ids,omitempty"`
-	InstancesActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
-	InstancesActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
+	AgentIds                      *[]AgentId `form:"agent_ids,omitempty" json:"agent_ids,omitempty"`
+	InstancesActiveDuringStartAt  *time.Time `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
+	InstancesActiveDuringFinishAt *time.Time `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `name`, `status`, `last_activity_span_at`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -14507,12 +14497,6 @@ type QueryAgentListParams struct {
 
 // QueryAgentListParamsRole defines parameters for QueryAgentList.
 type QueryAgentListParamsRole string
-
-// QueryAgentListParamsInstancesActiveDuringStartAt0 defines parameters for QueryAgentList.
-type QueryAgentListParamsInstancesActiveDuringStartAt0 = time.Time
-
-// QueryAgentListParamsInstancesActiveDuringFinishAt0 defines parameters for QueryAgentList.
-type QueryAgentListParamsInstancesActiveDuringFinishAt0 = time.Time
 
 // QueryAgentList200JSONResponseBody_Pagination defines parameters for QueryAgentList.
 type QueryAgentList200JSONResponseBody_Pagination struct {
@@ -14539,27 +14523,15 @@ type ActionAgentCreate200JSONResponseBodyStatus string
 // QueryAgentGetDetailsByLookupParams defines parameters for QueryAgentGetDetailsByLookup.
 type QueryAgentGetDetailsByLookupParams struct {
 	// AgentId Agent id. Provide exactly one of agent_id or external_identifier.
-	AgentId            *AgentId              `form:"agent_id,omitempty" json:"agent_id,omitempty"`
-	ExternalIdentifier *string               `form:"external_identifier,omitempty" json:"external_identifier,omitempty"`
-	IdempotencyKey     *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	EnvironmentId      *struct {
-		union json.RawMessage
-	} `form:"environment_id,omitempty" json:"environment_id,omitempty"`
-	IncludeCounts                *bool `form:"include_counts,omitempty" json:"include_counts,omitempty"`
-	IncludeRiskRollup            *bool `form:"include_risk_rollup,omitempty" json:"include_risk_rollup,omitempty"`
-	InstancesActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
-	InstancesActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
+	AgentId                       *AgentId              `form:"agent_id,omitempty" json:"agent_id,omitempty"`
+	ExternalIdentifier            *string               `form:"external_identifier,omitempty" json:"external_identifier,omitempty"`
+	IdempotencyKey                *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	EnvironmentId                 *EnvironmentId        `form:"environment_id,omitempty" json:"environment_id,omitempty"`
+	IncludeCounts                 *bool                 `form:"include_counts,omitempty" json:"include_counts,omitempty"`
+	IncludeRiskRollup             *bool                 `form:"include_risk_rollup,omitempty" json:"include_risk_rollup,omitempty"`
+	InstancesActiveDuringStartAt  *time.Time            `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
+	InstancesActiveDuringFinishAt *time.Time            `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
 }
-
-// QueryAgentGetDetailsByLookupParamsInstancesActiveDuringStartAt0 defines parameters for QueryAgentGetDetailsByLookup.
-type QueryAgentGetDetailsByLookupParamsInstancesActiveDuringStartAt0 = time.Time
-
-// QueryAgentGetDetailsByLookupParamsInstancesActiveDuringFinishAt0 defines parameters for QueryAgentGetDetailsByLookup.
-type QueryAgentGetDetailsByLookupParamsInstancesActiveDuringFinishAt0 = time.Time
 
 // QueryAgentGetDetailsByLookup200JSONResponseBodyStatus defines parameters for QueryAgentGetDetailsByLookup.
 type QueryAgentGetDetailsByLookup200JSONResponseBodyStatus string
@@ -14574,25 +14546,13 @@ type ActionAgentDelete200JSONResponseBodyStatus string
 
 // QueryAgentGetDetailsByIdParams defines parameters for QueryAgentGetDetailsById.
 type QueryAgentGetDetailsByIdParams struct {
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	EnvironmentId  *struct {
-		union json.RawMessage
-	} `form:"environment_id,omitempty" json:"environment_id,omitempty"`
-	IncludeCounts                *bool `form:"include_counts,omitempty" json:"include_counts,omitempty"`
-	IncludeRiskRollup            *bool `form:"include_risk_rollup,omitempty" json:"include_risk_rollup,omitempty"`
-	InstancesActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
-	InstancesActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
+	IdempotencyKey                *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	EnvironmentId                 *EnvironmentId        `form:"environment_id,omitempty" json:"environment_id,omitempty"`
+	IncludeCounts                 *bool                 `form:"include_counts,omitempty" json:"include_counts,omitempty"`
+	IncludeRiskRollup             *bool                 `form:"include_risk_rollup,omitempty" json:"include_risk_rollup,omitempty"`
+	InstancesActiveDuringStartAt  *time.Time            `form:"instances_active_during[start_at],omitempty" json:"instances_active_during[start_at],omitempty"`
+	InstancesActiveDuringFinishAt *time.Time            `form:"instances_active_during[finish_at],omitempty" json:"instances_active_during[finish_at],omitempty"`
 }
-
-// QueryAgentGetDetailsByIdParamsInstancesActiveDuringStartAt0 defines parameters for QueryAgentGetDetailsById.
-type QueryAgentGetDetailsByIdParamsInstancesActiveDuringStartAt0 = time.Time
-
-// QueryAgentGetDetailsByIdParamsInstancesActiveDuringFinishAt0 defines parameters for QueryAgentGetDetailsById.
-type QueryAgentGetDetailsByIdParamsInstancesActiveDuringFinishAt0 = time.Time
 
 // QueryAgentGetDetailsById200JSONResponseBodyStatus defines parameters for QueryAgentGetDetailsById.
 type QueryAgentGetDetailsById200JSONResponseBodyStatus string
@@ -14795,15 +14755,11 @@ type ActionAgentDeploymentPromote200JSONResponseBodyStatus string
 
 // QueryAgentInstanceListParams defines parameters for QueryAgentInstanceList.
 type QueryAgentInstanceListParams struct {
-	AgentId             *AgentId              `form:"agent_id,omitempty" json:"agent_id,omitempty"`
-	IdempotencyKey      *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	AgentVersionId      *AgentVersionId       `form:"agent_version_id,omitempty" json:"agent_version_id,omitempty"`
-	ActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
-	ActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
+	AgentId              *AgentId              `form:"agent_id,omitempty" json:"agent_id,omitempty"`
+	IdempotencyKey       *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	AgentVersionId       *AgentVersionId       `form:"agent_version_id,omitempty" json:"agent_version_id,omitempty"`
+	ActiveDuringStartAt  *time.Time            `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
+	ActiveDuringFinishAt *time.Time            `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `status`, `last_activity_span_at`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -14820,12 +14776,6 @@ type QueryAgentInstanceListParams struct {
 	IncludeAlertCount    *bool                                   `form:"include_alert_count,omitempty" json:"include_alert_count,omitempty"`
 	Statuses             *[]QueryAgentInstanceListParamsStatuses `form:"statuses,omitempty" json:"statuses,omitempty"`
 }
-
-// QueryAgentInstanceListParamsActiveDuringStartAt0 defines parameters for QueryAgentInstanceList.
-type QueryAgentInstanceListParamsActiveDuringStartAt0 = time.Time
-
-// QueryAgentInstanceListParamsActiveDuringFinishAt0 defines parameters for QueryAgentInstanceList.
-type QueryAgentInstanceListParamsActiveDuringFinishAt0 = time.Time
 
 // QueryAgentInstanceListParamsStatuses defines parameters for QueryAgentInstanceList.
 type QueryAgentInstanceListParamsStatuses string
@@ -15100,19 +15050,9 @@ type QueryAgentInstanceGetDetailsByLookupParams struct {
 	IncludeRiskScore   *bool                 `form:"include_risk_score,omitempty" json:"include_risk_score,omitempty"`
 	IncludeAlertCount  *bool                 `form:"include_alert_count,omitempty" json:"include_alert_count,omitempty"`
 	IncludeJudges      *bool                 `form:"include_judges,omitempty" json:"include_judges,omitempty"`
-	TimeRangeStartAt   *struct {
-		union json.RawMessage
-	} `form:"time_range[start_at],omitempty" json:"time_range[start_at],omitempty"`
-	TimeRangeFinishAt *struct {
-		union json.RawMessage
-	} `form:"time_range[finish_at],omitempty" json:"time_range[finish_at],omitempty"`
+	TimeRangeStartAt   *time.Time            `form:"time_range[start_at],omitempty" json:"time_range[start_at],omitempty"`
+	TimeRangeFinishAt  *time.Time            `form:"time_range[finish_at],omitempty" json:"time_range[finish_at],omitempty"`
 }
-
-// QueryAgentInstanceGetDetailsByLookupParamsTimeRangeStartAt0 defines parameters for QueryAgentInstanceGetDetailsByLookup.
-type QueryAgentInstanceGetDetailsByLookupParamsTimeRangeStartAt0 = time.Time
-
-// QueryAgentInstanceGetDetailsByLookupParamsTimeRangeFinishAt0 defines parameters for QueryAgentInstanceGetDetailsByLookup.
-type QueryAgentInstanceGetDetailsByLookupParamsTimeRangeFinishAt0 = time.Time
 
 // QueryAgentInstanceGetDetailsByLookup200JSONResponseBodyStatus defines parameters for QueryAgentInstanceGetDetailsByLookup.
 type QueryAgentInstanceGetDetailsByLookup200JSONResponseBodyStatus string
@@ -15125,19 +15065,9 @@ type QueryAgentInstanceGetDetailsByIdParams struct {
 	IncludeRiskScore  *bool                 `form:"include_risk_score,omitempty" json:"include_risk_score,omitempty"`
 	IncludeAlertCount *bool                 `form:"include_alert_count,omitempty" json:"include_alert_count,omitempty"`
 	IncludeJudges     *bool                 `form:"include_judges,omitempty" json:"include_judges,omitempty"`
-	TimeRangeStartAt  *struct {
-		union json.RawMessage
-	} `form:"time_range[start_at],omitempty" json:"time_range[start_at],omitempty"`
-	TimeRangeFinishAt *struct {
-		union json.RawMessage
-	} `form:"time_range[finish_at],omitempty" json:"time_range[finish_at],omitempty"`
+	TimeRangeStartAt  *time.Time            `form:"time_range[start_at],omitempty" json:"time_range[start_at],omitempty"`
+	TimeRangeFinishAt *time.Time            `form:"time_range[finish_at],omitempty" json:"time_range[finish_at],omitempty"`
 }
-
-// QueryAgentInstanceGetDetailsByIdParamsTimeRangeStartAt0 defines parameters for QueryAgentInstanceGetDetailsById.
-type QueryAgentInstanceGetDetailsByIdParamsTimeRangeStartAt0 = time.Time
-
-// QueryAgentInstanceGetDetailsByIdParamsTimeRangeFinishAt0 defines parameters for QueryAgentInstanceGetDetailsById.
-type QueryAgentInstanceGetDetailsByIdParamsTimeRangeFinishAt0 = time.Time
 
 // QueryAgentInstanceGetDetailsById200JSONResponseBodyStatus defines parameters for QueryAgentInstanceGetDetailsById.
 type QueryAgentInstanceGetDetailsById200JSONResponseBodyStatus string
@@ -15363,13 +15293,9 @@ type QueryAgentInstanceAssociationGetDetails200JSONResponseBodyStatus string
 
 // QueryAgentKnowledgebaseLinkListParams defines parameters for QueryAgentKnowledgebaseLinkList.
 type QueryAgentKnowledgebaseLinkListParams struct {
-	AgentId *struct {
-		union json.RawMessage
-	} `form:"agent_id,omitempty" json:"agent_id,omitempty"`
-	KnowledgebaseId *struct {
-		union json.RawMessage
-	} `form:"knowledgebase_id,omitempty" json:"knowledgebase_id,omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	AgentId         *AgentId              `form:"agent_id,omitempty" json:"agent_id,omitempty"`
+	KnowledgebaseId *KnowledgebaseId      `form:"knowledgebase_id,omitempty" json:"knowledgebase_id,omitempty"`
+	IdempotencyKey  *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -15502,20 +15428,14 @@ type QueryAgentSchemaVersionGetDetails200JSONResponseBodyStatus string
 
 // QueryAgentSpanListParams defines parameters for QueryAgentSpanList.
 type QueryAgentSpanListParams struct {
-	AgentInstanceId *AgentInstanceId `form:"agent_instance_id,omitempty" json:"agent_instance_id,omitempty"`
-	AgentId         *AgentId         `form:"agent_id,omitempty" json:"agent_id,omitempty"`
-	EnvironmentId   *struct {
-		union json.RawMessage
-	} `form:"environment_id,omitempty" json:"environment_id,omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	StartTime      *string               `form:"start_time,omitempty" json:"start_time,omitempty"`
-	EndTime        *string               `form:"end_time,omitempty" json:"end_time,omitempty"`
-	Purpose        *struct {
-		union json.RawMessage
-	} `form:"purpose,omitempty" json:"purpose,omitempty"`
-	AlertId *struct {
-		union json.RawMessage
-	} `form:"alert_id,omitempty" json:"alert_id,omitempty"`
+	AgentInstanceId *AgentInstanceId                 `form:"agent_instance_id,omitempty" json:"agent_instance_id,omitempty"`
+	AgentId         *AgentId                         `form:"agent_id,omitempty" json:"agent_id,omitempty"`
+	EnvironmentId   *EnvironmentId                   `form:"environment_id,omitempty" json:"environment_id,omitempty"`
+	IdempotencyKey  *IdempotencyKeyOrNull            `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	StartTime       *string                          `form:"start_time,omitempty" json:"start_time,omitempty"`
+	EndTime         *string                          `form:"end_time,omitempty" json:"end_time,omitempty"`
+	Purpose         *QueryAgentSpanListParamsPurpose `form:"purpose,omitempty" json:"purpose,omitempty"`
+	AlertId         *AlertId                         `form:"alert_id,omitempty" json:"alert_id,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `started_at`, `finished_at`, `status`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -15530,8 +15450,8 @@ type QueryAgentSpanListParams struct {
 	Redacted           *bool `form:"redacted,omitempty" json:"redacted,omitempty"`
 }
 
-// QueryAgentSpanListParamsPurpose0 defines parameters for QueryAgentSpanList.
-type QueryAgentSpanListParamsPurpose0 string
+// QueryAgentSpanListParamsPurpose defines parameters for QueryAgentSpanList.
+type QueryAgentSpanListParamsPurpose string
 
 // QueryAgentSpanList200JSONResponseBody_Pagination defines parameters for QueryAgentSpanList.
 type QueryAgentSpanList200JSONResponseBody_Pagination struct {
@@ -15673,31 +15593,15 @@ type QueryAgentVersionGetDetails200JSONResponseBodyStatus string
 
 // QueryAlertListParams defines parameters for QueryAlertList.
 type QueryAlertListParams struct {
-	AgentInstanceId *struct {
-		union json.RawMessage
-	} `form:"agent_instance_id,omitempty" json:"agent_instance_id,omitempty"`
-	AgentId *struct {
-		union json.RawMessage
-	} `form:"agent_id,omitempty" json:"agent_id,omitempty"`
-	EnvironmentId *struct {
-		union json.RawMessage
-	} `form:"environment_id,omitempty" json:"environment_id,omitempty"`
-	Status *struct {
-		union json.RawMessage
-	} `form:"status,omitempty" json:"status,omitempty"`
-	Severity *struct {
-		union json.RawMessage
-	} `form:"severity,omitempty" json:"severity,omitempty"`
-	Name *struct {
-		union json.RawMessage
-	} `form:"name,omitempty" json:"name,omitempty"`
-	ActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
-	ActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	AgentInstanceId      *AgentInstanceId              `form:"agent_instance_id,omitempty" json:"agent_instance_id,omitempty"`
+	AgentId              *AgentId                      `form:"agent_id,omitempty" json:"agent_id,omitempty"`
+	EnvironmentId        *EnvironmentId                `form:"environment_id,omitempty" json:"environment_id,omitempty"`
+	Status               *QueryAlertListParamsStatus   `form:"status,omitempty" json:"status,omitempty"`
+	Severity             *QueryAlertListParamsSeverity `form:"severity,omitempty" json:"severity,omitempty"`
+	Name                 *string                       `form:"name,omitempty" json:"name,omitempty"`
+	ActiveDuringStartAt  *time.Time                    `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
+	ActiveDuringFinishAt *time.Time                    `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
+	IdempotencyKey       *IdempotencyKeyOrNull         `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `raised_at`, `cleared_at`, `name`, `severity`. Descending `severity` puts critical first because severity is stored as a magnitude. When omitted, the default order is raised first, then severity descending, then cleared_at descending, then name ascending.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -15709,20 +15613,11 @@ type QueryAlertListParams struct {
 	PaginationPageSize *int `form:"pagination[page_size],omitempty" json:"pagination[page_size],omitempty"`
 }
 
-// QueryAlertListParamsStatus0 defines parameters for QueryAlertList.
-type QueryAlertListParamsStatus0 string
+// QueryAlertListParamsStatus defines parameters for QueryAlertList.
+type QueryAlertListParamsStatus string
 
-// QueryAlertListParamsSeverity0 defines parameters for QueryAlertList.
-type QueryAlertListParamsSeverity0 string
-
-// QueryAlertListParamsName0 defines parameters for QueryAlertList.
-type QueryAlertListParamsName0 = string
-
-// QueryAlertListParamsActiveDuringStartAt0 defines parameters for QueryAlertList.
-type QueryAlertListParamsActiveDuringStartAt0 = time.Time
-
-// QueryAlertListParamsActiveDuringFinishAt0 defines parameters for QueryAlertList.
-type QueryAlertListParamsActiveDuringFinishAt0 = time.Time
+// QueryAlertListParamsSeverity defines parameters for QueryAlertList.
+type QueryAlertListParamsSeverity string
 
 // QueryAlertList200JSONResponseBody_Pagination defines parameters for QueryAlertList.
 type QueryAlertList200JSONResponseBody_Pagination struct {
@@ -15775,32 +15670,18 @@ type ActionAlertClear200JSONResponseBodyStatus string
 
 // QueryAlertCountParams defines parameters for QueryAlertCount.
 type QueryAlertCountParams struct {
-	Status *struct {
-		union json.RawMessage
-	} `form:"status,omitempty" json:"status,omitempty"`
-	Severity *struct {
-		union json.RawMessage
-	} `form:"severity,omitempty" json:"severity,omitempty"`
-	ActiveDuringStartAt *struct {
-		union json.RawMessage
-	} `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
-	ActiveDuringFinishAt *struct {
-		union json.RawMessage
-	} `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	Status               *QueryAlertCountParamsStatus   `form:"status,omitempty" json:"status,omitempty"`
+	Severity             *QueryAlertCountParamsSeverity `form:"severity,omitempty" json:"severity,omitempty"`
+	ActiveDuringStartAt  *time.Time                     `form:"active_during[start_at],omitempty" json:"active_during[start_at],omitempty"`
+	ActiveDuringFinishAt *time.Time                     `form:"active_during[finish_at],omitempty" json:"active_during[finish_at],omitempty"`
+	IdempotencyKey       *IdempotencyKeyOrNull          `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
 }
 
-// QueryAlertCountParamsStatus0 defines parameters for QueryAlertCount.
-type QueryAlertCountParamsStatus0 string
+// QueryAlertCountParamsStatus defines parameters for QueryAlertCount.
+type QueryAlertCountParamsStatus string
 
-// QueryAlertCountParamsSeverity0 defines parameters for QueryAlertCount.
-type QueryAlertCountParamsSeverity0 string
-
-// QueryAlertCountParamsActiveDuringStartAt0 defines parameters for QueryAlertCount.
-type QueryAlertCountParamsActiveDuringStartAt0 = time.Time
-
-// QueryAlertCountParamsActiveDuringFinishAt0 defines parameters for QueryAlertCount.
-type QueryAlertCountParamsActiveDuringFinishAt0 = time.Time
+// QueryAlertCountParamsSeverity defines parameters for QueryAlertCount.
+type QueryAlertCountParamsSeverity string
 
 // QueryAlertCount200JSONResponseBodyStatus defines parameters for QueryAlertCount.
 type QueryAlertCount200JSONResponseBodyStatus string
@@ -16036,11 +15917,9 @@ type ActionEnvironmentUpdate200JSONResponseBodyStatus string
 // QueryKnowledgebaseListParams defines parameters for QueryKnowledgebaseList.
 type QueryKnowledgebaseListParams struct {
 	// AccountId Account ID (defaults to token's account)
-	AccountId      *AccountId            `form:"account_id,omitempty" json:"account_id,omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	Status         *struct {
-		union json.RawMessage
-	} `form:"status,omitempty" json:"status,omitempty"`
+	AccountId      *AccountId                          `form:"account_id,omitempty" json:"account_id,omitempty"`
+	IdempotencyKey *IdempotencyKeyOrNull               `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	Status         *QueryKnowledgebaseListParamsStatus `form:"status,omitempty" json:"status,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `name`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -16052,8 +15931,8 @@ type QueryKnowledgebaseListParams struct {
 	PaginationPageSize *int `form:"pagination[page_size],omitempty" json:"pagination[page_size],omitempty"`
 }
 
-// QueryKnowledgebaseListParamsStatus0 defines parameters for QueryKnowledgebaseList.
-type QueryKnowledgebaseListParamsStatus0 string
+// QueryKnowledgebaseListParamsStatus defines parameters for QueryKnowledgebaseList.
+type QueryKnowledgebaseListParamsStatus string
 
 // QueryKnowledgebaseList200JSONResponseBody_Pagination defines parameters for QueryKnowledgebaseList.
 type QueryKnowledgebaseList200JSONResponseBody_Pagination struct {
@@ -16123,14 +16002,10 @@ type ActionKnowledgebaseUnarchive200JSONResponseBodyStatus string
 // QueryKnowledgebaseDocumentListParams defines parameters for QueryKnowledgebaseDocumentList.
 type QueryKnowledgebaseDocumentListParams struct {
 	// KnowledgebaseId Knowledgebase whose documents are listed
-	KnowledgebaseId KnowledgebaseId `form:"knowledgebase_id" json:"knowledgebase_id"`
-	PathPrefix      *struct {
-		union json.RawMessage
-	} `form:"path_prefix,omitempty" json:"path_prefix,omitempty"`
-	Status *struct {
-		union json.RawMessage
-	} `form:"status,omitempty" json:"status,omitempty"`
-	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
+	KnowledgebaseId KnowledgebaseId                             `form:"knowledgebase_id" json:"knowledgebase_id"`
+	PathPrefix      *string                                     `form:"path_prefix,omitempty" json:"path_prefix,omitempty"`
+	Status          *QueryKnowledgebaseDocumentListParamsStatus `form:"status,omitempty" json:"status,omitempty"`
+	IdempotencyKey  *IdempotencyKeyOrNull                       `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `path`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -16142,11 +16017,8 @@ type QueryKnowledgebaseDocumentListParams struct {
 	PaginationPageSize *int `form:"pagination[page_size],omitempty" json:"pagination[page_size],omitempty"`
 }
 
-// QueryKnowledgebaseDocumentListParamsPathPrefix0 defines parameters for QueryKnowledgebaseDocumentList.
-type QueryKnowledgebaseDocumentListParamsPathPrefix0 = string
-
-// QueryKnowledgebaseDocumentListParamsStatus0 defines parameters for QueryKnowledgebaseDocumentList.
-type QueryKnowledgebaseDocumentListParamsStatus0 string
+// QueryKnowledgebaseDocumentListParamsStatus defines parameters for QueryKnowledgebaseDocumentList.
+type QueryKnowledgebaseDocumentListParamsStatus string
 
 // QueryKnowledgebaseDocumentList200JSONResponseBody_Pagination defines parameters for QueryKnowledgebaseDocumentList.
 type QueryKnowledgebaseDocumentList200JSONResponseBody_Pagination struct {
@@ -16314,9 +16186,7 @@ type QueryKnowledgebaseRevisionGetDetails200JSONResponseBodyStatus string
 
 // QueryKnowledgebaseRevisionListDocumentsParams defines parameters for QueryKnowledgebaseRevisionListDocuments.
 type QueryKnowledgebaseRevisionListDocumentsParams struct {
-	PathPrefix *struct {
-		union json.RawMessage
-	} `form:"path_prefix,omitempty" json:"path_prefix,omitempty"`
+	PathPrefix     *string               `form:"path_prefix,omitempty" json:"path_prefix,omitempty"`
 	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
 
 	// PaginationOffset Zero-based offset of the first item to return.
@@ -16325,9 +16195,6 @@ type QueryKnowledgebaseRevisionListDocumentsParams struct {
 	// PaginationPageSize Number of items to return per page (1-100).
 	PaginationPageSize *int `form:"pagination[page_size],omitempty" json:"pagination[page_size],omitempty"`
 }
-
-// QueryKnowledgebaseRevisionListDocumentsParamsPathPrefix0 defines parameters for QueryKnowledgebaseRevisionListDocuments.
-type QueryKnowledgebaseRevisionListDocumentsParamsPathPrefix0 = string
 
 // QueryKnowledgebaseRevisionListDocuments200JSONResponseBody_Pagination defines parameters for QueryKnowledgebaseRevisionListDocuments.
 type QueryKnowledgebaseRevisionListDocuments200JSONResponseBody_Pagination struct {
@@ -16467,9 +16334,7 @@ type ActionLlmProviderModelUpdate200JSONResponseBodyStatus string
 // QueryPersonListParams defines parameters for QueryPersonList.
 type QueryPersonListParams struct {
 	IdempotencyKey *IdempotencyKeyOrNull `form:"idempotency_key,omitempty" json:"idempotency_key,omitempty"`
-	TeamId         *struct {
-		union json.RawMessage
-	} `form:"team_id,omitempty" json:"team_id,omitempty"`
+	TeamId         *TeamId               `form:"team_id,omitempty" json:"team_id,omitempty"`
 
 	// Sorting Sort order; a field name, optionally prefixed with `-` for descending (e.g. `-id`). Supported fields: `id`, `name`, `email`.
 	Sorting *string `form:"sorting,omitempty" json:"sorting,omitempty"`
@@ -48858,7 +48723,7 @@ func NewQueryAgentListRequest(server string, params *QueryAgentListParams) (*htt
 
 		if params.RiskProfileId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "risk_profile_id", *params.RiskProfileId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "risk_profile_id", *params.RiskProfileId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -48870,7 +48735,7 @@ func NewQueryAgentListRequest(server string, params *QueryAgentListParams) (*htt
 
 		if params.TeamId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "team_id", *params.TeamId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "team_id", *params.TeamId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -48882,7 +48747,7 @@ func NewQueryAgentListRequest(server string, params *QueryAgentListParams) (*htt
 
 		if params.OwnerPersonId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "owner_person_id", *params.OwnerPersonId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "owner_person_id", *params.OwnerPersonId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -48918,7 +48783,7 @@ func NewQueryAgentListRequest(server string, params *QueryAgentListParams) (*htt
 
 		if params.InstancesActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -48930,7 +48795,7 @@ func NewQueryAgentListRequest(server string, params *QueryAgentListParams) (*htt
 
 		if params.InstancesActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49096,7 +48961,7 @@ func NewQueryAgentGetDetailsByLookupRequest(server string, params *QueryAgentGet
 
 		if params.EnvironmentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49132,7 +48997,7 @@ func NewQueryAgentGetDetailsByLookupRequest(server string, params *QueryAgentGet
 
 		if params.InstancesActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49144,7 +49009,7 @@ func NewQueryAgentGetDetailsByLookupRequest(server string, params *QueryAgentGet
 
 		if params.InstancesActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49264,7 +49129,7 @@ func NewQueryAgentGetDetailsByIdRequest(server string, agentId AgentId, params *
 
 		if params.EnvironmentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49300,7 +49165,7 @@ func NewQueryAgentGetDetailsByIdRequest(server string, agentId AgentId, params *
 
 		if params.InstancesActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[start_at]", *params.InstancesActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -49312,7 +49177,7 @@ func NewQueryAgentGetDetailsByIdRequest(server string, agentId AgentId, params *
 
 		if params.InstancesActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "instances_active_during[finish_at]", *params.InstancesActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50348,7 +50213,7 @@ func NewQueryAgentInstanceListRequest(server string, params *QueryAgentInstanceL
 
 		if params.ActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50360,7 +50225,7 @@ func NewQueryAgentInstanceListRequest(server string, params *QueryAgentInstanceL
 
 		if params.ActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50674,7 +50539,7 @@ func NewQueryAgentInstanceGetDetailsByLookupRequest(server string, params *Query
 
 		if params.TimeRangeStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[start_at]", *params.TimeRangeStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[start_at]", *params.TimeRangeStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50686,7 +50551,7 @@ func NewQueryAgentInstanceGetDetailsByLookupRequest(server string, params *Query
 
 		if params.TimeRangeFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[finish_at]", *params.TimeRangeFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[finish_at]", *params.TimeRangeFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50819,7 +50684,7 @@ func NewQueryAgentInstanceGetDetailsByIdRequest(server string, agentInstanceId A
 
 		if params.TimeRangeStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[start_at]", *params.TimeRangeStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[start_at]", *params.TimeRangeStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -50831,7 +50696,7 @@ func NewQueryAgentInstanceGetDetailsByIdRequest(server string, agentInstanceId A
 
 		if params.TimeRangeFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[finish_at]", *params.TimeRangeFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "time_range[finish_at]", *params.TimeRangeFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -51595,7 +51460,7 @@ func NewQueryAgentKnowledgebaseLinkListRequest(server string, params *QueryAgent
 
 		if params.AgentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_id", *params.AgentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_id", *params.AgentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -51607,7 +51472,7 @@ func NewQueryAgentKnowledgebaseLinkListRequest(server string, params *QueryAgent
 
 		if params.KnowledgebaseId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "knowledgebase_id", *params.KnowledgebaseId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "knowledgebase_id", *params.KnowledgebaseId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52243,7 +52108,7 @@ func NewQueryAgentSpanListRequest(server string, params *QueryAgentSpanListParam
 
 		if params.EnvironmentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52291,7 +52156,7 @@ func NewQueryAgentSpanListRequest(server string, params *QueryAgentSpanListParam
 
 		if params.Purpose != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "purpose", *params.Purpose, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "purpose", *params.Purpose, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52303,7 +52168,7 @@ func NewQueryAgentSpanListRequest(server string, params *QueryAgentSpanListParam
 
 		if params.AlertId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "alert_id", *params.AlertId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "alert_id", *params.AlertId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52929,7 +52794,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.AgentInstanceId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_instance_id", *params.AgentInstanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_instance_id", *params.AgentInstanceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52941,7 +52806,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.AgentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_id", *params.AgentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "agent_id", *params.AgentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52953,7 +52818,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.EnvironmentId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "environment_id", *params.EnvironmentId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52965,7 +52830,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.Status != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52977,7 +52842,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.Severity != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "severity", *params.Severity, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "severity", *params.Severity, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -52989,7 +52854,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.Name != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "name", *params.Name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "name", *params.Name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53001,7 +52866,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.ActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53013,7 +52878,7 @@ func NewQueryAlertListRequest(server string, params *QueryAlertListParams) (*htt
 
 		if params.ActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53155,7 +53020,7 @@ func NewQueryAlertCountRequest(server string, params *QueryAlertCountParams) (*h
 
 		if params.Status != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53167,7 +53032,7 @@ func NewQueryAlertCountRequest(server string, params *QueryAlertCountParams) (*h
 
 		if params.Severity != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "severity", *params.Severity, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "severity", *params.Severity, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53179,7 +53044,7 @@ func NewQueryAlertCountRequest(server string, params *QueryAlertCountParams) (*h
 
 		if params.ActiveDuringStartAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[start_at]", *params.ActiveDuringStartAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -53191,7 +53056,7 @@ func NewQueryAlertCountRequest(server string, params *QueryAlertCountParams) (*h
 
 		if params.ActiveDuringFinishAt != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "active_during[finish_at]", *params.ActiveDuringFinishAt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "date-time"}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -54235,7 +54100,7 @@ func NewQueryKnowledgebaseListRequest(server string, params *QueryKnowledgebaseL
 
 		if params.Status != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -54622,7 +54487,7 @@ func NewQueryKnowledgebaseDocumentListRequest(server string, params *QueryKnowle
 
 		if params.PathPrefix != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path_prefix", *params.PathPrefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path_prefix", *params.PathPrefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -54634,7 +54499,7 @@ func NewQueryKnowledgebaseDocumentListRequest(server string, params *QueryKnowle
 
 		if params.Status != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "status", *params.Status, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -55373,7 +55238,7 @@ func NewQueryKnowledgebaseRevisionListDocumentsRequest(server string, knowledgeb
 
 		if params.PathPrefix != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path_prefix", *params.PathPrefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "path_prefix", *params.PathPrefix, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -56069,7 +55934,7 @@ func NewQueryPersonListRequest(server string, params *QueryPersonListParams) (*h
 
 		if params.TeamId != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "team_id", *params.TeamId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "team_id", *params.TeamId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {

@@ -4,8 +4,10 @@
 // The p2 document describes most request bodies as parameters with
 // "in": "body", which OpenAPI 3.0 does not allow, and has query parameters
 // without a schema. This command moves body parameters into a JSON
-// requestBody and gives schemaless parameters a string schema. Everything
-// else is copied unchanged.
+// requestBody, gives schemaless parameters a string schema, and turns
+// nullable query and path parameters (oneOf a type and Null) into the plain
+// type, because the generated client cannot set anonymous union parameters.
+// Everything else is copied unchanged.
 //
 // Usage: specnormalize <input.json> <output.json>
 package main
@@ -100,6 +102,9 @@ func normalizeOperation(operation map[string]any) error {
 					param["schema"] = map[string]any{"type": "string"}
 				}
 			}
+			if schema, ok := param["schema"].(map[string]any); ok {
+				param["schema"] = withoutNullBranch(schema)
+			}
 			kept = append(kept, param)
 			continue
 		}
@@ -145,4 +150,48 @@ func normalizeOperation(operation map[string]any) error {
 	}
 
 	return nil
+}
+
+// withoutNullBranch returns the non-null branch of a schema that is oneOf or
+// anyOf exactly one type and Null, keeping the description. Other schemas are
+// returned unchanged.
+func withoutNullBranch(schema map[string]any) map[string]any {
+	for _, key := range []string{"oneOf", "anyOf"} {
+		branches, ok := schema[key].([]any)
+		if !ok || len(branches) != 2 {
+			continue
+		}
+
+		var other map[string]any
+		nulls := 0
+		for _, branch := range branches {
+			b, ok := branch.(map[string]any)
+			if !ok {
+				return schema
+			}
+			if isNullSchema(b) {
+				nulls++
+			} else {
+				other = b
+			}
+		}
+		if nulls != 1 || other == nil {
+			return schema
+		}
+
+		result := map[string]any{}
+		for k, v := range other {
+			result[k] = v
+		}
+		if description, ok := schema["description"]; ok {
+			result["description"] = description
+		}
+		return result
+	}
+
+	return schema
+}
+
+func isNullSchema(schema map[string]any) bool {
+	return schema["$ref"] == "#/components/schemas/Null" || schema["type"] == "null"
 }
