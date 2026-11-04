@@ -1,0 +1,12 @@
+# Build output
+/dist/
+/prefactor
+/prefactor.exe
+
+# Local profiles
+prefactor.json
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
