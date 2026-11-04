@@ -141,7 +141,7 @@ func TestParity(t *testing.T) {
 			if ts.exit != got.exit {
 				t.Errorf("exit: ts=%d go=%d\nts stderr: %s\ngo stderr: %s", ts.exit, got.exit, ts.stderr, got.stderr)
 			}
-			if !reflect.DeepEqual(ts.requests, got.requests) {
+			if !reflect.DeepEqual(normalizeGenerated(ts.requests), normalizeGenerated(got.requests)) {
 				t.Errorf("requests differ\nts: %s\ngo: %s", dump(ts.requests), dump(got.requests))
 			}
 			if tc.framework {
