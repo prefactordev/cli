@@ -1,0 +1,27 @@
+version: "2"
+
+linters:
+  enable:
+    - misspell
+    - unconvert
+    - errorlint
+  settings:
+    errcheck:
+      # Terminal output that fails to write has nowhere better to be reported.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    staticcheck:
+      checks:
+        - all
+        # Error messages match the TypeScript CLI word for word, including
+        # capital letters and full stops.
+        - -ST1005
+        - -ST1000
+  exclusions:
+    generated: strict
+
+formatters:
+  enable:
+    - gofmt

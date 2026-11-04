@@ -7,19 +7,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewRootCommand returns the root prefactor command with every subcommand registered.
+// NewRootCommand returns the root prefactor command for the running process.
 func NewRootCommand(version string) *cobra.Command {
+	return newRootCommand(DefaultApp(version))
+}
+
+func newRootCommand(app *App) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "prefactor",
 		Short:         "Prefactor CLI for managing Prefactor resources",
-		Version:       version,
+		Version:       app.Version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
 
 	root.PersistentFlags().String("profile", "", "Profile name to use for commands")
 
-	root.AddCommand(newVersionCommand(version))
+	root.AddCommand(
+		newLoginCommand(app),
+		newProfilesCommand(app),
+		newPfidCommand(app),
+		newPingCommand(app),
+		newVersionCommand(app.Version),
+	)
 
 	return root
 }
