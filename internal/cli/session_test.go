@@ -175,6 +175,12 @@ func TestContentOnlyConflictsWithJSON(t *testing.T) {
 	if err == nil || err.Error() != "--content-only cannot be used with --json or --fields." {
 		t.Fatalf("err = %v", err)
 	}
+
+	// The environment variable only sets the default, so --content-only wins.
+	ta.env["PREFACTOR_OUTPUT_FORMAT"] = "json"
+	if out, err := ta.run(t, "knowledgebase-documents", "retrieve", "doc", "--content-only"); err != nil || out != "hello" {
+		t.Fatalf("with PREFACTOR_OUTPUT_FORMAT=json: %q, %v", out, err)
+	}
 }
 
 func TestAgentContextOutputPrintsThePathInJSONMode(t *testing.T) {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
@@ -209,14 +210,15 @@ type commandRef struct {
 	group string
 }
 
-// listChoices fetches the choices for a resource, newest first.
-func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentID string) ([]Choice, error) {
+// listChoices fetches the choices for a resource, newest first. It stops at
+// pickerMaxItems and reports whether more remained.
+func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentID string) ([]Choice, bool, error) {
 	var choices []Choice
 	offset := 0
-	for len(choices) < pickerMaxItems {
+	for {
 		raw, err := client.ReadJSON(kind.list(ctx, c, parentID, pageRequest{offset: offset, size: pickerPageSize}))
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 
 		var page struct {
@@ -226,7 +228,7 @@ func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentI
 			} `json:"pagination"`
 		}
 		if err := json.Unmarshal(raw, &page); err != nil {
-			return nil, fmt.Errorf("Could not read the %s list: %w", kind.plural, err)
+			return nil, false, fmt.Errorf("Could not read the %s list: %w", kind.plural, err)
 		}
 
 		for _, summary := range page.Summaries {
@@ -234,20 +236,23 @@ func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentI
 			if id == "" {
 				continue
 			}
+			if len(choices) == pickerMaxItems {
+				return choices, true, nil
+			}
 			choices = append(choices, Choice{Label: choiceLabel(summary, id), Value: id})
 		}
 
 		if page.Pagination == nil || page.Pagination.NextPageOffset == nil || len(page.Summaries) == 0 {
-			break
+			return choices, false, nil
 		}
 		offset = *page.Pagination.NextPageOffset
 	}
-	return choices, nil
 }
 
 // choiceLabel describes a summary by its name (or path, email or external
-// identifier), its status and its ID, so the list can be searched by any of
-// them.
+// identifier), its status, when it started, was raised or was created, and
+// its ID, so runs without names can be told apart and the list can be
+// searched by any of them.
 func choiceLabel(summary map[string]any, id string) string {
 	var parts []string
 	for _, key := range []string{"name", "path", "email", "external_identifier", "schema_name"} {
@@ -256,12 +261,24 @@ func choiceLabel(summary map[string]any, id string) string {
 			break
 		}
 	}
-	for _, key := range []string{"status", "started_at", "inserted_at"} {
+	if status, ok := summary["status"].(string); ok && status != "" {
+		parts = append(parts, status)
+	}
+	for _, key := range []string{"started_at", "raised_at", "inserted_at"} {
 		if value, ok := summary[key].(string); ok && value != "" {
-			parts = append(parts, value)
+			parts = append(parts, readableTime(value))
 			break
 		}
 	}
 	parts = append(parts, id)
 	return strings.Join(parts, "  ")
+}
+
+// readableTime shortens an RFC 3339 timestamp to minutes in UTC.
+func readableTime(value string) string {
+	t, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return value
+	}
+	return t.UTC().Format("2006-01-02 15:04 UTC")
 }

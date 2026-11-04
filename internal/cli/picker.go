@@ -16,7 +16,8 @@ type Choice struct {
 // Picker asks the user to choose one entry. It is only used in interactive
 // mode.
 type Picker interface {
-	Pick(title string, choices []Choice) (string, error)
+	// Pick shows title, an optional note under it, and the choices.
+	Pick(title, note string, choices []Choice) (string, error)
 }
 
 // errPickCancelled is returned when the user leaves a picker without
@@ -27,7 +28,7 @@ var errPickCancelled = errors.New("Cancelled.")
 // searches it.
 type huhPicker struct{}
 
-func (huhPicker) Pick(title string, choices []Choice) (string, error) {
+func (huhPicker) Pick(title, note string, choices []Choice) (string, error) {
 	options := make([]huh.Option[string], len(choices))
 	for i, c := range choices {
 		options[i] = huh.NewOption(c.Label, c.Value)
@@ -36,6 +37,7 @@ func (huhPicker) Pick(title string, choices []Choice) (string, error) {
 	var value string
 	field := huh.NewSelect[string]().
 		Title(title).
+		Description(note).
 		Options(options...).
 		Height(min(len(choices)+2, 15)).
 		Value(&value)

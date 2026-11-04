@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -112,7 +113,7 @@ func (a *App) newResolver(cmd *cobra.Command, args []string) (*resolver, error) 
 
 	r := &resolver{app: a, cmd: cmd, client: c, known: map[*resourceKind]string{}}
 	for _, b := range bindings(cmd) {
-		if value, given := b.value(args); given && value != "" && value != latestInstance {
+		if value, given := b.value(args); given && value != "" && !strings.Contains(strings.ToLower(value), latestInstance) {
 			r.known[b.kind] = value
 		}
 	}
@@ -166,9 +167,14 @@ func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 		}
 	}
 
-	choices, err := listChoices(r.cmd.Context(), r.client, kind, parentID)
+	choices, more, err := listChoices(r.cmd.Context(), r.client, kind, parentID)
 	if err != nil {
 		return "", err
+	}
+	title := "Choose " + article(kind.name) + " " + kind.name
+	note := ""
+	if more {
+		note = fmt.Sprintf("Showing the newest %d. To use another, pass its ID.", pickerMaxItems)
 	}
 
 	var id string
@@ -177,7 +183,7 @@ func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 		return "", fmt.Errorf("No %s found to pick from.", kind.plural)
 	case 1:
 		if explicit {
-			if id, err = r.app.Picker.Pick("Choose "+article(kind.name)+" "+kind.name, choices); err != nil {
+			if id, err = r.app.Picker.Pick(title, note, choices); err != nil {
 				return "", err
 			}
 			break
@@ -185,7 +191,7 @@ func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 		id = choices[0].Value
 		fmt.Fprintf(r.cmd.ErrOrStderr(), "Using %s %s\n", kind.name, choices[0].Label)
 	default:
-		if id, err = r.app.Picker.Pick("Choose "+article(kind.name)+" "+kind.name, choices); err != nil {
+		if id, err = r.app.Picker.Pick(title, note, choices); err != nil {
 			return "", err
 		}
 	}
@@ -201,17 +207,37 @@ func article(noun string) string {
 	return "a"
 }
 
-// resolveLatest replaces @latest in agent instance arguments and flags with
-// the most recent instance of the selected agent. The agent comes from the
-// command's --agent-id, or a picker in interactive mode.
+// latestSelector matches @latest, optionally scoped to an agent as
+// <agent_id>/@latest, ignoring case, as Sentry's CLI does for its selectors.
+var latestSelector = regexp.MustCompile(`(?i)^(?:([^/\s]+)/)?@latest$`)
+
+// resolveLatest replaces @latest in agent instance arguments and flags,
+// including inside comma-separated ID lists, with the most recent instance
+// of an agent. The agent comes from <agent_id>/@latest, the command's
+// --agent-id, or a picker in interactive mode.
 func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error) {
-	var latest []binding
+	type use struct {
+		b      binding
+		tokens []string
+	}
+	var uses []use
 	for _, b := range bindings(cmd) {
-		if value, given := b.value(args); given && value == latestInstance && b.kind == agentInstanceKind {
-			latest = append(latest, b)
+		value, given := b.value(args)
+		if !given || b.kind != agentInstanceKind {
+			continue
+		}
+		tokens := []string{value}
+		if b.argIndex < 0 && strings.HasSuffix(b.flag.Name, "-ids") {
+			tokens = strings.Split(value, ",")
+		}
+		for _, token := range tokens {
+			if latestSelector.MatchString(strings.TrimSpace(token)) {
+				uses = append(uses, use{b: b, tokens: tokens})
+				break
+			}
 		}
 	}
-	if len(latest) == 0 {
+	if len(uses) == 0 {
 		return args, nil
 	}
 
@@ -220,28 +246,72 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 		return nil, err
 	}
 
-	if _, ok := r.known[agentKind]; !ok && !a.canPick() {
-		return nil, fmt.Errorf("%s needs an agent to choose from. Pass the agent instance ID instead; 'prefactor agent-instances list --agent-id <agent_id>' lists them.", latestInstance)
+	newest := map[string]string{}
+	resolve := func(scope string) (string, error) {
+		agentID := scope
+		if agentID == "" {
+			if known, ok := r.known[agentKind]; ok {
+				agentID = known
+			} else if a.canPick() {
+				if agentID, err = r.pick(agentKind, false); err != nil {
+					return "", err
+				}
+			} else {
+				return "", latestNeedsAgent(cmd)
+			}
+		}
+		if id, ok := newest[agentID]; ok {
+			return id, nil
+		}
+		id, err := newestInstance(cmd.Context(), r.client, agentID)
+		if err != nil {
+			return "", err
+		}
+		newest[agentID] = id
+		return id, nil
 	}
 
-	agentID, err := r.pick(agentKind, false)
-	if err != nil {
-		return nil, err
-	}
+	for _, u := range uses {
+		resolved := make([]string, len(u.tokens))
+		for i, token := range u.tokens {
+			m := latestSelector.FindStringSubmatch(strings.TrimSpace(token))
+			if m == nil {
+				resolved[i] = token
+				continue
+			}
+			id, err := resolve(m[1])
+			if err != nil {
+				return nil, err
+			}
+			resolved[i] = id
+		}
 
-	id, err := newestInstance(cmd.Context(), r.client, agentID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, b := range latest {
-		if b.argIndex >= 0 {
-			args[b.argIndex] = id
-		} else if err := cmd.Flags().Set(b.flag.Name, id); err != nil {
+		value := strings.Join(resolved, ",")
+		if u.b.argIndex >= 0 {
+			args[u.b.argIndex] = value
+		} else if err := cmd.Flags().Set(u.b.flag.Name, value); err != nil {
 			return nil, err
 		}
 	}
 	return args, nil
+}
+
+// latestNeedsAgent explains the ways to give @latest an agent on this
+// command.
+func latestNeedsAgent(cmd *cobra.Command) error {
+	ways := []string{"use <agent_id>/@latest"}
+	if cmd.Flags().Lookup("agent-id") != nil {
+		ways = append(ways, "pass --agent-id")
+	}
+	ways = append(ways, "run it in a terminal to choose the agent")
+	return fmt.Errorf("%s needs an agent: %s.", latestInstance, joinOr(ways))
+}
+
+func joinOr(items []string) string {
+	if len(items) == 1 {
+		return items[0]
+	}
+	return strings.Join(items[:len(items)-1], ", ") + " or " + items[len(items)-1]
 }
 
 func newestInstance(ctx context.Context, c *api.Client, agentID string) (string, error) {

@@ -18,7 +18,9 @@ func (a *App) retrieveContent(cmd *cobra.Command, call apiCall) error {
 	if !boolFlag(cmd, "content-only") {
 		return a.runAPI(cmd, call)
 	}
-	if a.jsonOutput() {
+	// PREFACTOR_OUTPUT_FORMAT only sets the default, so an explicit
+	// --content-only wins over it; --json and --fields conflict.
+	if a.session != nil && a.session.jsonFlag {
 		return errors.New("--content-only cannot be used with --json or --fields.")
 	}
 

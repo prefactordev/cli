@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -17,11 +18,13 @@ import (
 type fakePicker struct {
 	answers []string
 	prompts []string
+	notes   []string
 	offered [][]Choice
 }
 
-func (p *fakePicker) Pick(title string, choices []Choice) (string, error) {
+func (p *fakePicker) Pick(title, note string, choices []Choice) (string, error) {
 	p.prompts = append(p.prompts, title)
+	p.notes = append(p.notes, note)
 	p.offered = append(p.offered, choices)
 	if len(p.answers) == 0 {
 		return "", errPickCancelled
@@ -266,7 +269,13 @@ func TestLatestErrors(t *testing.T) {
 	ta.terminal = false
 
 	_, err := ta.run(t, "agent-instances", "retrieve", "@latest")
-	want := "@latest needs an agent to choose from. Pass the agent instance ID instead; 'prefactor agent-instances list --agent-id <agent_id>' lists them."
+	want := "@latest needs an agent: use <agent_id>/@latest or run it in a terminal to choose the agent."
+	if err == nil || err.Error() != want {
+		t.Fatalf("err = %v", err)
+	}
+
+	_, err = ta.run(t, "alerts", "list", "--agent-instance-id", "@latest")
+	want = "@latest needs an agent: use <agent_id>/@latest, pass --agent-id or run it in a terminal to choose the agent."
 	if err == nil || err.Error() != want {
 		t.Fatalf("err = %v", err)
 	}
@@ -383,4 +392,78 @@ func TestEveryRequiredIDHasAPicker(t *testing.T) {
 		}
 	}
 	walk(root)
+}
+
+func TestInstanceChoicesShowStatusAndStartTime(t *testing.T) {
+	ta, _, picker := pickerTestApp(t, twoAgents)
+	picker.answers = []string{"Billing", "failed"}
+
+	if _, err := ta.run(t, "agent-instances", "retrieve"); err != nil {
+		t.Fatal(err)
+	}
+	if got := picker.offered[1][0].Label; got != "complete  2026-11-02 00:00 UTC  "+inst2 {
+		t.Fatalf("label = %q", got)
+	}
+}
+
+func TestPickerSaysWhenTheListIsCutOff(t *testing.T) {
+	ta := newTestApp(t)
+	ta.terminal = true
+	picker := &fakePicker{answers: []string{"team-0005"}}
+	ta.Picker = picker
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		offset := 0
+		_, _ = fmt.Sscan(r.URL.Query().Get("pagination[offset]"), &offset)
+		var items []string
+		for i := offset; i < offset+100 && i < 1500; i++ {
+			items = append(items, fmt.Sprintf(`{"id":"01m6tttttttttttttttttttttttt%04d","name":"team-%04d"}`, i, i))
+		}
+		next := "null"
+		if offset+100 < 1500 {
+			next = fmt.Sprint(offset + 100)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{"status":"success","summaries":[`+strings.Join(items, ",")+`],"pagination":{"next_page_offset":`+next+`}}`)
+	}))
+	defer server.Close()
+	ta.addProfile(t, "default", "tok", server.URL)
+
+	if _, err := ta.run(t, "teams", "retrieve"); err != nil {
+		t.Fatal(err)
+	}
+	if len(picker.offered[0]) != pickerMaxItems {
+		t.Fatalf("offered %d choices, want %d", len(picker.offered[0]), pickerMaxItems)
+	}
+	if picker.notes[0] != "Showing the newest 1000. To use another, pass its ID." {
+		t.Fatalf("note = %q", picker.notes[0])
+	}
+}
+
+func TestScopedLatestWorksWithoutATerminal(t *testing.T) {
+	ta, server, picker := pickerTestApp(t, twoAgents)
+	ta.terminal = false
+
+	if _, err := ta.run(t, "agent-instances", "retrieve", agentB+"/@LATEST"); err != nil {
+		t.Fatal(err)
+	}
+	if last := server.last(); !strings.HasPrefix(last, "GET /api/v1/agent_instance/"+inst2+"?") {
+		t.Fatalf("request = %s", last)
+	}
+	if len(picker.prompts) != 0 {
+		t.Fatalf("asked %v", picker.prompts)
+	}
+}
+
+func TestLatestInsideAnIDList(t *testing.T) {
+	ta, server, _ := pickerTestApp(t, twoAgents)
+	ta.terminal = false
+
+	if _, err := ta.run(t, "agent-instance-associations", "list-from", "--agent-instance-ids", inst1+","+agentB+"/@latest"); err != nil {
+		t.Fatal(err)
+	}
+	last := server.last()
+	if !strings.Contains(last, "agent_instance_ids%5B%5D="+inst1) || !strings.Contains(last, "agent_instance_ids%5B%5D="+inst2) {
+		t.Fatalf("request = %s", last)
+	}
 }

@@ -23,6 +23,9 @@ type session struct {
 	yes bool
 	// json forces JSON output on every command.
 	json bool
+	// jsonFlag is set when --json or --fields asked for JSON, as opposed to
+	// PREFACTOR_OUTPUT_FORMAT, which only sets the default.
+	jsonFlag bool
 	// fields limits JSON output to these dot-separated paths.
 	fields []string
 }
@@ -40,8 +43,9 @@ func addSessionFlags(root *cobra.Command) {
 // the terminal. It runs before every command.
 func (a *App) startSession(cmd *cobra.Command) error {
 	s := &session{
-		yes:  boolFlag(cmd, "yes"),
-		json: boolFlag(cmd, "json"),
+		yes:      boolFlag(cmd, "yes"),
+		json:     boolFlag(cmd, "json"),
+		jsonFlag: boolFlag(cmd, "json"),
 	}
 
 	switch format := a.Getenv("PREFACTOR_OUTPUT_FORMAT"); format {
@@ -59,6 +63,7 @@ func (a *App) startSession(cmd *cobra.Command) error {
 		}
 		s.fields = fields
 		s.json = true
+		s.jsonFlag = true
 	}
 
 	noInput := boolFlag(cmd, "no-input") || envTrue(a.Getenv("PREFACTOR_NO_INPUT"))
