@@ -2,13 +2,13 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 
 	"github.com/prefactordev/cli/internal/cli"
 	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/jsjson"
 	"github.com/prefactordev/cli/internal/output"
 )
 
@@ -43,7 +43,9 @@ func printError(err error) {
 		return
 	}
 
-	if !json.Valid(httpErr.Body) {
+	// The TypeScript CLI prints a body that is not JSON as text, and a JSON
+	// body as JSON.stringify(body, null, 2).
+	if _, err := jsjson.Parse(httpErr.Body); err != nil {
 		fmt.Fprintln(os.Stderr, string(httpErr.Body))
 		return
 	}

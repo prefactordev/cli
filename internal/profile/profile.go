@@ -6,13 +6,14 @@ package profile
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"github.com/prefactordev/cli/internal/jsjson"
 )
 
 const (
@@ -37,10 +38,11 @@ type Entry struct {
 	Profile Profile
 }
 
-// Store holds the profiles of one prefactor.json file, in file order.
+// Store holds the profiles of one prefactor.json file in JavaScript property
+// order, as the TypeScript CLI keeps them.
 type Store struct {
-	path    string
-	entries []Entry
+	path     string
+	profiles *jsjson.Object
 }
 
 // Locator finds the prefactor.json file to use.
@@ -52,7 +54,8 @@ type Locator struct {
 }
 
 // DefaultLocator returns a Locator for the current process. PREFACTOR_CLI_SELF_PATH
-// overrides the executable path, as in the TypeScript CLI.
+// overrides the executable path, as in the TypeScript CLI, and is used as
+// given; the running binary's path has its symlinks resolved.
 func DefaultLocator() (Locator, error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -65,9 +68,20 @@ func DefaultLocator() (Locator, error) {
 		if err != nil {
 			return Locator{}, err
 		}
+		exe = resolveExecutable(exe)
 	}
 
 	return Locator{WorkingDir: wd, ExecutablePath: exe}, nil
+}
+
+// resolveExecutable follows symlinks to the real binary, as Node's
+// process.execPath does, so a symlinked install finds the same prefactor.json
+// as the TypeScript CLI. A path that cannot be resolved is used as given.
+func resolveExecutable(path string) string {
+	if resolved, err := filepath.EvalSymlinks(path); err == nil {
+		return resolved
+	}
+	return path
 }
 
 // ConfigPath returns prefactor.json at the root of the git repository that
@@ -88,24 +102,74 @@ func (l Locator) ConfigPath() string {
 	return filepath.Join(exeDir, configFilename)
 }
 
-// Load reads the profiles at path. A missing or unreadable file, or entries
-// without a string api_key and base_url, load as no profiles, as in the
-// TypeScript CLI.
+// Load reads the profiles at path like the TypeScript CLI's JSON.parse: a
+// missing or unreadable file, invalid JSON (including anything after the
+// value) or a value that is not an object loads as no profiles; a repeated
+// name keeps its last value; entries without a string api_key and base_url
+// are skipped.
 func Load(path string) *Store {
-	store := &Store{path: path}
+	store := &Store{path: path, profiles: jsjson.NewObject()}
 
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return store
 	}
 
-	entries, err := parseEntries(raw)
+	parsed, err := jsjson.Parse(raw)
 	if err != nil {
 		return store
 	}
 
-	store.entries = entries
+	for name, value := range objectEntries(parsed) {
+		entry, ok := value.(*jsjson.Object)
+		if !ok {
+			continue
+		}
+		apiKey, apiKeyOK := field(entry, "api_key")
+		baseURL, baseURLOK := field(entry, "base_url")
+		if apiKeyOK && baseURLOK {
+			store.profiles.Set(name, profileObject(Profile{APIKey: apiKey, BaseURL: baseURL}))
+		}
+	}
 	return store
+}
+
+// objectEntries yields Object.entries(value) for an object or array, in
+// JavaScript order.
+func objectEntries(value any) func(yield func(string, any) bool) {
+	return func(yield func(string, any) bool) {
+		switch v := value.(type) {
+		case *jsjson.Object:
+			for _, key := range v.Keys() {
+				item, _ := v.Get(key)
+				if !yield(key, item) {
+					return
+				}
+			}
+		case []any:
+			for i, item := range v {
+				if !yield(strconv.Itoa(i), item) {
+					return
+				}
+			}
+		}
+	}
+}
+
+func field(obj *jsjson.Object, key string) (string, bool) {
+	value, ok := obj.Get(key)
+	if !ok {
+		return "", false
+	}
+	text, ok := value.(string)
+	return text, ok
+}
+
+func profileObject(p Profile) *jsjson.Object {
+	obj := jsjson.NewObject()
+	obj.Set("api_key", p.APIKey)
+	obj.Set("base_url", p.BaseURL)
+	return obj
 }
 
 // Path returns the file the store reads and writes.
@@ -115,156 +179,54 @@ func (s *Store) Path() string {
 
 // Entries returns the profiles in file order.
 func (s *Store) Entries() []Entry {
-	return append([]Entry(nil), s.entries...)
+	var entries []Entry
+	for _, name := range s.profiles.Keys() {
+		profile, _ := s.Get(name)
+		entries = append(entries, Entry{Name: name, Profile: profile})
+	}
+	return entries
 }
 
 // Get returns the named profile.
 func (s *Store) Get(name string) (Profile, bool) {
-	for _, entry := range s.entries {
-		if entry.Name == name {
-			return entry.Profile, true
-		}
+	value, ok := s.profiles.Get(name)
+	if !ok {
+		return Profile{}, false
 	}
-
-	return Profile{}, false
+	obj := value.(*jsjson.Object)
+	apiKey, _ := field(obj, "api_key")
+	baseURL, _ := field(obj, "base_url")
+	return Profile{APIKey: apiKey, BaseURL: baseURL}, true
 }
 
-// Set adds or replaces the named profile and saves the file. A new profile
-// goes at the end; a replaced one keeps its position.
+// Set adds or replaces the named profile and saves the file. A replaced
+// profile keeps its position.
 func (s *Store) Set(name string, profile Profile) error {
-	replaced := false
-	for i := range s.entries {
-		if s.entries[i].Name == name {
-			s.entries[i].Profile = profile
-			replaced = true
-			break
-		}
-	}
-
-	if !replaced {
-		s.entries = append(s.entries, Entry{Name: name, Profile: profile})
-	}
-
+	s.profiles.Set(name, profileObject(profile))
 	return s.save()
 }
 
 // Remove deletes the named profile and saves the file. It reports whether the
 // profile existed.
 func (s *Store) Remove(name string) (bool, error) {
-	for i := range s.entries {
-		if s.entries[i].Name == name {
-			s.entries = append(s.entries[:i], s.entries[i+1:]...)
-			return true, s.save()
-		}
+	if _, ok := s.profiles.Get(name); !ok {
+		return false, nil
 	}
-
-	return false, nil
+	s.profiles.Delete(name)
+	return true, s.save()
 }
 
+// save writes JSON.stringify(profiles, null, 2), as the TypeScript CLI does.
 func (s *Store) save() error {
 	if err := os.MkdirAll(filepath.Dir(s.path), 0o755); err != nil {
 		return err
 	}
 
-	data, err := encodeEntries(s.entries)
-	if err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(s.path, data, 0o600); err != nil {
+	if err := os.WriteFile(s.path, []byte(jsjson.Stringify(s.profiles, "  ")), 0o600); err != nil {
 		return err
 	}
 
 	return ensureGitignoreEntry(s.path)
-}
-
-// parseEntries decodes the top-level object in file order and keeps the
-// entries that have a string api_key and base_url.
-func parseEntries(raw []byte) ([]Entry, error) {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-
-	token, err := decoder.Token()
-	if err != nil {
-		return nil, err
-	}
-	if delim, ok := token.(json.Delim); !ok || delim != '{' {
-		return nil, errors.New("profiles file is not a JSON object")
-	}
-
-	var entries []Entry
-	for decoder.More() {
-		keyToken, err := decoder.Token()
-		if err != nil {
-			return nil, err
-		}
-		name, _ := keyToken.(string)
-
-		var value json.RawMessage
-		if err := decoder.Decode(&value); err != nil {
-			return nil, err
-		}
-
-		var fields map[string]any
-		if err := json.Unmarshal(value, &fields); err != nil {
-			continue
-		}
-
-		apiKey, apiKeyOK := fields["api_key"].(string)
-		baseURL, baseURLOK := fields["base_url"].(string)
-		if !apiKeyOK || !baseURLOK {
-			continue
-		}
-
-		entries = append(entries, Entry{Name: name, Profile: Profile{APIKey: apiKey, BaseURL: baseURL}})
-	}
-
-	return entries, nil
-}
-
-// encodeEntries writes the profiles as a two-space indented JSON object in
-// order, matching JSON.stringify(profiles, null, 2) in the TypeScript CLI.
-func encodeEntries(entries []Entry) ([]byte, error) {
-	if len(entries) == 0 {
-		return []byte("{}"), nil
-	}
-
-	var buf bytes.Buffer
-	buf.WriteString("{\n")
-	for i, entry := range entries {
-		name, err := marshalJSON(entry.Name, "")
-		if err != nil {
-			return nil, err
-		}
-		value, err := marshalJSON(entry.Profile, "  ")
-		if err != nil {
-			return nil, err
-		}
-
-		fmt.Fprintf(&buf, "  %s: %s", name, value)
-		if i < len(entries)-1 {
-			buf.WriteString(",")
-		}
-		buf.WriteString("\n")
-	}
-	buf.WriteString("}")
-
-	return buf.Bytes(), nil
-}
-
-// marshalJSON encodes value like JSON.stringify: no HTML escaping, and with
-// two-space indentation after prefix when prefix is set.
-func marshalJSON(value any, prefix string) ([]byte, error) {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	encoder.SetEscapeHTML(false)
-	if prefix != "" {
-		encoder.SetIndent(prefix, "  ")
-	}
-	if err := encoder.Encode(value); err != nil {
-		return nil, err
-	}
-
-	return bytes.TrimSuffix(buf.Bytes(), []byte("\n")), nil
 }
 
 // ensureGitignoreEntry adds prefactor.json to the .gitignore next to the file

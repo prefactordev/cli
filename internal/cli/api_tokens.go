@@ -1,15 +1,16 @@
 package cli
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
+	"unicode/utf16"
 
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/jsjson"
 )
 
 func newAPITokensCommand(app *App) *cobra.Command {
@@ -142,81 +143,51 @@ func newAPITokensCommand(app *App) *cobra.Command {
 	return apiTokens
 }
 
-// tokenCreateOutput builds {"details": {...response.details, "token": response.token}}
-// like the TypeScript client, keeping the server's key order. A missing token
-// is dropped, as JSON.stringify drops undefined.
+// tokenCreateOutput builds {"details": {...response.details, token:
+// response.token}} like the TypeScript client, with JavaScript's spread and
+// key order. A missing token removes the key, as JSON.stringify drops
+// undefined values.
 func tokenCreateOutput(raw []byte) ([]byte, error) {
-	// A response that is not an object has no details or token, as in the
-	// TypeScript CLI.
-	var response map[string]json.RawMessage
-	_ = json.Unmarshal(raw, &response)
+	details := jsjson.NewObject()
+	var token any
+	hasToken := false
 
-	var entries []jsonEntry
-	if details, ok := response["details"]; ok {
-		entries = objectEntries(details)
-	}
-
-	token, hasToken := response["token"]
-	replaced := false
-	kept := entries[:0]
-	for _, entry := range entries {
-		if entry.key == "token" {
-			if !hasToken {
-				continue
+	// A response that is not an object has no details or token.
+	if parsed, err := jsjson.Parse(raw); err == nil {
+		if response, ok := parsed.(*jsjson.Object); ok {
+			if value, ok := response.Get("details"); ok {
+				spread(details, value)
 			}
-			entry.value = token
-			replaced = true
+			token, hasToken = response.Get("token")
 		}
-		kept = append(kept, entry)
-	}
-	if hasToken && !replaced {
-		kept = append(kept, jsonEntry{key: "token", value: token})
 	}
 
-	var buf bytes.Buffer
-	buf.WriteString(`{"details":{`)
-	for i, entry := range kept {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		key, err := json.Marshal(entry.key)
-		if err != nil {
-			return nil, err
-		}
-		buf.Write(key)
-		buf.WriteByte(':')
-		buf.Write(entry.value)
+	if hasToken {
+		details.Set("token", token)
+	} else {
+		details.Delete("token")
 	}
-	buf.WriteString(`}}`)
-	return buf.Bytes(), nil
+
+	result := jsjson.NewObject()
+	result.Set("details", details)
+	return []byte(jsjson.Stringify(result, "")), nil
 }
 
-type jsonEntry struct {
-	key   string
-	value json.RawMessage
-}
-
-// objectEntries returns a JSON object's members in order, or nil when raw is
-// not an object.
-func objectEntries(raw json.RawMessage) []jsonEntry {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	if token, err := decoder.Token(); err != nil || token != json.Delim('{') {
-		return nil
-	}
-
-	var entries []jsonEntry
-	for decoder.More() {
-		token, err := decoder.Token()
-		if err != nil {
-			return nil
+// spread copies value's own properties into target, as {...value} does.
+func spread(target *jsjson.Object, value any) {
+	switch v := value.(type) {
+	case *jsjson.Object:
+		for _, key := range v.Keys() {
+			item, _ := v.Get(key)
+			target.Set(key, item)
 		}
-		key, _ := token.(string)
-		var value json.RawMessage
-		if err := decoder.Decode(&value); err != nil {
-			return nil
+	case []any:
+		for i, item := range v {
+			target.Set(strconv.Itoa(i), item)
 		}
-		entries = append(entries, jsonEntry{key: key, value: value})
+	case string:
+		for i, unit := range utf16.Encode([]rune(v)) {
+			target.Set(strconv.Itoa(i), string(rune(unit)))
+		}
 	}
-
-	return entries
 }

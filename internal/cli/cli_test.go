@@ -302,3 +302,60 @@ func (c *fakeClock) Sleep(_ context.Context, d time.Duration) error {
 	c.now = c.now.Add(d)
 	return nil
 }
+
+// TestProfileFileEdgeCasesMatchTheTypeScriptCLI uses outputs captured from the
+// TypeScript CLI for the same files.
+func TestProfileFileEdgeCasesMatchTheTypeScriptCLI(t *testing.T) {
+	cases := map[string]struct {
+		file string
+		want string
+	}{
+		"repeated name uses the last": {
+			file: `{"default":{"api_key":"first","base_url":"http://first"},"default":{"api_key":"second","base_url":"http://second"}}`,
+			want: "default (current) - http://second\n",
+		},
+		"text after the JSON is invalid": {
+			file: `{"default":{"api_key":"k","base_url":"http://x"}} trailing`,
+			want: "No profiles configured. Use 'prefactor profiles add <name> [baseUrl] --api-token <apiToken>'.\n",
+		},
+		"number-like names come first": {
+			file: `{"b":{"api_key":"k","base_url":"http://b"},"2":{"api_key":"k","base_url":"http://2"},"1":{"api_key":"k","base_url":"http://1"}}`,
+			want: "1 - http://1\n2 - http://2\nb - http://b\n",
+		},
+		"an array is read by index": {
+			file: `[{"api_key":"k","base_url":"http://zero"}]`,
+			want: "0 - http://zero\n",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			ta := newTestApp(t)
+			if err := os.WriteFile(ta.configPath, []byte(tc.file), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			out, err := ta.run(t, "profiles", "list")
+			if err != nil || out != tc.want {
+				t.Fatalf("out = %q, want %q (err %v)", out, tc.want, err)
+			}
+		})
+	}
+}
+
+func TestSavingKeepsTheTypeScriptKeyOrder(t *testing.T) {
+	ta := newTestApp(t)
+	if err := os.WriteFile(ta.configPath, []byte(`{"b":{"api_key":"k","base_url":"http://b"},"2":{"api_key":"k","base_url":"http://2"},"1":{"api_key":"k","base_url":"http://1"}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ta.run(t, "profiles", "add", "10", "http://ten", "--api-token", "t"); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, _ := os.ReadFile(ta.configPath)
+	compact := strings.NewReplacer("\n", "", " ", "").Replace(string(raw))
+	// Written by the TypeScript CLI for the same steps.
+	want := `{"1":{"api_key":"k","base_url":"http://1"},"2":{"api_key":"k","base_url":"http://2"},"10":{"api_key":"t","base_url":"http://ten"},"b":{"api_key":"k","base_url":"http://b"}}`
+	if compact != want {
+		t.Fatalf("file = %s\nwant   %s", compact, want)
+	}
+}

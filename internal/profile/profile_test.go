@@ -192,3 +192,23 @@ func TestSaveOutsideRepositoryDoesNotWriteGitignore(t *testing.T) {
 }
 
 func ptr(s string) *string { return &s }
+
+func TestSymlinkedBinaryUsesTheRealInstallRoot(t *testing.T) {
+	dir := t.TempDir()
+	real := filepath.Join(dir, "real", "bin", "prefactor")
+	link := filepath.Join(dir, "link", "bin", "prefactor")
+	writeFile(t, real, "binary")
+	if err := os.MkdirAll(filepath.Dir(link), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(real, link); err != nil {
+		t.Fatal(err)
+	}
+
+	resolved := resolveExecutable(link)
+	got := Locator{WorkingDir: t.TempDir(), ExecutablePath: resolved}.ConfigPath()
+	want, _ := filepath.EvalSymlinks(filepath.Join(dir, "real"))
+	if got != filepath.Join(want, "prefactor.json") {
+		t.Fatalf("ConfigPath = %q, want the real install root %q", got, want)
+	}
+}
