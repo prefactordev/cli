@@ -3,7 +3,9 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
 
@@ -174,7 +176,11 @@ func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 	title := "Choose " + article(kind.name) + " " + kind.name
 	note := ""
 	if more {
-		note = fmt.Sprintf("Showing the newest %d. To use another, pass its ID.", pickerMaxItems)
+		which := "newest"
+		if kind.unsorted {
+			which = "first"
+		}
+		note = fmt.Sprintf("Showing the %s %d. To use another, pass its ID.", which, pickerMaxItems)
 	}
 
 	var id string
@@ -200,6 +206,30 @@ func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 	return id, nil
 }
 
+// rejectsAgentRef reports whether p2 refused a list because its agent_id is
+// not an agent, which it answers with a 400 naming agent_ref.
+func rejectsAgentRef(err error) bool {
+	var httpErr *client.HTTPError
+	if !errors.As(err, &httpErr) || httpErr.Status != http.StatusBadRequest {
+		return false
+	}
+	var body struct {
+		Errors map[string]json.RawMessage `json:"errors"`
+	}
+	if json.Unmarshal(httpErr.Body, &body) != nil {
+		return false
+	}
+	_, ok := body.Errors["agent_ref"]
+	return ok
+}
+
+// ownedPlural names the instances @latest picks from, by owner.
+var ownedPlural = map[*resourceKind]string{agentKind: "instances", judgeKind: "runs"}
+
+func capitalize(s string) string {
+	return strings.ToUpper(s[:1]) + s[1:]
+}
+
 func article(noun string) string {
 	if strings.ContainsRune("aeiouAEIOU", rune(noun[0])) {
 		return "an"
@@ -211,10 +241,11 @@ func article(noun string) string {
 // <agent_id>/@latest, ignoring case, as Sentry's CLI does for its selectors.
 var latestSelector = regexp.MustCompile(`(?i)^(?:([^/\s]+)/)?@latest$`)
 
-// resolveLatest replaces @latest in agent instance arguments and flags,
-// including inside comma-separated ID lists, with the most recent instance
-// of an agent. The agent comes from <agent_id>/@latest, the command's
-// --agent-id, or a picker in interactive mode.
+// resolveLatest replaces @latest in agent instance and judge run arguments
+// and flags, including inside comma-separated ID lists, with the most recent
+// instance of an agent or judge. The agent or judge comes from
+// <id>/@latest, the command's own flag for it, or a picker in interactive
+// mode.
 func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error) {
 	type use struct {
 		b      binding
@@ -223,7 +254,7 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 	var uses []use
 	for _, b := range bindings(cmd) {
 		value, given := b.value(args)
-		if !given || b.kind != agentInstanceKind {
+		if !given || (b.kind != agentInstanceKind && b.kind != judgeRunKind) {
 			continue
 		}
 		tokens := []string{value}
@@ -247,27 +278,27 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 	}
 
 	newest := map[string]string{}
-	resolve := func(scope string) (string, error) {
-		agentID := scope
-		if agentID == "" {
-			if known, ok := r.known[agentKind]; ok {
-				agentID = known
+	resolve := func(owner *resourceKind, scope string) (string, error) {
+		ownerID := scope
+		if ownerID == "" {
+			if known, ok := r.known[owner]; ok {
+				ownerID = known
 			} else if a.canPick() {
-				if agentID, err = r.pick(agentKind, false); err != nil {
+				if ownerID, err = r.pick(owner, false); err != nil {
 					return "", err
 				}
 			} else {
-				return "", latestNeedsAgent(cmd)
+				return "", latestNeedsOwner(cmd, owner, a.onlyTerminalsStopPickers())
 			}
 		}
-		if id, ok := newest[agentID]; ok {
+		if id, ok := newest[ownerID]; ok {
 			return id, nil
 		}
-		id, err := newestInstance(cmd.Context(), r.client, agentID)
+		id, err := newestInstance(cmd.Context(), r.client, owner, ownerID)
 		if err != nil {
 			return "", err
 		}
-		newest[agentID] = id
+		newest[ownerID] = id
 		return id, nil
 	}
 
@@ -279,7 +310,7 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 				resolved[i] = token
 				continue
 			}
-			id, err := resolve(m[1])
+			id, err := resolve(u.b.kind.parent, m[1])
 			if err != nil {
 				return nil, err
 			}
@@ -296,15 +327,20 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 	return args, nil
 }
 
-// latestNeedsAgent explains the ways to give @latest an agent on this
-// command.
-func latestNeedsAgent(cmd *cobra.Command) error {
-	ways := []string{"use <agent_id>/@latest"}
-	if cmd.Flags().Lookup("agent-id") != nil {
-		ways = append(ways, "pass --agent-id")
+// latestNeedsOwner explains the ways to give @latest the agent or judge it
+// needs on this command. A terminal is offered only when it would bring up
+// the picker.
+func latestNeedsOwner(cmd *cobra.Command, owner *resourceKind, offerTerminal bool) error {
+	ways := []string{fmt.Sprintf("use <%s_id>/%s", owner.name, latestInstance)}
+	for _, b := range bindings(cmd) {
+		if b.kind == owner && b.argIndex < 0 {
+			ways = append(ways, "pass --"+b.flag.Name)
+		}
 	}
-	ways = append(ways, "run it in a terminal to choose the agent")
-	return fmt.Errorf("%s needs an agent: %s.", latestInstance, joinOr(ways))
+	if offerTerminal {
+		ways = append(ways, "run it in a terminal to choose the "+owner.name)
+	}
+	return fmt.Errorf("%s needs %s %s: %s.", latestInstance, article(owner.name), owner.name, joinOr(ways))
 }
 
 func joinOr(items []string) string {
@@ -314,8 +350,12 @@ func joinOr(items []string) string {
 	return strings.Join(items[:len(items)-1], ", ") + " or " + items[len(items)-1]
 }
 
-func newestInstance(ctx context.Context, c *api.Client, agentID string) (string, error) {
-	raw, err := client.ReadJSON(agentInstanceKind.list(ctx, c, agentID, pageRequest{offset: 0, size: 1}))
+// newestInstance returns the most recent instance of an agent or judge.
+func newestInstance(ctx context.Context, c *api.Client, owner *resourceKind, ownerID string) (string, error) {
+	raw, err := client.ReadJSON(agentInstanceKind.list(ctx, c, ownerID, pageRequest{offset: 0, size: 1}))
+	if rejectsAgentRef(err) {
+		return "", fmt.Errorf("%s %s was not found, so %s has nothing to use.", capitalize(owner.name), ownerID, latestInstance)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -329,7 +369,7 @@ func newestInstance(ctx context.Context, c *api.Client, agentID string) (string,
 		return "", fmt.Errorf("Could not read the agent instance list: %w", err)
 	}
 	if len(page.Summaries) == 0 || page.Summaries[0].ID == "" {
-		return "", fmt.Errorf("Agent %s has no instances, so %s has nothing to use.", agentID, latestInstance)
+		return "", fmt.Errorf("%s %s has no %s, so %s has nothing to use.", capitalize(owner.name), ownerID, ownedPlural[owner], latestInstance)
 	}
 	return page.Summaries[0].ID, nil
 }
@@ -337,6 +377,13 @@ func newestInstance(ctx context.Context, c *api.Client, agentID string) (string,
 // canPick reports whether pickers may run: interactive mode, stderr a
 // terminal (the picker draws there), and neither JSON output, which must
 // never wait on a prompt, nor --yes, because a picker has no default answer.
+// onlyTerminalsStopPickers reports whether pickers are off only because a
+// stream is not a terminal, rather than by --json, --yes, --no-input or a
+// detected coding agent.
+func (a *App) onlyTerminalsStopPickers() bool {
+	return a.session != nil && !a.session.noInput && !a.session.yes && !a.jsonOutput() && a.detectAgent() == ""
+}
+
 func (a *App) canPick() bool {
 	return a.interactive() &&
 		a.Picker != nil &&

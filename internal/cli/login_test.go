@@ -79,11 +79,12 @@ func approved() tokenReply {
 
 type loginHarness struct {
 	*testApp
-	clock   *fakeClock
-	opened  []string
-	columns int
-	prompts []string
-	pasted  string
+	clock    *fakeClock
+	opened   []string
+	columns  int
+	prompts  []string
+	pasted   string
+	measured []io.Writer
 }
 
 func newLoginHarness(t *testing.T, server *deviceServer) *loginHarness {
@@ -96,7 +97,7 @@ func newLoginHarness(t *testing.T, server *deviceServer) *loginHarness {
 		PromptForToken:  func(_ io.Writer, p string) (string, error) { h.prompts = append(h.prompts, p); return h.pasted, nil },
 		Sleep:           h.clock.Sleep,
 		Now:             h.clock.Now,
-		TerminalColumns: func() (int, bool) { return h.columns, h.columns > 0 },
+		TerminalColumns: func(out io.Writer) (int, bool) { h.measured = append(h.measured, out); return h.columns, h.columns > 0 },
 		Hostname:        func() (string, error) { return "dev-box", nil },
 		Platform:        "darwin-arm64",
 	}

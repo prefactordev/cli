@@ -371,7 +371,7 @@ func asP2Accepts(requests []recordedRequest) []recordedRequest {
 				}
 				query["sorting[field]"] = []string{field}
 				query["sorting[direction]"] = []string{direction}
-			case "agent_ids", "agent_instance_ids":
+			case "agent_ids", "agent_instance_ids", "statuses":
 				query[key+"[]"] = values
 			default:
 				query[key] = values

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -282,9 +283,36 @@ func TestLatestErrors(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 
+	_, err = ta.run(t, "agent-instance-associations", "list-from", "--agent-instance-ids", "@latest")
+	want = "@latest needs a judge: use <judge_id>/@latest or run it in a terminal to choose the judge."
+	if err == nil || err.Error() != want {
+		t.Fatalf("err = %v", err)
+	}
+
 	_, err = ta.run(t, "alerts", "list", "--agent-id", agentA, "--agent-instance-id", "@latest")
 	if err == nil || err.Error() != "Agent "+agentA+" has no instances, so @latest has nothing to use." {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestLatestErrorOffersATerminalOnlyWhenThatWouldPick(t *testing.T) {
+	for name, setup := range map[string]func(ta *testApp) []string{
+		"--json":         func(*testApp) []string { return []string{"--json"} },
+		"--yes":          func(*testApp) []string { return []string{"--yes"} },
+		"--no-input":     func(*testApp) []string { return []string{"--no-input"} },
+		"agent detected": func(ta *testApp) []string { ta.env["CLAUDECODE"] = "1"; return nil },
+	} {
+		t.Run(name, func(t *testing.T) {
+			ta, _, picker := pickerTestApp(t, twoAgents)
+			_, err := ta.run(t, append([]string{"alerts", "list", "--agent-instance-id", "@latest"}, setup(ta)...)...)
+			want := "@latest needs an agent: use <agent_id>/@latest or pass --agent-id."
+			if err == nil || err.Error() != want {
+				t.Fatalf("err = %v", err)
+			}
+			if len(picker.prompts) != 0 {
+				t.Fatalf("asked %v", picker.prompts)
+			}
+		})
 	}
 }
 
@@ -440,6 +468,31 @@ func TestPickerSaysWhenTheListIsCutOff(t *testing.T) {
 	if picker.notes[0] != "Showing the newest 1000. To use another, pass its ID." {
 		t.Fatalf("note = %q", picker.notes[0])
 	}
+
+	// Revisions cannot be sorted, so their note does not claim the newest.
+	picker.answers = []string{"team-0005", "team-0005"}
+	if _, err := ta.run(t, "knowledgebase-revisions", "retrieve"); err != nil {
+		t.Fatal(err)
+	}
+	if got := picker.notes[len(picker.notes)-1]; got != "Showing the first 1000. To use another, pass its ID." {
+		t.Fatalf("revision note = %q", got)
+	}
+}
+
+func TestAssociationLabelsNameWhatIsScored(t *testing.T) {
+	cases := map[string]string{
+		`{"id":"as1","to_agent_id":"ag9","trigger":"on_completion","inserted_at":"2026-10-22T08:11:02Z"}`: "scores ag9  on_completion  2026-10-22 08:11 UTC  as1",
+		`{"id":"ia1","to_agent_instance_id":"in9","inserted_at":"2026-10-23T04:17:26Z"}`:                  "scores in9  2026-10-23 04:17 UTC  ia1",
+	}
+	for raw, want := range cases {
+		var summary map[string]any
+		if err := json.Unmarshal([]byte(raw), &summary); err != nil {
+			t.Fatal(err)
+		}
+		if got := choiceLabel(summary, summary["id"].(string)); got != want {
+			t.Errorf("label = %q, want %q", got, want)
+		}
+	}
 }
 
 func TestScopedLatestWorksWithoutATerminal(t *testing.T) {
@@ -494,7 +547,8 @@ func TestPickersListTheRightResource(t *testing.T) {
 		{agentSchemaVersionKind, agentKind, "GET /api/v1/agent_schema_version agent_id=P"},
 		{agentDeploymentKind, agentKind, "GET /api/v1/agent_deployment agent_id=P"},
 		{agentAssociationKind, judgeKind, "GET /api/v1/agent_association/from agent_ids[]=P"},
-		{agentInstanceAssociationKind, agentInstanceKind, "GET /api/v1/agent_instance_association/from agent_instance_ids[]=P"},
+		{judgeRunKind, judgeKind, "GET /api/v1/agent_instance agent_id=P"},
+		{agentInstanceAssociationKind, judgeRunKind, "GET /api/v1/agent_instance_association/from agent_instance_ids[]=P"},
 		{teamKind, nil, "GET /api/v1/team"},
 		{personKind, nil, "GET /api/v1/person"},
 		{riskProfileKind, nil, "GET /api/v1/risk_profile"},
@@ -535,8 +589,63 @@ func TestPickersListTheRightResource(t *testing.T) {
 		}
 	}
 
-	if len(cases) != len(groupKinds) {
-		t.Errorf("%d kinds tested, %d groups have pickers", len(cases), len(groupKinds))
+	tested := map[*resourceKind]bool{}
+	for _, tc := range cases {
+		tested[tc.kind] = true
+	}
+	var used []*resourceKind
+	for _, k := range groupKinds {
+		used = append(used, k)
+	}
+	for _, k := range flagKinds {
+		used = append(used, k)
+	}
+	for _, k := range argumentKinds {
+		used = append(used, k)
+	}
+	for _, k := range used {
+		for ; k != nil; k = k.parent {
+			if !tested[k] {
+				t.Errorf("%s has a picker but no case here", k.name)
+			}
+		}
+	}
+}
+
+// TestIDFlagsNameTheRightResource pins the flags and arguments whose meaning
+// depends on the command, such as the judge runs that
+// agent-instance-associations list-from takes.
+func TestIDFlagsNameTheRightResource(t *testing.T) {
+	root := newRootCommand(newTestApp(t).App)
+	cases := []struct {
+		command []string
+		input   string // a flag name, or "<arg>" for an argument
+		want    *resourceKind
+	}{
+		{[]string{"agent-instance-associations", "list-from"}, "agent-instance-ids", judgeRunKind},
+		{[]string{"agent-instance-associations", "list-to"}, "agent-instance-id", agentInstanceKind},
+		{[]string{"agent-instance-associations", "retrieve"}, "<id>", agentInstanceAssociationKind},
+		{[]string{"agent-associations", "list-from"}, "agent-ids", judgeKind},
+		{[]string{"agent-associations", "list-to"}, "agent-id", agentKind},
+		{[]string{"agent-associations", "create"}, "from-agent-id", judgeKind},
+		{[]string{"agent-associations", "create"}, "to-agent-id", agentKind},
+		{[]string{"judges", "retrieve"}, "<id>", judgeKind},
+		{[]string{"agent-instances", "list"}, "agent-id", agentKind},
+	}
+	for _, tc := range cases {
+		cmd, _, err := root.Find(tc.command)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got *resourceKind
+		for _, b := range bindings(cmd) {
+			if (b.argIndex >= 0 && tc.input == "<id>") || (b.argIndex < 0 && b.flag.Name == tc.input) {
+				got = b.kind
+			}
+		}
+		if got != tc.want {
+			t.Errorf("%v %s names %s, want %s", tc.command, tc.input, kindName(got), kindName(tc.want))
+		}
 	}
 }
 
@@ -545,4 +654,19 @@ func kindName(k *resourceKind) string {
 		return "none"
 	}
 	return k.name
+}
+
+func TestLatestForAnUnknownAgent(t *testing.T) {
+	ta := newTestApp(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = io.WriteString(w, `{"code":"validation_errors","status":"error","errors":{"agent_ref":{"code":"invalid_value","message":"Invalid value: \"nope\""}}}`)
+	}))
+	defer server.Close()
+	ta.addProfile(t, "default", "tok", server.URL)
+
+	_, err := ta.run(t, "agent-instances", "retrieve", "nope/@latest")
+	if err == nil || err.Error() != "Agent nope was not found, so @latest has nothing to use." {
+		t.Fatalf("err = %v", err)
+	}
 }

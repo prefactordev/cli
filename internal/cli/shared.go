@@ -472,8 +472,8 @@ func sortingQuery(sorting *string) api.RequestEditorFn {
 	}
 }
 
-// idListQuery sends IDs as name[]=id, the form p2 accepts for list
-// parameters. The TypeScript CLI repeats name=id, which p2 rejects.
+// idListQuery sends values as name[]=value, the form p2 accepts for list
+// parameters. The TypeScript CLI repeats name=value, which p2 rejects.
 func idListQuery(name string, ids []string) api.RequestEditorFn {
 	return withQuery(url.Values{name + "[]": ids})
 }

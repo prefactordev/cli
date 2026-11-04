@@ -39,7 +39,7 @@ type LoginDeps struct {
 	PromptForToken  func(out io.Writer, prompt string) (string, error)
 	Sleep           func(ctx context.Context, d time.Duration) error
 	Now             func() time.Time
-	TerminalColumns func() (int, bool)
+	TerminalColumns func(out io.Writer) (int, bool)
 	Hostname        func() (string, error)
 	Platform        string
 }
@@ -176,7 +176,7 @@ func loginWithDeviceCode(
 	started deviceLoginStart,
 	deps LoginDeps,
 ) (deviceLoginGrant, error) {
-	columns, known := deps.TerminalColumns()
+	columns, known := deps.TerminalColumns(out)
 	showQRCode := known && qrCodeFits(*started.VerificationQRCode, columns)
 	if showQRCode {
 		fmt.Fprintln(out, *started.VerificationQRCode)
@@ -534,8 +534,13 @@ func promptForToken(out io.Writer, prompt string) (string, error) {
 	}
 }
 
-func terminalColumns() (int, bool) {
-	fd := int(os.Stdout.Fd())
+// terminalColumns returns the width of the terminal out writes to.
+func terminalColumns(out io.Writer) (int, bool) {
+	file, ok := out.(*os.File)
+	if !ok {
+		return 0, false
+	}
+	fd := int(file.Fd())
 	if !term.IsTerminal(fd) {
 		return 0, false
 	}

@@ -22,8 +22,10 @@ type resourceKind struct {
 	// parent is the resource this one belongs to, picked first when the
 	// command does not already have it.
 	parent *resourceKind
-	// list fetches one page, newest first where the API can sort.
+	// list fetches one page, newest first unless unsorted is set.
 	list func(ctx context.Context, c *api.Client, parentID string, page pageRequest) (*http.Response, error)
+	// unsorted is set when the API cannot sort the list.
+	unsorted bool
 }
 
 type pageRequest struct {
@@ -69,6 +71,10 @@ var (
 		o, n := p.params()
 		return c.QueryAgentInstanceList(ctx, &api.QueryAgentInstanceListParams{AgentId: &agentID, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
 	}}
+	// judgeRunKind is an agent instance of a judge.
+	judgeRunKind = &resourceKind{name: "judge run", plural: "judge runs", parent: judgeKind, list: func(ctx context.Context, c *api.Client, judgeID string, p pageRequest) (*http.Response, error) {
+		return agentInstanceKind.list(ctx, c, judgeID, p)
+	}}
 	agentSpanKind = &resourceKind{name: "agent span", plural: "agent spans", parent: agentInstanceKind, list: func(ctx context.Context, c *api.Client, instanceID string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
 		return c.QueryAgentSpanList(ctx, &api.QueryAgentSpanListParams{AgentInstanceId: &instanceID, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
@@ -105,9 +111,9 @@ var (
 		o, n := p.params()
 		return c.QueryAgentAssociationListFrom(ctx, &api.QueryAgentAssociationListFromParams{PaginationOffset: o, PaginationPageSize: n}, idListQuery("agent_ids", []string{judgeID}), newestFirst())
 	}}
-	agentInstanceAssociationKind = &resourceKind{name: "agent instance association", plural: "agent instance associations", parent: agentInstanceKind, list: func(ctx context.Context, c *api.Client, instanceID string, p pageRequest) (*http.Response, error) {
+	agentInstanceAssociationKind = &resourceKind{name: "agent instance association", plural: "agent instance associations", parent: judgeRunKind, list: func(ctx context.Context, c *api.Client, runID string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
-		return c.QueryAgentInstanceAssociationListFrom(ctx, &api.QueryAgentInstanceAssociationListFromParams{PaginationOffset: o, PaginationPageSize: n}, idListQuery("agent_instance_ids", []string{instanceID}), newestFirst())
+		return c.QueryAgentInstanceAssociationListFrom(ctx, &api.QueryAgentInstanceAssociationListFromParams{PaginationOffset: o, PaginationPageSize: n}, idListQuery("agent_instance_ids", []string{runID}), newestFirst())
 	}}
 	teamKind = &resourceKind{name: "team", plural: "teams", list: func(ctx context.Context, c *api.Client, _ string, p pageRequest) (*http.Response, error) {
 		o, n := p.params()
@@ -139,10 +145,10 @@ var (
 	}}
 	knowledgebaseDocumentRevisionKind = &resourceKind{name: "document revision", plural: "document revisions", parent: knowledgebaseDocumentKind, list: func(ctx context.Context, c *api.Client, documentID string, p pageRequest) (*http.Response, error) {
 		return c.QueryKnowledgebaseDocumentRevisionList(ctx, &api.QueryKnowledgebaseDocumentRevisionListParams{KnowledgebaseDocumentId: documentID, PaginationOffset: &p.offset, PaginationPageSize: &p.size})
-	}}
+	}, unsorted: true}
 	knowledgebaseRevisionKind = &resourceKind{name: "knowledgebase revision", plural: "knowledgebase revisions", parent: knowledgebaseKind, list: func(ctx context.Context, c *api.Client, knowledgebaseID string, p pageRequest) (*http.Response, error) {
 		return c.QueryKnowledgebaseRevisionList(ctx, &api.QueryKnowledgebaseRevisionListParams{KnowledgebaseId: knowledgebaseID, PaginationOffset: &p.offset, PaginationPageSize: &p.size})
-	}}
+	}, unsorted: true}
 )
 
 // groupKinds maps a command group to the resource its <id> argument names.
@@ -183,7 +189,7 @@ var flagKinds = map[string]*resourceKind{
 	"from-agent-id":                judgeKind,
 	"judge-agent-id":               judgeKind,
 	"agent-instance-id":            agentInstanceKind,
-	"agent-instance-ids":           agentInstanceKind,
+	"agent-instance-ids":           judgeRunKind,
 	"knowledgebase-id":             knowledgebaseKind,
 	"knowledgebase-document-id":    knowledgebaseDocumentKind,
 	"base-revision-id":             knowledgebaseDocumentRevisionKind,
@@ -210,7 +216,7 @@ type commandRef struct {
 	group string
 }
 
-// listChoices fetches the choices for a resource, newest first. It stops at
+// listChoices fetches the choices for a resource in list order. It stops at
 // pickerMaxItems and reports whether more remained.
 func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentID string) ([]Choice, bool, error) {
 	var choices []Choice
@@ -250,9 +256,9 @@ func listChoices(ctx context.Context, c *api.Client, kind *resourceKind, parentI
 }
 
 // choiceLabel describes a summary by its name (or path, email or external
-// identifier), its status, when it started, was raised or was created, and
-// its ID, so runs without names can be told apart and the list can be
-// searched by any of them.
+// identifier), what an association scores, its status or trigger, when it
+// started, was raised or was created, and its ID, so items without names
+// can be told apart and the list can be searched by any of them.
 func choiceLabel(summary map[string]any, id string) string {
 	var parts []string
 	for _, key := range []string{"name", "path", "email", "external_identifier", "schema_name"} {
@@ -261,8 +267,16 @@ func choiceLabel(summary map[string]any, id string) string {
 			break
 		}
 	}
-	if status, ok := summary["status"].(string); ok && status != "" {
-		parts = append(parts, status)
+	// Associations have no name: show what the judge scores and when.
+	for _, key := range []string{"to_agent_id", "to_agent_instance_id"} {
+		if value, ok := summary[key].(string); ok && value != "" {
+			parts = append(parts, "scores "+value)
+		}
+	}
+	for _, key := range []string{"status", "trigger"} {
+		if value, ok := summary[key].(string); ok && value != "" {
+			parts = append(parts, value)
+		}
 	}
 	for _, key := range []string{"started_at", "raised_at", "inserted_at"} {
 		if value, ok := summary[key].(string); ok && value != "" {

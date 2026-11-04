@@ -21,21 +21,19 @@ import (
 var agentInstanceStatuses = []string{"preparing", "pending", "active", "complete", "failed", "cancelled", "terminated"}
 
 // parseStatuses splits --statuses and checks each one is a known status.
-func parseStatuses(value string) ([]api.QueryAgentInstanceListParamsStatuses, error) {
+func parseStatuses(value string) ([]string, error) {
 	ids, err := parseIDList(value, "--statuses")
 	if err != nil {
 		return nil, err
 	}
 
-	statuses := make([]api.QueryAgentInstanceListParamsStatuses, 0, len(ids))
 	for _, status := range ids {
 		if !slices.Contains(agentInstanceStatuses, status) {
 			return nil, fmt.Errorf("--statuses has an unknown status '%s'. Allowed: %s.", status, strings.Join(agentInstanceStatuses, ", "))
 		}
-		statuses = append(statuses, api.QueryAgentInstanceListParamsStatuses(status))
 	}
 
-	return statuses, nil
+	return ids, nil
 }
 
 // newIdempotencyKey returns a random UUID v4, like crypto.randomUUID in
@@ -107,16 +105,16 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			agentID := stringFlag(cmd, "agent-id")
 			params := &api.QueryAgentInstanceListParams{AgentId: &agentID}
+			var statuses []string
 			if flagSet(cmd, "statuses") {
-				statuses, err := parseStatuses(stringFlag(cmd, "statuses"))
-				if err != nil {
+				var err error
+				if statuses, err = parseStatuses(stringFlag(cmd, "statuses")); err != nil {
 					return err
 				}
-				params.Statuses = &statuses
 			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentInstanceList(ctx, params)
+				return c.QueryAgentInstanceList(ctx, params, idListQuery("statuses", statuses))
 			})
 		},
 	}

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -101,12 +102,12 @@ func TestJSONOutputForTextCommands(t *testing.T) {
 	}
 }
 
-func TestOutputFormatRejectsOtherValues(t *testing.T) {
+func TestOutputFormatIgnoresOtherValues(t *testing.T) {
 	ta := newTestApp(t)
 	ta.env["PREFACTOR_OUTPUT_FORMAT"] = "table"
 
-	if _, err := ta.run(t, "version"); err == nil || err.Error() != `PREFACTOR_OUTPUT_FORMAT must be "json".` {
-		t.Fatalf("err = %v", err)
+	if out, err := ta.run(t, "version"); err != nil || out != "1.2.3\n" {
+		t.Fatalf("version = %q, %v", out, err)
 	}
 }
 
@@ -227,6 +228,10 @@ func TestLoginJSONPrintsOnlyTheResultOnStdout(t *testing.T) {
 	}
 	if !strings.Contains(errOut, "Confirm this code in the browser: ABCD-EFGH") || !strings.Contains(errOut, "/cli/connect?code=ABCD-EFGH") {
 		t.Fatalf("stderr = %q", errOut)
+	}
+	// The QR code goes to stderr, so its width is checked against stderr.
+	if len(h.measured) != 1 || h.measured[0].(*bytes.Buffer).String() != errOut {
+		t.Fatalf("QR code width measured on %v", h.measured)
 	}
 }
 

@@ -19,6 +19,8 @@ type session struct {
 	// interactive is true when the CLI may prompt: stdin and stdout are
 	// terminals, no coding agent is detected and input is not turned off.
 	interactive bool
+	// noInput is set by --no-input or PREFACTOR_NO_INPUT.
+	noInput bool
 	// yes accepts the default answer to every prompt.
 	yes bool
 	// json forces JSON output on every command.
@@ -48,12 +50,9 @@ func (a *App) startSession(cmd *cobra.Command) error {
 		jsonFlag: boolFlag(cmd, "json"),
 	}
 
-	switch format := a.Getenv("PREFACTOR_OUTPUT_FORMAT"); format {
-	case "":
-	case "json":
+	// Other values are left for other tools that read the variable.
+	if a.Getenv("PREFACTOR_OUTPUT_FORMAT") == "json" {
 		s.json = true
-	default:
-		return errors.New(`PREFACTOR_OUTPUT_FORMAT must be "json".`)
 	}
 
 	if value := stringFlag(cmd, "fields"); flagSet(cmd, "fields") {
@@ -66,8 +65,8 @@ func (a *App) startSession(cmd *cobra.Command) error {
 		s.jsonFlag = true
 	}
 
-	noInput := boolFlag(cmd, "no-input") || envTrue(a.Getenv("PREFACTOR_NO_INPUT"))
-	s.interactive = !noInput && a.terminals() && a.detectAgent() == ""
+	s.noInput = boolFlag(cmd, "no-input") || envTrue(a.Getenv("PREFACTOR_NO_INPUT"))
+	s.interactive = !s.noInput && a.terminals() && a.detectAgent() == ""
 
 	a.session = s
 	return nil

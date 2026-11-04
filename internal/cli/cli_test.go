@@ -70,7 +70,7 @@ func (ta *testApp) addProfile(t *testing.T, name, token, baseURL string) {
 // recordingServer answers every request with body and records the last request.
 type recordingServer struct {
 	*httptest.Server
-	method, path, auth, body string
+	method, path, query, auth, body string
 }
 
 func newRecordingServer(t *testing.T, body string) *recordingServer {
@@ -78,7 +78,7 @@ func newRecordingServer(t *testing.T, body string) *recordingServer {
 	rs := &recordingServer{}
 	rs.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, _ := io.ReadAll(r.Body)
-		rs.method, rs.path, rs.auth, rs.body = r.Method, r.URL.Path, r.Header.Get("Authorization"), string(raw)
+		rs.method, rs.path, rs.query, rs.auth, rs.body = r.Method, r.URL.Path, r.URL.RawQuery, r.Header.Get("Authorization"), string(raw)
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = io.WriteString(w, body)
 	}))
@@ -357,5 +357,18 @@ func TestSavingKeepsTheTypeScriptKeyOrder(t *testing.T) {
 	want := `{"1":{"api_key":"k","base_url":"http://1"},"2":{"api_key":"k","base_url":"http://2"},"10":{"api_key":"t","base_url":"http://ten"},"b":{"api_key":"k","base_url":"http://b"}}`
 	if compact != want {
 		t.Fatalf("file = %s\nwant   %s", compact, want)
+	}
+}
+
+func TestAgentInstancesListSendsStatusesInTheFormP2Accepts(t *testing.T) {
+	ta := newTestApp(t)
+	server := newRecordingServer(t, `{"status":"success","summaries":[]}`)
+	ta.addProfile(t, "default", "tok", server.URL)
+
+	if _, err := ta.run(t, "agent-instances", "list", "--agent-id", "a1", "--statuses", "active,complete"); err != nil {
+		t.Fatal(err)
+	}
+	if want := "agent_id=a1&statuses%5B%5D=active&statuses%5B%5D=complete"; server.query != want {
+		t.Fatalf("query = %q, want %q", server.query, want)
 	}
 }
