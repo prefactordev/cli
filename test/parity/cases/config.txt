@@ -1,0 +1,153 @@
+# agent_versions
+agent_versions list | --agent_id a1
+framework: agent_versions list |
+agent_versions retrieve | v1
+agent_versions create | --agent_id a1 --external_identifier ext
+agent_versions create | --agent_id a1 --external_identifier ext --agent_schema_version_id s1 --execution_mode hosted
+agent_versions create | --agent_id a1 --external_identifier ext --agent_schema_version_id "" --execution_mode remote
+framework: agent_versions create | --agent_id a1 --external_identifier ext --execution_mode bogus
+framework: agent_versions create | --agent_id a1
+
+# agent_schema_versions
+agent_schema_versions list | --agent_id a1
+framework: agent_schema_versions list |
+agent_schema_versions retrieve | s1
+agent_schema_versions create | --agent_id a1 --external_identifier ext
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_schemas '{"x:y":{"type":"object"}}' --span_result_schemas @fixtures/object.json
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_type_schemas @fixtures/array.json
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_type_schemas '[{"name":"x"}]' --instance_params_payload_schema '{"schema":{}}' --instance_result_payload_schema @fixtures/object.json --instance_metadata_schema '{"schema":{"type":"object"},"title":"T"}'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_schemas '{}' --span_type_schemas '[]'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_result_schemas '{}'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_schemas '[]'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_type_schemas '{}'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_schemas '{}' --span_result_schemas @fixtures/array.json
+agent_schema_versions create | --agent_id a1 --external_identifier ext --instance_metadata_schema '[1]'
+agent_schema_versions create | --agent_id a1 --external_identifier ext --span_schemas ""
+framework: agent_schema_versions create | --external_identifier ext
+
+# agent_deployments
+agent_deployments list | --agent_id a1
+framework: agent_deployments list |
+agent_deployments retrieve | d1
+agent_deployments create | --agent_id a1 --environment_id e1
+agent_deployments create | --agent_id a1 --environment_id e1 --id " 01m6jcdypz3tq23qmke2ckg5jpt7k0fg " --current_version_id " v1 "
+agent_deployments create | --agent_id a1 --environment_id e1 --id "  " --current_version_id "  "
+agent_deployments create | --agent_id a1 --environment_id e1 --id bad
+framework: agent_deployments create | --agent_id a1
+agent_deployments update | d1 --current_version_id v1
+agent_deployments update | d1 --current_version_id null
+agent_deployments update | d1 --current_version_id " null "
+agent_deployments update | d1
+agent_deployments update | d1 --current_version_id "  "
+agent_deployments delete | d1
+agent_deployments list_promotions | --agent_id a1
+framework: agent_deployments list_promotions |
+agent_deployments promote | d1
+
+# agent_associations
+agent_associations list_from | --agent_ids a1
+agent_associations list_from | --agent_ids " a1, ,a2 " --sort_field id --sort_direction desc --pagination_offset 0 --pagination_page_size 10
+agent_associations list_from | --agent_ids a1 --sort_field id
+agent_associations list_from | --agent_ids a1 --sort_field id --sort_direction asc
+agent_associations list_from | --agent_ids " , "
+agent_associations list_from | --agent_ids ", " --sort_direction asc
+agent_associations list_from | --agent_ids a1 --sort_direction asc
+framework: agent_associations list_from | --agent_ids a1 --sort_field name
+framework: agent_associations list_from | --agent_ids a1 --sort_direction up
+agent_associations list_from | --agent_ids a1 --pagination_offset -1
+agent_associations list_from | --agent_ids a1 --pagination_page_size 0
+agent_associations list_from | --agent_ids a1 --pagination_page_size 3abc
+framework: agent_associations list_from |
+agent_associations list_to | --agent_id a1
+agent_associations list_to | --agent_id a1 --sort_field id --sort_direction desc --pagination_offset 5 --pagination_page_size 2
+agent_associations list_to | --agent_id a1 --sort_direction desc
+agent_associations list_to | --agent_id a1 --pagination_offset x
+framework: agent_associations list_to |
+agent_associations retrieve | as1
+agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_demand
+agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_completion --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger on_completion --id bad
+framework: agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge --trigger sometimes
+framework: agent_associations create | --from_agent_id j1 --to_agent_id a1 --association_type judge
+framework: agent_associations create | --trigger on_demand
+agent_associations update | as1 --trigger on_completion
+framework: agent_associations update | as1 --trigger never
+framework: agent_associations update | as1
+agent_associations delete | as1
+
+# agent_instance_associations
+agent_instance_associations list_from | --agent_instance_ids i1,i2
+agent_instance_associations list_from | --agent_instance_ids i1 --sort_field id --sort_direction desc --pagination_offset 1 --pagination_page_size 5
+agent_instance_associations list_from | --agent_instance_ids ","
+agent_instance_associations list_from | --agent_instance_ids i1 --sort_direction desc
+framework: agent_instance_associations list_from | --agent_instance_ids i1 --sort_field other
+framework: agent_instance_associations list_from |
+agent_instance_associations list_to | --agent_instance_id i1
+agent_instance_associations list_to | --agent_instance_id i1 --sort_field id --pagination_offset 3 --pagination_page_size 7
+agent_instance_associations list_to | --agent_instance_id i1 --sort_direction asc
+agent_instance_associations list_to | --agent_instance_id i1 --pagination_page_size abc
+framework: agent_instance_associations list_to |
+agent_instance_associations retrieve | ia1
+
+# judges
+judges list |
+judges retrieve | j1
+judges show | --agent_id j1
+judges show | --external_identifier ext --environment_id env --include_counts --include_risk_rollup
+judges show | --agent_id "" --external_identifier ""
+judges show |
+judges create | --name Judge
+judges create | --name Judge --description D --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --team_id t1 --owner_person_id p1 --execution_mode remote
+judges create | --name Judge --description "" --team_id "" --owner_person_id ""
+framework: judges create | --name Judge --execution_mode cloud
+judges create | --name Judge --id bad
+framework: judges create |
+judges update | j1 --name N --description D --team_id t1 --owner_person_id p1
+judges update | j1 --name "" --description ""
+judges update | j1 --team_id t2
+judges update | j1
+judges delete | j1
+judges retire | j1
+judges reinstate | j1
+judges create_version | --agent_id j1 --hosted_llm_provider_model_id m1 --criterion "Is it helpful?"
+judges create_version | --agent_id j1 --hosted_llm_provider_model_id m1 --criterion @fixtures/text.md --external_identifier ext --system_prompt_template @fixtures/text.md
+judges create_version | --agent_id j1 --hosted_llm_provider_model_id m1 --criterion C --external_identifier "" --system_prompt_template "Judge: {{ criterion }}"
+judges create_version | --agent_id j1 --hosted_llm_provider_model_id m1 --criterion C --system_prompt_template ""
+framework: judges create_version | --agent_id j1 --hosted_llm_provider_model_id m1
+judges templates |
+judges score | i1 --judge_agent_id j1
+framework: judges score | i1
+
+# llm_providers
+llm_providers list |
+llm_providers list | --account_id acc1
+llm_providers list | --account_id ""
+llm_providers retrieve | lp1
+llm_providers create | --name P --provider anthropic --api_key " sk-1 "
+llm_providers create | --name P --provider custom_openai --api_key @fixtures/api-key.txt --api_base_url https://llm.example.com/v1 --account_id acc1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+llm_providers create | --name P --provider openai --api_key k --api_base_url "" --account_id "" --id ""
+llm_providers create | --name P --provider ollama_cloud --api_key k
+llm_providers create | --name P --provider together --api_key k
+framework: llm_providers create | --name P --provider gemini --api_key k
+llm_providers create | --name P --provider openai --api_key k --id bad
+framework: llm_providers create | --name P --api_key k
+framework: llm_providers create | --name P --provider openai
+llm_providers update | lp1 --name N
+llm_providers update | lp1 --api_key @fixtures/api-key.txt --api_base_url https://x.example.com
+llm_providers update | lp1 --name "" --api_key "  " --api_base_url ""
+llm_providers update | lp1
+llm_providers delete | lp1
+
+# llm_provider_models
+llm_provider_models list | --llm_provider_id lp1
+framework: llm_provider_models list |
+llm_provider_models retrieve | m1
+llm_provider_models create | --llm_provider_id lp1 --api_name gpt-x
+llm_provider_models create | --llm_provider_id lp1 --api_name gpt-x --name "GPT X" --models_dev_provider openai --models_dev_model_name gpt-x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+llm_provider_models create | --llm_provider_id lp1 --api_name gpt-x --name "" --models_dev_provider "" --models_dev_model_name "" --id ""
+llm_provider_models create | --llm_provider_id lp1 --api_name gpt-x --id bad
+framework: llm_provider_models create | --llm_provider_id lp1
+llm_provider_models update | m1 --api_name a --name n --models_dev_provider p --models_dev_model_name mn
+llm_provider_models update | m1 --name ""
+llm_provider_models update | m1
+llm_provider_models delete | m1
