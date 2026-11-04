@@ -89,6 +89,84 @@ func prepareCommandLine(root *cobra.Command, help *bool, argv func() []string) {
 	walk(root)
 }
 
+// addHelpCommands gives every command group Commander's "help [command]":
+// the group's help, or one of its commands' help, on stdout. Any other name
+// prints the group's help to stderr and fails. Options other than --version
+// are ignored, as Commander ignores them there.
+func addHelpCommands(cmd *cobra.Command, argv func() []string) {
+	if !isGroup(cmd) {
+		return
+	}
+	for _, sub := range cmd.Commands() {
+		addHelpCommands(sub, argv)
+	}
+
+	help := &cobra.Command{
+		Use:                "help [command]",
+		Short:              "display help for command",
+		DisableFlagParsing: true,
+		PersistentPreRunE: func(help *cobra.Command, _ []string) error {
+			if versionRequested(help, argv()) {
+				return printVersion(help)
+			}
+			return nil
+		},
+		RunE: func(help *cobra.Command, args []string) error {
+			group := help.Parent()
+			names := operands(help, args)
+			if len(names) == 0 {
+				return group.Help()
+			}
+			for _, sub := range group.Commands() {
+				if sub.Name() == names[0] && sub != help {
+					return sub.Help()
+				}
+			}
+			group.SetOut(group.ErrOrStderr())
+			_ = group.Help()
+			return &exitError{code: 1}
+		},
+	}
+	if cmd.HasParent() {
+		cmd.AddCommand(help)
+	} else {
+		cmd.SetHelpCommand(help)
+	}
+}
+
+// operands returns the arguments Commander's root reads as operands: those
+// before the first unknown option that are not options or their values.
+func operands(cmd *cobra.Command, args []string) []string {
+	flags := cmd.Root().Flags()
+	var result []string
+	for i := 0; i < len(args); i++ {
+		token := args[i]
+		var f *pflag.Flag
+		switch {
+		case token == "--":
+			return append(result, args[i+1:]...)
+		case strings.HasPrefix(token, "--"):
+			name, _, hasValue := strings.Cut(token[2:], "=")
+			if f = flags.Lookup(name); f == nil {
+				return result
+			}
+			if takesValue(f) && !hasValue {
+				i++
+			}
+		case strings.HasPrefix(token, "-") && len(token) > 1:
+			if f = flags.ShorthandLookup(token[1:2]); f == nil {
+				return result
+			}
+			if takesValue(f) && len(token) == 2 {
+				i++
+			}
+		default:
+			result = append(result, token)
+		}
+	}
+	return result
+}
+
 // helpFlag records --help and -h so that prepareRun shows help where
 // Commander does. Cobra always reads it as false, so it never shows help
 // before the option values are checked.

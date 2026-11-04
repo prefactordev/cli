@@ -1,6 +1,7 @@
 [
   {
     "path": "",
+    "description": "Prefactor CLI for managing Prefactor resources",
     "arguments": [],
     "options": [
       {
@@ -13,7 +14,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "output the version number",
+        "defaultValue": null
       },
       {
         "flags": "--profile <name>",
@@ -25,7 +28,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Profile name to use for commands",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": true,
@@ -33,6 +38,7 @@
   },
   {
     "path": "login",
+    "description": "Authenticate the CLI with your Prefactor account",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -40,6 +46,7 @@
   },
   {
     "path": "profiles",
+    "description": "Manage CLI profiles",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -47,6 +54,7 @@
   },
   {
     "path": "profiles list",
+    "description": "List configured profiles",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -54,6 +62,7 @@
   },
   {
     "path": "profiles add",
+    "description": "Add or update a profile",
     "arguments": [
       {
         "name": "name",
@@ -77,7 +86,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "API token for this profile",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -85,6 +96,7 @@
   },
   {
     "path": "profiles remove",
+    "description": "Remove a profile",
     "arguments": [
       {
         "name": "name",
@@ -98,6 +110,7 @@
   },
   {
     "path": "accounts",
+    "description": "Manage accounts",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -105,6 +118,7 @@
   },
   {
     "path": "accounts list",
+    "description": "List accounts",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -112,6 +126,7 @@
   },
   {
     "path": "accounts retrieve",
+    "description": "Retrieve account",
     "arguments": [
       {
         "name": "id",
@@ -125,6 +140,7 @@
   },
   {
     "path": "accounts update",
+    "description": "Update account",
     "arguments": [
       {
         "name": "id",
@@ -143,7 +159,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account name",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -151,6 +169,7 @@
   },
   {
     "path": "integrations",
+    "description": "Manage account integrations",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -158,6 +177,7 @@
   },
   {
     "path": "integrations list",
+    "description": "List configured integrations",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -165,6 +185,7 @@
   },
   {
     "path": "integrations retrieve",
+    "description": "Retrieve integration config with secrets redacted",
     "arguments": [
       {
         "name": "type",
@@ -178,6 +199,7 @@
   },
   {
     "path": "integrations delete",
+    "description": "Remove an integration",
     "arguments": [
       {
         "name": "type",
@@ -191,6 +213,7 @@
   },
   {
     "path": "integrations test",
+    "description": "Send a test notification",
     "arguments": [
       {
         "name": "type",
@@ -204,6 +227,7 @@
   },
   {
     "path": "integrations update",
+    "description": "Create or replace Slack integration config",
     "arguments": [
       {
         "name": "type",
@@ -222,7 +246,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Slack incoming webhook URL (replaces the saved URL)",
+        "defaultValue": null
       },
       {
         "flags": "--enabled_events <events>",
@@ -234,7 +260,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Comma-separated event names; use \"\" for no events",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -242,6 +270,7 @@
   },
   {
     "path": "agents",
+    "description": "Manage agents",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -249,6 +278,7 @@
   },
   {
     "path": "agents list",
+    "description": "List agents",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -256,6 +286,7 @@
   },
   {
     "path": "agents retrieve",
+    "description": "Retrieve agent",
     "arguments": [
       {
         "name": "id",
@@ -269,6 +300,7 @@
   },
   {
     "path": "agents show",
+    "description": "Show agent by id or external identifier",
     "arguments": [],
     "options": [
       {
@@ -281,7 +313,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -293,7 +327,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -305,7 +341,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--include_counts",
@@ -317,7 +355,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include instance counts",
+        "defaultValue": null
       },
       {
         "flags": "--include_risk_rollup",
@@ -329,7 +369,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include risk rollup",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -337,6 +379,7 @@
   },
   {
     "path": "agents create",
+    "description": "Create agent",
     "arguments": [],
     "options": [
       {
@@ -349,7 +392,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -361,7 +406,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent description",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -373,7 +420,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -381,6 +430,7 @@
   },
   {
     "path": "agents update",
+    "description": "Update agent",
     "arguments": [
       {
         "name": "id",
@@ -399,7 +449,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -411,7 +463,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent description",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -419,6 +473,7 @@
   },
   {
     "path": "agents delete",
+    "description": "Delete agent",
     "arguments": [
       {
         "name": "id",
@@ -432,6 +487,7 @@
   },
   {
     "path": "agents retire",
+    "description": "Retire agent",
     "arguments": [
       {
         "name": "id",
@@ -445,6 +501,7 @@
   },
   {
     "path": "agents reinstate",
+    "description": "Reinstate agent",
     "arguments": [
       {
         "name": "id",
@@ -458,6 +515,7 @@
   },
   {
     "path": "judges",
+    "description": "Manage judge agents",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -465,6 +523,7 @@
   },
   {
     "path": "judges list",
+    "description": "List judges",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -472,6 +531,7 @@
   },
   {
     "path": "judges retrieve",
+    "description": "Retrieve a judge",
     "arguments": [
       {
         "name": "id",
@@ -485,6 +545,7 @@
   },
   {
     "path": "judges show",
+    "description": "Show a judge by id or external identifier",
     "arguments": [],
     "options": [
       {
@@ -497,7 +558,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -509,7 +572,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -521,7 +586,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--include_counts",
@@ -533,7 +600,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include instance counts",
+        "defaultValue": null
       },
       {
         "flags": "--include_risk_rollup",
@@ -545,7 +614,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include risk rollup",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -553,6 +624,7 @@
   },
   {
     "path": "judges create",
+    "description": "Create a judge",
     "arguments": [],
     "options": [
       {
@@ -565,7 +637,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -577,7 +651,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge description",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -589,7 +665,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--team_id <team_id>",
@@ -601,7 +679,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team ID",
+        "defaultValue": null
       },
       {
         "flags": "--owner_person_id <owner_person_id>",
@@ -613,7 +693,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Owner person ID",
+        "defaultValue": null
       },
       {
         "flags": "--execution_mode <mode>",
@@ -628,7 +710,9 @@
           "hosted",
           "remote"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Expected execution",
+        "defaultValue": "hosted"
       }
     ],
     "hasSubcommands": false,
@@ -636,6 +720,7 @@
   },
   {
     "path": "judges update",
+    "description": "Update a judge",
     "arguments": [
       {
         "name": "id",
@@ -654,7 +739,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -666,7 +753,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge description",
+        "defaultValue": null
       },
       {
         "flags": "--team_id <team_id>",
@@ -678,7 +767,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team ID",
+        "defaultValue": null
       },
       {
         "flags": "--owner_person_id <owner_person_id>",
@@ -690,7 +781,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Owner person ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -698,6 +791,7 @@
   },
   {
     "path": "judges delete",
+    "description": "Delete a judge",
     "arguments": [
       {
         "name": "id",
@@ -711,6 +805,7 @@
   },
   {
     "path": "judges retire",
+    "description": "Retire a judge",
     "arguments": [
       {
         "name": "id",
@@ -724,6 +819,7 @@
   },
   {
     "path": "judges reinstate",
+    "description": "Reinstate a judge",
     "arguments": [
       {
         "name": "id",
@@ -737,6 +833,7 @@
   },
   {
     "path": "judges create_version",
+    "description": "Find or create a hosted judge version",
     "arguments": [],
     "options": [
       {
@@ -749,7 +846,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--hosted_llm_provider_model_id <id>",
@@ -761,7 +860,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "LLM provider model ID",
+        "defaultValue": null
       },
       {
         "flags": "--criterion <criterion>",
@@ -773,7 +874,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge criterion, or @path to read a text file",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -785,7 +888,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--system_prompt_template <template>",
@@ -797,7 +902,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Liquid system prompt template, or @path to read a text file. criterion is the only variable",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -805,6 +912,7 @@
   },
   {
     "path": "judges templates",
+    "description": "List the built-in judge templates",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -812,6 +920,7 @@
   },
   {
     "path": "judges score",
+    "description": "Ask a judge to score an agent instance",
     "arguments": [
       {
         "name": "agent_instance_id",
@@ -830,7 +939,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge that should score this instance",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -838,6 +949,7 @@
   },
   {
     "path": "agent_associations",
+    "description": "Manage associations between a judge and an agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -845,6 +957,7 @@
   },
   {
     "path": "agent_associations list_from",
+    "description": "List associations from judges",
     "arguments": [],
     "options": [
       {
@@ -857,7 +970,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Comma-separated judge agent IDs",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -871,7 +986,9 @@
         "choices": [
           "id"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -886,7 +1003,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -898,7 +1017,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -910,7 +1031,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -918,6 +1041,7 @@
   },
   {
     "path": "agent_associations list_to",
+    "description": "List associations to an agent",
     "arguments": [],
     "options": [
       {
@@ -930,7 +1054,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -944,7 +1070,9 @@
         "choices": [
           "id"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -959,7 +1087,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -971,7 +1101,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -983,7 +1115,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -991,6 +1125,7 @@
   },
   {
     "path": "agent_associations retrieve",
+    "description": "Retrieve an agent association",
     "arguments": [
       {
         "name": "id",
@@ -1004,6 +1139,7 @@
   },
   {
     "path": "agent_associations create",
+    "description": "Create an agent association",
     "arguments": [],
     "options": [
       {
@@ -1016,7 +1152,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judge agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--to_agent_id <to_agent_id>",
@@ -1028,7 +1166,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent the judge scores",
+        "defaultValue": null
       },
       {
         "flags": "--association_type <association_type>",
@@ -1040,7 +1180,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Association type",
+        "defaultValue": null
       },
       {
         "flags": "--trigger <trigger>",
@@ -1055,7 +1197,9 @@
           "on_demand",
           "on_completion"
         ],
-        "parser": null
+        "parser": null,
+        "description": "When the judge runs",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -1067,7 +1211,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Association ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1075,6 +1221,7 @@
   },
   {
     "path": "agent_associations update",
+    "description": "Update an agent association trigger",
     "arguments": [
       {
         "name": "id",
@@ -1096,7 +1243,9 @@
           "on_demand",
           "on_completion"
         ],
-        "parser": null
+        "parser": null,
+        "description": "When the judge runs",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1104,6 +1253,7 @@
   },
   {
     "path": "agent_associations delete",
+    "description": "Delete an agent association",
     "arguments": [
       {
         "name": "id",
@@ -1117,6 +1267,7 @@
   },
   {
     "path": "agent_instance_associations",
+    "description": "Read associations between agent instances",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1124,6 +1275,7 @@
   },
   {
     "path": "agent_instance_associations list_from",
+    "description": "List associations from agent instances",
     "arguments": [],
     "options": [
       {
@@ -1136,7 +1288,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Comma-separated agent instance IDs (the judge runs)",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -1150,7 +1304,9 @@
         "choices": [
           "id"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -1165,7 +1321,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -1177,7 +1335,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -1189,7 +1349,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1197,6 +1359,7 @@
   },
   {
     "path": "agent_instance_associations list_to",
+    "description": "List associations to an agent instance",
     "arguments": [],
     "options": [
       {
@@ -1209,7 +1372,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Judged agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -1223,7 +1388,9 @@
         "choices": [
           "id"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -1238,7 +1405,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -1250,7 +1419,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -1262,7 +1433,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1270,6 +1443,7 @@
   },
   {
     "path": "agent_instance_associations retrieve",
+    "description": "Retrieve an agent instance association",
     "arguments": [
       {
         "name": "id",
@@ -1283,6 +1457,7 @@
   },
   {
     "path": "llm_providers",
+    "description": "Manage language model providers for hosted judges",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1290,6 +1465,7 @@
   },
   {
     "path": "llm_providers list",
+    "description": "List LLM providers",
     "arguments": [],
     "options": [
       {
@@ -1302,7 +1478,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1310,6 +1488,7 @@
   },
   {
     "path": "llm_providers retrieve",
+    "description": "Retrieve an LLM provider",
     "arguments": [
       {
         "name": "id",
@@ -1323,6 +1502,7 @@
   },
   {
     "path": "llm_providers create",
+    "description": "Create an LLM provider",
     "arguments": [],
     "options": [
       {
@@ -1335,7 +1515,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Provider name, unique in the account",
+        "defaultValue": null
       },
       {
         "flags": "--provider <provider>",
@@ -1353,7 +1535,9 @@
           "together",
           "custom_openai"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Provider type",
+        "defaultValue": null
       },
       {
         "flags": "--api_key <api_key>",
@@ -1365,7 +1549,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "API key, or @path to read it from a file",
+        "defaultValue": null
       },
       {
         "flags": "--api_base_url <url>",
@@ -1377,7 +1563,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Endpoint URL; required for custom_openai",
+        "defaultValue": null
       },
       {
         "flags": "--account_id <account_id>",
@@ -1389,7 +1577,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -1401,7 +1591,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "LLM provider ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1409,6 +1601,7 @@
   },
   {
     "path": "llm_providers update",
+    "description": "Update an LLM provider; the provider type cannot change",
     "arguments": [
       {
         "name": "id",
@@ -1427,7 +1620,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Provider name",
+        "defaultValue": null
       },
       {
         "flags": "--api_key <api_key>",
@@ -1439,7 +1634,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "New API key, or @path to read it from a file",
+        "defaultValue": null
       },
       {
         "flags": "--api_base_url <url>",
@@ -1451,7 +1648,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Endpoint URL of a custom_openai provider",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1459,6 +1658,7 @@
   },
   {
     "path": "llm_providers delete",
+    "description": "Delete an LLM provider and its models",
     "arguments": [
       {
         "name": "id",
@@ -1472,6 +1672,7 @@
   },
   {
     "path": "llm_provider_models",
+    "description": "Manage the models available through an LLM provider",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1479,6 +1680,7 @@
   },
   {
     "path": "llm_provider_models list",
+    "description": "List the models of an LLM provider",
     "arguments": [],
     "options": [
       {
@@ -1491,7 +1693,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "LLM provider ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1499,6 +1703,7 @@
   },
   {
     "path": "llm_provider_models retrieve",
+    "description": "Retrieve an LLM provider model",
     "arguments": [
       {
         "name": "id",
@@ -1512,6 +1717,7 @@
   },
   {
     "path": "llm_provider_models create",
+    "description": "Add a model. For named providers, Prefactor fills in the name and pricing from models.dev",
     "arguments": [],
     "options": [
       {
@@ -1524,7 +1730,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "LLM provider ID",
+        "defaultValue": null
       },
       {
         "flags": "--api_name <api_name>",
@@ -1536,7 +1744,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Model name the provider API expects",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -1548,7 +1758,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Display name; required for custom_openai",
+        "defaultValue": null
       },
       {
         "flags": "--models_dev_provider <provider>",
@@ -1560,7 +1772,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "models.dev provider, for custom_openai pricing",
+        "defaultValue": null
       },
       {
         "flags": "--models_dev_model_name <name>",
@@ -1572,7 +1786,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "models.dev model name, for custom_openai pricing",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -1584,7 +1800,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "LLM provider model ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1592,6 +1810,7 @@
   },
   {
     "path": "llm_provider_models update",
+    "description": "Update an LLM provider model",
     "arguments": [
       {
         "name": "id",
@@ -1610,7 +1829,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Model name the provider API expects",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -1622,7 +1843,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Display name",
+        "defaultValue": null
       },
       {
         "flags": "--models_dev_provider <provider>",
@@ -1634,7 +1857,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "models.dev provider",
+        "defaultValue": null
       },
       {
         "flags": "--models_dev_model_name <name>",
@@ -1646,7 +1871,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "models.dev model name",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1654,6 +1881,7 @@
   },
   {
     "path": "llm_provider_models delete",
+    "description": "Delete an LLM provider model",
     "arguments": [
       {
         "name": "id",
@@ -1667,6 +1895,7 @@
   },
   {
     "path": "environments",
+    "description": "Manage environments",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1674,6 +1903,7 @@
   },
   {
     "path": "environments list",
+    "description": "List environments",
     "arguments": [],
     "options": [
       {
@@ -1686,7 +1916,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1694,6 +1926,7 @@
   },
   {
     "path": "environments retrieve",
+    "description": "Retrieve environment",
     "arguments": [
       {
         "name": "id",
@@ -1707,6 +1940,7 @@
   },
   {
     "path": "environments show",
+    "description": "Show environment by id or external identifier",
     "arguments": [],
     "options": [
       {
@@ -1719,7 +1953,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -1731,7 +1967,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1739,6 +1977,7 @@
   },
   {
     "path": "environments create",
+    "description": "Create environment",
     "arguments": [],
     "options": [
       {
@@ -1751,7 +1990,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment name",
+        "defaultValue": null
       },
       {
         "flags": "--account_id <account_id>",
@@ -1763,7 +2004,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -1775,7 +2018,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1783,6 +2028,7 @@
   },
   {
     "path": "environments update",
+    "description": "Update environment",
     "arguments": [
       {
         "name": "id",
@@ -1801,7 +2047,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment name",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1809,6 +2057,7 @@
   },
   {
     "path": "environments delete",
+    "description": "Delete environment",
     "arguments": [
       {
         "name": "id",
@@ -1822,6 +2071,7 @@
   },
   {
     "path": "agent_versions",
+    "description": "Manage agent versions",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1829,6 +2079,7 @@
   },
   {
     "path": "agent_versions list",
+    "description": "List agent versions",
     "arguments": [],
     "options": [
       {
@@ -1841,7 +2092,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1849,6 +2102,7 @@
   },
   {
     "path": "agent_versions retrieve",
+    "description": "Retrieve agent version",
     "arguments": [
       {
         "name": "id",
@@ -1862,6 +2116,7 @@
   },
   {
     "path": "agent_versions create",
+    "description": "Create agent version",
     "arguments": [],
     "options": [
       {
@@ -1874,7 +2129,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -1886,7 +2143,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--agent_schema_version_id <agent_schema_version_id>",
@@ -1898,7 +2157,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent schema version ID",
+        "defaultValue": null
       },
       {
         "flags": "--execution_mode <mode>",
@@ -1913,7 +2174,9 @@
           "hosted",
           "remote"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Where this version runs",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1921,6 +2184,7 @@
   },
   {
     "path": "agent_schema_versions",
+    "description": "Manage agent schema versions",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -1928,6 +2192,7 @@
   },
   {
     "path": "agent_schema_versions list",
+    "description": "List agent schema versions",
     "arguments": [],
     "options": [
       {
@@ -1940,7 +2205,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -1948,6 +2215,7 @@
   },
   {
     "path": "agent_schema_versions retrieve",
+    "description": "Retrieve agent schema version",
     "arguments": [
       {
         "name": "id",
@@ -1961,6 +2229,7 @@
   },
   {
     "path": "agent_schema_versions create",
+    "description": "Create agent schema version",
     "arguments": [],
     "options": [
       {
@@ -1973,7 +2242,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -1985,7 +2256,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--span_schemas <span_schemas>",
@@ -1997,7 +2270,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--span_type_schemas <span_type_schemas>",
@@ -2009,7 +2284,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON array or @file",
+        "defaultValue": null
       },
       {
         "flags": "--span_result_schemas <span_result_schemas>",
@@ -2021,7 +2298,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--instance_params_payload_schema <schema>",
@@ -2033,7 +2312,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run input: {\"schema\":{...},\"title\"?,\"description\"?,\"template\"?} or @file",
+        "defaultValue": null
       },
       {
         "flags": "--instance_result_payload_schema <schema>",
@@ -2045,7 +2326,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run result, same shape, or @file",
+        "defaultValue": null
       },
       {
         "flags": "--instance_metadata_schema <schema>",
@@ -2057,7 +2340,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run metadata, same shape, or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2065,6 +2350,7 @@
   },
   {
     "path": "agent_instances",
+    "description": "Manage agent instances",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -2072,6 +2358,7 @@
   },
   {
     "path": "agent_instances list",
+    "description": "List agent instances",
     "arguments": [],
     "options": [
       {
@@ -2084,7 +2371,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--statuses <statuses>",
@@ -2096,7 +2385,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Comma-separated statuses to include (preparing, pending, active, complete, failed, cancelled, terminated)",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2104,6 +2395,7 @@
   },
   {
     "path": "agent_instances retrieve",
+    "description": "Retrieve agent instance",
     "arguments": [
       {
         "name": "id",
@@ -2117,6 +2409,7 @@
   },
   {
     "path": "agent_instances show",
+    "description": "Show agent instance by id or external identifier",
     "arguments": [],
     "options": [
       {
@@ -2129,7 +2422,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--external_identifier <external_identifier>",
@@ -2141,7 +2436,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "External identifier",
+        "defaultValue": null
       },
       {
         "flags": "--include_counts",
@@ -2153,7 +2450,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include span counts",
+        "defaultValue": null
       },
       {
         "flags": "--include_costs",
@@ -2165,7 +2464,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include cost breakdown",
+        "defaultValue": null
       },
       {
         "flags": "--include_risk_score",
@@ -2177,7 +2478,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include risk score",
+        "defaultValue": null
       },
       {
         "flags": "--include_alert_count",
@@ -2189,7 +2492,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include raised alert count",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2197,6 +2502,7 @@
   },
   {
     "path": "agent_instances agent_context",
+    "description": "Export debugging context JSON for an agent instance",
     "arguments": [
       {
         "name": "id",
@@ -2215,7 +2521,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Write context JSON body to this file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2223,6 +2531,7 @@
   },
   {
     "path": "agent_instances register",
+    "description": "Register agent instance",
     "arguments": [],
     "options": [
       {
@@ -2235,7 +2544,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--agent_version_external_identifier <agent_version_external_identifier>",
@@ -2247,7 +2558,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent version external identifier",
+        "defaultValue": null
       },
       {
         "flags": "--agent_version_name <agent_version_name>",
@@ -2259,7 +2572,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent version name",
+        "defaultValue": null
       },
       {
         "flags": "--agent_version_description <agent_version_description>",
@@ -2271,7 +2586,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent version description",
+        "defaultValue": null
       },
       {
         "flags": "--agent_schema_version_external_identifier <agent_schema_version_external_identifier>",
@@ -2283,7 +2600,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent schema version external identifier",
+        "defaultValue": null
       },
       {
         "flags": "--span_schemas <span_schemas>",
@@ -2295,7 +2614,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--span_type_schemas <span_type_schemas>",
@@ -2307,7 +2628,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON array or @file",
+        "defaultValue": null
       },
       {
         "flags": "--span_result_schemas <span_result_schemas>",
@@ -2319,7 +2642,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -2331,7 +2656,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--purpose <purpose>",
@@ -2347,7 +2674,9 @@
           "smoke_test",
           "eval"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Why the run happened",
+        "defaultValue": null
       },
       {
         "flags": "--instance_params_payload_schema <schema>",
@@ -2359,7 +2688,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run input: {\"schema\":{...},\"title\"?,\"description\"?,\"template\"?} or @file",
+        "defaultValue": null
       },
       {
         "flags": "--instance_result_payload_schema <schema>",
@@ -2371,7 +2702,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run result, same shape, or @file",
+        "defaultValue": null
       },
       {
         "flags": "--instance_metadata_schema <schema>",
@@ -2383,7 +2716,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema for the run metadata, same shape, or @file",
+        "defaultValue": null
       },
       {
         "flags": "--params_payload <params_payload>",
@@ -2395,7 +2730,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Run input: JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--metadata <metadata>",
@@ -2407,7 +2744,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Run metadata: JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -2419,7 +2758,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--update_current_version",
@@ -2431,7 +2772,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Update current version",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2439,6 +2782,7 @@
   },
   {
     "path": "agent_instances start",
+    "description": "Start agent instance",
     "arguments": [
       {
         "name": "id",
@@ -2457,7 +2801,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Timestamp",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2465,6 +2811,7 @@
   },
   {
     "path": "agent_instances finish",
+    "description": "Finish agent instance",
     "arguments": [
       {
         "name": "id",
@@ -2483,7 +2830,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Timestamp",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -2499,7 +2848,9 @@
           "failed",
           "cancelled"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Status",
+        "defaultValue": null
       },
       {
         "flags": "--result_payload <result_payload>",
@@ -2511,7 +2862,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Run result: JSON object or @file. Recorded on complete or failed; ignored on cancelled",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2519,6 +2872,7 @@
   },
   {
     "path": "agent_instances prepare",
+    "description": "Set the input of a preparing instance and move it to pending",
     "arguments": [
       {
         "name": "id",
@@ -2537,7 +2891,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Run input: JSON object or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2545,6 +2901,7 @@
   },
   {
     "path": "agent_instances record_quality",
+    "description": "Record a named quality payload on an instance",
     "arguments": [
       {
         "name": "id",
@@ -2563,7 +2920,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Quality schema name",
+        "defaultValue": null
       },
       {
         "flags": "--payload <payload>",
@@ -2575,7 +2934,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Quality payload: JSON object or @file, or null to clear",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2583,6 +2944,7 @@
   },
   {
     "path": "agent_instances discard_sensitive",
+    "description": "Permanently delete the stored sensitive values in an instance's input, result, and metadata",
     "arguments": [
       {
         "name": "id",
@@ -2596,6 +2958,7 @@
   },
   {
     "path": "agent_instances terminate",
+    "description": "Terminate agent instance",
     "arguments": [
       {
         "name": "id",
@@ -2614,7 +2977,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Termination reason",
+        "defaultValue": null
       },
       {
         "flags": "--timestamp <timestamp>",
@@ -2626,7 +2991,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Timestamp",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2634,6 +3001,7 @@
   },
   {
     "path": "agent_deployments",
+    "description": "Manage agent deployments",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -2641,6 +3009,7 @@
   },
   {
     "path": "agent_deployments list",
+    "description": "List agent deployments",
     "arguments": [],
     "options": [
       {
@@ -2653,7 +3022,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2661,6 +3032,7 @@
   },
   {
     "path": "agent_deployments retrieve",
+    "description": "Retrieve agent deployment",
     "arguments": [
       {
         "name": "id",
@@ -2674,6 +3046,7 @@
   },
   {
     "path": "agent_deployments create",
+    "description": "Create agent deployment",
     "arguments": [],
     "options": [
       {
@@ -2686,7 +3059,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -2698,7 +3073,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -2710,7 +3087,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Deployment ID",
+        "defaultValue": null
       },
       {
         "flags": "--current_version_id <current_version_id>",
@@ -2722,7 +3101,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Current agent version ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2730,6 +3111,7 @@
   },
   {
     "path": "agent_deployments update",
+    "description": "Update agent deployment",
     "arguments": [
       {
         "name": "id",
@@ -2748,7 +3130,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Current agent version ID (null clears the pin)",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2756,6 +3140,7 @@
   },
   {
     "path": "agent_deployments delete",
+    "description": "Delete agent deployment",
     "arguments": [
       {
         "name": "id",
@@ -2769,6 +3154,7 @@
   },
   {
     "path": "agent_deployments list_promotions",
+    "description": "List deployments of a hosted agent that can move to the next environment",
     "arguments": [],
     "options": [
       {
@@ -2781,7 +3167,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2789,6 +3177,7 @@
   },
   {
     "path": "agent_deployments promote",
+    "description": "Pin this deployment's current version in the next environment",
     "arguments": [
       {
         "name": "id",
@@ -2802,6 +3191,7 @@
   },
   {
     "path": "agent_spans",
+    "description": "Manage agent spans",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -2809,6 +3199,7 @@
   },
   {
     "path": "agent_spans list",
+    "description": "List agent spans",
     "arguments": [],
     "options": [
       {
@@ -2821,7 +3212,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--start_time <start_time>",
@@ -2833,7 +3226,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Start time",
+        "defaultValue": null
       },
       {
         "flags": "--end_time <end_time>",
@@ -2845,7 +3240,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "End time",
+        "defaultValue": null
       },
       {
         "flags": "--include_summaries",
@@ -2857,7 +3254,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Include summaries",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2865,6 +3264,7 @@
   },
   {
     "path": "agent_spans retrieve",
+    "description": "Retrieve agent span",
     "arguments": [
       {
         "name": "id",
@@ -2883,7 +3283,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Return redacted payloads",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -2891,6 +3293,7 @@
   },
   {
     "path": "agent_spans create",
+    "description": "Create agent span",
     "arguments": [],
     "options": [
       {
@@ -2903,7 +3306,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--payload <payload>",
@@ -2915,7 +3320,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--schema_name <schema_name>",
@@ -2927,7 +3334,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Schema name",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -2944,7 +3353,9 @@
           "failed",
           "cancelled"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Status",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -2956,7 +3367,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Span ID",
+        "defaultValue": null
       },
       {
         "flags": "--parent_span_id <parent_span_id>",
@@ -2968,7 +3381,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Parent span ID",
+        "defaultValue": null
       },
       {
         "flags": "--started_at <started_at>",
@@ -2980,7 +3395,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Started at",
+        "defaultValue": null
       },
       {
         "flags": "--finished_at <finished_at>",
@@ -2992,7 +3409,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Finished at",
+        "defaultValue": null
       },
       {
         "flags": "--result_payload <result_payload>",
@@ -3004,7 +3423,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3012,6 +3433,7 @@
   },
   {
     "path": "agent_spans finish",
+    "description": "Finish agent span",
     "arguments": [
       {
         "name": "id",
@@ -3030,7 +3452,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Timestamp",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -3046,7 +3470,9 @@
           "failed",
           "cancelled"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Status",
+        "defaultValue": null
       },
       {
         "flags": "--result_payload <result_payload>",
@@ -3058,7 +3484,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3066,6 +3494,7 @@
   },
   {
     "path": "agent_spans discard_sensitive",
+    "description": "Discard sensitive payload data from an agent span",
     "arguments": [
       {
         "name": "id",
@@ -3079,6 +3508,7 @@
   },
   {
     "path": "alerts",
+    "description": "Manage alerts",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -3086,6 +3516,7 @@
   },
   {
     "path": "alerts list",
+    "description": "List alerts",
     "arguments": [],
     "options": [
       {
@@ -3098,7 +3529,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--agent_id <agent_id>",
@@ -3110,7 +3543,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -3122,7 +3557,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -3137,7 +3574,9 @@
           "raised",
           "cleared"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert status",
+        "defaultValue": null
       },
       {
         "flags": "--severity <severity>",
@@ -3154,7 +3593,9 @@
           "warning",
           "info"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert severity",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -3166,7 +3607,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Alert name",
+        "defaultValue": null
       },
       {
         "flags": "--active_during_start_at <active_during_start_at>",
@@ -3178,7 +3621,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Active during start time",
+        "defaultValue": null
       },
       {
         "flags": "--active_during_finish_at <active_during_finish_at>",
@@ -3190,7 +3635,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Active during finish time",
+        "defaultValue": null
       },
       {
         "flags": "--sorting <sorting>",
@@ -3202,7 +3649,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Sorting",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -3214,7 +3663,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -3226,7 +3677,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3234,6 +3687,7 @@
   },
   {
     "path": "alerts retrieve",
+    "description": "Retrieve alert",
     "arguments": [
       {
         "name": "id",
@@ -3247,6 +3701,7 @@
   },
   {
     "path": "alerts count",
+    "description": "Count alerts",
     "arguments": [],
     "options": [
       {
@@ -3262,7 +3717,9 @@
           "raised",
           "cleared"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert status",
+        "defaultValue": null
       },
       {
         "flags": "--severity <severity>",
@@ -3279,7 +3736,9 @@
           "warning",
           "info"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert severity",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3287,6 +3746,7 @@
   },
   {
     "path": "alerts raise",
+    "description": "Raise an alert",
     "arguments": [],
     "options": [
       {
@@ -3299,7 +3759,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -3311,7 +3773,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Alert name",
+        "defaultValue": null
       },
       {
         "flags": "--severity <severity>",
@@ -3328,7 +3792,9 @@
           "warning",
           "info"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert severity",
+        "defaultValue": null
       },
       {
         "flags": "--payload <payload>",
@@ -3340,7 +3806,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--raised_at <raised_at>",
@@ -3352,7 +3820,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Raised at",
+        "defaultValue": null
       },
       {
         "flags": "--payload_sensitive_encoding",
@@ -3364,7 +3834,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Payload uses sensitive encoding",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3372,6 +3844,7 @@
   },
   {
     "path": "alerts clear",
+    "description": "Clear an alert",
     "arguments": [],
     "options": [
       {
@@ -3384,7 +3857,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -3396,7 +3871,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Alert name",
+        "defaultValue": null
       },
       {
         "flags": "--payload <payload>",
@@ -3408,7 +3885,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--severity <severity>",
@@ -3425,7 +3904,9 @@
           "warning",
           "info"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Alert severity",
+        "defaultValue": null
       },
       {
         "flags": "--cleared_at <cleared_at>",
@@ -3437,7 +3918,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Cleared at",
+        "defaultValue": null
       },
       {
         "flags": "--payload_sensitive_encoding",
@@ -3449,7 +3932,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Payload uses sensitive encoding",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3457,6 +3942,7 @@
   },
   {
     "path": "people",
+    "description": "Manage people",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -3464,6 +3950,7 @@
   },
   {
     "path": "people list",
+    "description": "List people",
     "arguments": [],
     "options": [
       {
@@ -3476,7 +3963,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team ID",
+        "defaultValue": null
       },
       {
         "flags": "--sorting <sorting>",
@@ -3488,7 +3977,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Sorting",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -3500,7 +3991,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -3512,7 +4005,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3520,6 +4015,7 @@
   },
   {
     "path": "people retrieve",
+    "description": "Retrieve person",
     "arguments": [
       {
         "name": "id",
@@ -3533,6 +4029,7 @@
   },
   {
     "path": "people create",
+    "description": "Create person",
     "arguments": [],
     "options": [
       {
@@ -3545,7 +4042,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Email",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -3557,7 +4056,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Name",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -3569,7 +4070,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Person ID",
+        "defaultValue": null
       },
       {
         "flags": "--team_ids <team_ids>",
@@ -3581,7 +4084,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON array of team IDs or @file",
+        "defaultValue": null
       },
       {
         "flags": "--title <title>",
@@ -3593,7 +4098,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Job title",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3601,6 +4108,7 @@
   },
   {
     "path": "people update",
+    "description": "Update person",
     "arguments": [
       {
         "name": "id",
@@ -3619,7 +4127,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Email",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -3631,7 +4141,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Name",
+        "defaultValue": null
       },
       {
         "flags": "--team_ids <team_ids>",
@@ -3643,7 +4155,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON array of team IDs or @file",
+        "defaultValue": null
       },
       {
         "flags": "--title <title>",
@@ -3655,7 +4169,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Job title",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3663,6 +4179,7 @@
   },
   {
     "path": "people delete",
+    "description": "Delete person",
     "arguments": [
       {
         "name": "id",
@@ -3676,6 +4193,7 @@
   },
   {
     "path": "teams",
+    "description": "Manage teams",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -3683,6 +4201,7 @@
   },
   {
     "path": "teams list",
+    "description": "List teams",
     "arguments": [],
     "options": [
       {
@@ -3695,7 +4214,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Sorting",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -3707,7 +4228,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -3719,7 +4242,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3727,6 +4252,7 @@
   },
   {
     "path": "teams retrieve",
+    "description": "Retrieve team",
     "arguments": [
       {
         "name": "id",
@@ -3740,6 +4266,7 @@
   },
   {
     "path": "teams create",
+    "description": "Create team",
     "arguments": [],
     "options": [
       {
@@ -3752,7 +4279,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team name",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -3764,7 +4293,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3772,6 +4303,7 @@
   },
   {
     "path": "teams update",
+    "description": "Update team",
     "arguments": [
       {
         "name": "id",
@@ -3790,7 +4322,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Team name",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3798,6 +4332,7 @@
   },
   {
     "path": "teams delete",
+    "description": "Delete team",
     "arguments": [
       {
         "name": "id",
@@ -3811,6 +4346,7 @@
   },
   {
     "path": "knowledgebases",
+    "description": "Manage knowledgebases",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -3818,6 +4354,7 @@
   },
   {
     "path": "knowledgebases list",
+    "description": "List knowledgebases",
     "arguments": [],
     "options": [
       {
@@ -3830,7 +4367,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -3845,7 +4384,9 @@
           "active",
           "archived"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase status",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -3860,7 +4401,9 @@
           "id",
           "name"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -3875,7 +4418,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -3887,7 +4432,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -3899,7 +4446,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3907,6 +4456,7 @@
   },
   {
     "path": "knowledgebases retrieve",
+    "description": "Retrieve a knowledgebase",
     "arguments": [
       {
         "name": "id",
@@ -3920,6 +4470,7 @@
   },
   {
     "path": "knowledgebases create",
+    "description": "Create a knowledgebase",
     "arguments": [],
     "options": [
       {
@@ -3932,7 +4483,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase name",
+        "defaultValue": null
       },
       {
         "flags": "--account_id <account_id>",
@@ -3944,7 +4497,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -3956,7 +4511,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase description",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -3964,6 +4521,7 @@
   },
   {
     "path": "knowledgebases update",
+    "description": "Update a knowledgebase",
     "arguments": [
       {
         "name": "id",
@@ -3982,7 +4540,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -3994,7 +4554,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase description",
+        "defaultValue": null
       },
       {
         "flags": "--clear_description",
@@ -4006,7 +4568,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Clear the description",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4014,6 +4578,7 @@
   },
   {
     "path": "knowledgebases archive",
+    "description": "Archive a knowledgebase",
     "arguments": [
       {
         "name": "id",
@@ -4027,6 +4592,7 @@
   },
   {
     "path": "knowledgebases unarchive",
+    "description": "Unarchive a knowledgebase",
     "arguments": [
       {
         "name": "id",
@@ -4040,6 +4606,7 @@
   },
   {
     "path": "knowledgebases delete",
+    "description": "Delete a knowledgebase",
     "arguments": [
       {
         "name": "id",
@@ -4053,6 +4620,7 @@
   },
   {
     "path": "knowledgebase_documents",
+    "description": "Manage knowledgebase documents",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -4060,6 +4628,7 @@
   },
   {
     "path": "knowledgebase_documents list",
+    "description": "List documents in a knowledgebase",
     "arguments": [],
     "options": [
       {
@@ -4072,7 +4641,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase ID",
+        "defaultValue": null
       },
       {
         "flags": "--path_prefix <path_prefix>",
@@ -4084,7 +4655,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Only documents whose path starts with this prefix",
+        "defaultValue": null
       },
       {
         "flags": "--status <status>",
@@ -4099,7 +4672,9 @@
           "active",
           "archived"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Document status",
+        "defaultValue": null
       },
       {
         "flags": "--sort_field <field>",
@@ -4114,7 +4689,9 @@
           "id",
           "path"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort field",
+        "defaultValue": null
       },
       {
         "flags": "--sort_direction <direction>",
@@ -4129,7 +4706,9 @@
           "asc",
           "desc"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sort direction",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -4141,7 +4720,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -4153,7 +4734,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4161,6 +4744,7 @@
   },
   {
     "path": "knowledgebase_documents retrieve",
+    "description": "Retrieve a document",
     "arguments": [
       {
         "name": "id",
@@ -4179,7 +4763,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Print document content without the JSON envelope",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4187,6 +4773,7 @@
   },
   {
     "path": "knowledgebase_documents create",
+    "description": "Create a document",
     "arguments": [],
     "options": [
       {
@@ -4199,7 +4786,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase ID",
+        "defaultValue": null
       },
       {
         "flags": "--path <path>",
@@ -4211,7 +4800,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document path",
+        "defaultValue": null
       },
       {
         "flags": "--content <content>",
@@ -4223,7 +4814,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document content, or @path to read a text file. @file content is limited to 1 MiB.",
+        "defaultValue": null
       },
       {
         "flags": "--content_type <content_type>",
@@ -4235,7 +4828,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "MIME content type",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4243,6 +4838,7 @@
   },
   {
     "path": "knowledgebase_documents update",
+    "description": "Update document content",
     "arguments": [
       {
         "name": "id",
@@ -4261,7 +4857,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document revision this change is based on",
+        "defaultValue": null
       },
       {
         "flags": "--content <content>",
@@ -4273,7 +4871,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document content, or @path to read a text file. @file content is limited to 1 MiB.",
+        "defaultValue": null
       },
       {
         "flags": "--content_type <content_type>",
@@ -4285,7 +4885,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "MIME content type",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4293,6 +4895,7 @@
   },
   {
     "path": "knowledgebase_documents rename",
+    "description": "Rename a document",
     "arguments": [
       {
         "name": "id",
@@ -4311,7 +4914,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document revision this change is based on",
+        "defaultValue": null
       },
       {
         "flags": "--path <path>",
@@ -4323,7 +4928,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "New document path",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4331,6 +4938,7 @@
   },
   {
     "path": "knowledgebase_documents archive",
+    "description": "Archive a document",
     "arguments": [
       {
         "name": "id",
@@ -4349,7 +4957,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document revision this change is based on",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4357,6 +4967,7 @@
   },
   {
     "path": "knowledgebase_documents unarchive",
+    "description": "Unarchive a document",
     "arguments": [
       {
         "name": "id",
@@ -4375,7 +4986,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Document revision this change is based on",
+        "defaultValue": null
       },
       {
         "flags": "--path <path>",
@@ -4387,7 +5000,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Path to restore the document to",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4395,6 +5010,7 @@
   },
   {
     "path": "knowledgebase_documents delete",
+    "description": "Delete a document",
     "arguments": [
       {
         "name": "id",
@@ -4408,6 +5024,7 @@
   },
   {
     "path": "knowledgebase_document_revisions",
+    "description": "Read knowledgebase document revisions",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -4415,6 +5032,7 @@
   },
   {
     "path": "knowledgebase_document_revisions list",
+    "description": "List revisions of a document",
     "arguments": [],
     "options": [
       {
@@ -4427,7 +5045,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase document ID",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -4439,7 +5059,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -4451,7 +5073,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4459,6 +5083,7 @@
   },
   {
     "path": "knowledgebase_document_revisions retrieve",
+    "description": "Retrieve a document revision",
     "arguments": [
       {
         "name": "id",
@@ -4477,7 +5102,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Print revision content without the JSON envelope",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4485,6 +5112,7 @@
   },
   {
     "path": "knowledgebase_revisions",
+    "description": "Read knowledgebase revisions",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -4492,6 +5120,7 @@
   },
   {
     "path": "knowledgebase_revisions list",
+    "description": "List revisions of a knowledgebase",
     "arguments": [],
     "options": [
       {
@@ -4504,7 +5133,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Knowledgebase ID",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -4516,7 +5147,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -4528,7 +5161,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4536,6 +5171,7 @@
   },
   {
     "path": "knowledgebase_revisions retrieve",
+    "description": "Retrieve a knowledgebase revision",
     "arguments": [
       {
         "name": "id",
@@ -4549,6 +5185,7 @@
   },
   {
     "path": "knowledgebase_revisions list_documents",
+    "description": "List documents in a knowledgebase revision",
     "arguments": [
       {
         "name": "id",
@@ -4567,7 +5204,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Only documents whose path starts with this prefix",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -4579,7 +5218,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -4591,7 +5232,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4599,6 +5242,7 @@
   },
   {
     "path": "risk_profiles",
+    "description": "Manage risk profiles",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -4606,6 +5250,7 @@
   },
   {
     "path": "risk_profiles list",
+    "description": "List risk profiles",
     "arguments": [],
     "options": [
       {
@@ -4618,7 +5263,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Sorting",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_offset <pagination_offset>",
@@ -4630,7 +5277,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePaginationOffset"
+        "parser": "parsePaginationOffset",
+        "description": "Pagination offset",
+        "defaultValue": null
       },
       {
         "flags": "--pagination_page_size <pagination_page_size>",
@@ -4642,7 +5291,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Pagination page size",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4650,6 +5301,7 @@
   },
   {
     "path": "risk_profiles retrieve",
+    "description": "Retrieve risk profile",
     "arguments": [
       {
         "name": "id",
@@ -4663,6 +5315,7 @@
   },
   {
     "path": "risk_profiles template",
+    "description": "Get a risk profile template ruleset",
     "arguments": [],
     "options": [
       {
@@ -4675,7 +5328,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Template name",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4683,6 +5338,7 @@
   },
   {
     "path": "risk_profiles create",
+    "description": "Create risk profile",
     "arguments": [],
     "options": [
       {
@@ -4695,7 +5351,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Risk profile name",
+        "defaultValue": null
       },
       {
         "flags": "--ruleset <ruleset>",
@@ -4707,7 +5365,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -4719,7 +5379,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Description",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -4731,7 +5393,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Risk profile ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4739,6 +5403,7 @@
   },
   {
     "path": "risk_profiles update",
+    "description": "Update risk profile",
     "arguments": [
       {
         "name": "id",
@@ -4757,7 +5422,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Risk profile name",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -4769,7 +5436,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Description",
+        "defaultValue": null
       },
       {
         "flags": "--ruleset <ruleset>",
@@ -4781,7 +5450,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON object or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4789,6 +5460,7 @@
   },
   {
     "path": "risk_profiles delete",
+    "description": "Delete risk profile",
     "arguments": [
       {
         "name": "id",
@@ -4802,6 +5474,7 @@
   },
   {
     "path": "playground",
+    "description": "Run playground demo operations",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -4809,6 +5482,7 @@
   },
   {
     "path": "playground create_customer_support_agent",
+    "description": "Create a customer support demo agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -4816,6 +5490,7 @@
   },
   {
     "path": "playground create_loan_application_review_agent",
+    "description": "Create a loan application review demo agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -4823,6 +5498,7 @@
   },
   {
     "path": "playground create_northstar_support_agent",
+    "description": "Create a Northstar support demo agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -4830,6 +5506,7 @@
   },
   {
     "path": "playground create_openclaw_agent",
+    "description": "Create an OpenClaw demo agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -4837,6 +5514,7 @@
   },
   {
     "path": "playground create_quality_review_agent",
+    "description": "Create a quality review demo agent",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -4844,6 +5522,7 @@
   },
   {
     "path": "playground create_first_account_agent",
+    "description": "Create the first-account sample agent",
     "arguments": [],
     "options": [
       {
@@ -4856,7 +5535,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--seed_instances_and_spans",
@@ -4868,7 +5549,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Seed sample instances and spans",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4876,6 +5559,7 @@
   },
   {
     "path": "playground record_customer_support_spans",
+    "description": "Record customer support demo spans",
     "arguments": [],
     "options": [
       {
@@ -4888,7 +5572,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4896,6 +5582,7 @@
   },
   {
     "path": "playground record_loan_application_review_spans",
+    "description": "Record loan application review demo spans",
     "arguments": [],
     "options": [
       {
@@ -4908,7 +5595,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4916,6 +5605,7 @@
   },
   {
     "path": "playground record_northstar_support_spans",
+    "description": "Record Northstar support demo spans",
     "arguments": [],
     "options": [
       {
@@ -4928,7 +5618,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4936,6 +5628,7 @@
   },
   {
     "path": "playground record_openclaw_spans",
+    "description": "Record OpenClaw demo spans",
     "arguments": [],
     "options": [
       {
@@ -4948,7 +5641,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4956,6 +5651,7 @@
   },
   {
     "path": "playground record_quality_review_spans",
+    "description": "Record quality review demo spans",
     "arguments": [],
     "options": [
       {
@@ -4968,7 +5664,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -4976,6 +5674,7 @@
   },
   {
     "path": "playground record_first_account_spans",
+    "description": "Record first-account sample spans",
     "arguments": [],
     "options": [
       {
@@ -4988,7 +5687,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--scenario <scenario>",
@@ -5006,7 +5707,9 @@
           "timeout",
           "active"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sample scenario",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5014,6 +5717,7 @@
   },
   {
     "path": "playground register_customer_support_agent_instance",
+    "description": "Register a customer support demo agent instance",
     "arguments": [],
     "options": [
       {
@@ -5026,7 +5730,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5038,7 +5744,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5050,7 +5758,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5058,6 +5768,7 @@
   },
   {
     "path": "playground register_loan_application_review_agent_instance",
+    "description": "Register a loan application review demo agent instance",
     "arguments": [],
     "options": [
       {
@@ -5070,7 +5781,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5082,7 +5795,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5094,7 +5809,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5102,6 +5819,7 @@
   },
   {
     "path": "playground register_northstar_support_agent_instance",
+    "description": "Register a Northstar support demo agent instance",
     "arguments": [],
     "options": [
       {
@@ -5114,7 +5832,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5126,7 +5846,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5138,7 +5860,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5146,6 +5870,7 @@
   },
   {
     "path": "playground register_openclaw_agent_instance",
+    "description": "Register an OpenClaw demo agent instance",
     "arguments": [],
     "options": [
       {
@@ -5158,7 +5883,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5170,7 +5897,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5182,7 +5911,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5190,6 +5921,7 @@
   },
   {
     "path": "playground register_first_account_agent_instance",
+    "description": "Register a first-account sample agent instance",
     "arguments": [],
     "options": [
       {
@@ -5202,7 +5934,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5214,7 +5948,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--scenario <scenario>",
@@ -5232,7 +5968,9 @@
           "timeout",
           "active"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Sample scenario",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5244,7 +5982,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5252,6 +5992,7 @@
   },
   {
     "path": "playground register_quality_review_agent_instance",
+    "description": "Register a quality review demo agent instance",
     "arguments": [],
     "options": [
       {
@@ -5264,7 +6005,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5276,7 +6019,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID",
+        "defaultValue": null
       },
       {
         "flags": "--id <id>",
@@ -5288,7 +6033,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent instance ID",
+        "defaultValue": null
       },
       {
         "flags": "--purpose <purpose>",
@@ -5304,7 +6051,9 @@
           "smoke_test",
           "eval"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Instance purpose",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5312,6 +6061,7 @@
   },
   {
     "path": "admin_users",
+    "description": "Manage admin users",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -5319,6 +6069,7 @@
   },
   {
     "path": "admin_users list",
+    "description": "List admin users",
     "arguments": [],
     "options": [
       {
@@ -5331,7 +6082,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5339,6 +6092,7 @@
   },
   {
     "path": "admin_users retrieve",
+    "description": "Retrieve admin user",
     "arguments": [
       {
         "name": "id",
@@ -5352,6 +6106,7 @@
   },
   {
     "path": "admin_users update",
+    "description": "Update admin user",
     "arguments": [
       {
         "name": "id",
@@ -5370,7 +6125,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Name",
+        "defaultValue": null
       },
       {
         "flags": "--job_title <job_title>",
@@ -5382,7 +6139,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Job title (null clears the field)",
+        "defaultValue": null
       },
       {
         "flags": "--profile_completed_at <profile_completed_at>",
@@ -5394,7 +6153,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Profile completed at (null clears the field)",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5402,6 +6163,7 @@
   },
   {
     "path": "admin_user_invites",
+    "description": "Manage admin user invites",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -5409,6 +6171,7 @@
   },
   {
     "path": "admin_user_invites list",
+    "description": "List admin user invites",
     "arguments": [],
     "options": [
       {
@@ -5421,7 +6184,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5429,6 +6194,7 @@
   },
   {
     "path": "admin_user_invites retrieve",
+    "description": "Retrieve admin user invite",
     "arguments": [
       {
         "name": "id",
@@ -5442,6 +6208,7 @@
   },
   {
     "path": "admin_user_invites create",
+    "description": "Create admin user invite",
     "arguments": [],
     "options": [
       {
@@ -5454,7 +6221,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Email",
+        "defaultValue": null
       },
       {
         "flags": "--account_id <account_id>",
@@ -5466,7 +6235,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5474,6 +6245,7 @@
   },
   {
     "path": "admin_user_invites revoke",
+    "description": "Revoke admin user invite",
     "arguments": [
       {
         "name": "id",
@@ -5487,6 +6259,7 @@
   },
   {
     "path": "api_tokens",
+    "description": "Manage API tokens",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -5494,6 +6267,7 @@
   },
   {
     "path": "api_tokens list",
+    "description": "List API tokens",
     "arguments": [],
     "options": [
       {
@@ -5506,7 +6280,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5514,6 +6290,7 @@
   },
   {
     "path": "api_tokens retrieve",
+    "description": "Retrieve API token",
     "arguments": [
       {
         "name": "id",
@@ -5527,6 +6304,7 @@
   },
   {
     "path": "api_tokens create",
+    "description": "Create API token",
     "arguments": [],
     "options": [
       {
@@ -5539,7 +6317,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Token scope",
+        "defaultValue": null
       },
       {
         "flags": "--account_id <account_id>",
@@ -5551,7 +6331,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--agent_id <agent_id>",
@@ -5563,7 +6345,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent ID (required when token_scope is agent_deployment)",
+        "defaultValue": null
       },
       {
         "flags": "--environment_id <environment_id>",
@@ -5575,7 +6359,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Environment ID (required when token_scope is agent_deployment)",
+        "defaultValue": null
       },
       {
         "flags": "--expires_at <expires_at>",
@@ -5587,7 +6373,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Expiration timestamp",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5595,6 +6383,7 @@
   },
   {
     "path": "api_tokens suspend",
+    "description": "Suspend API token",
     "arguments": [
       {
         "name": "id",
@@ -5608,6 +6397,7 @@
   },
   {
     "path": "api_tokens activate",
+    "description": "Activate API token",
     "arguments": [
       {
         "name": "id",
@@ -5621,6 +6411,7 @@
   },
   {
     "path": "api_tokens revoke",
+    "description": "Revoke API token",
     "arguments": [
       {
         "name": "id",
@@ -5634,6 +6425,7 @@
   },
   {
     "path": "api_tokens delete",
+    "description": "Delete API token",
     "arguments": [
       {
         "name": "id",
@@ -5647,6 +6439,7 @@
   },
   {
     "path": "setup",
+    "description": "Create setup values for an agent (optionally create the agent first)",
     "arguments": [
       {
         "name": "agent_id",
@@ -5665,7 +6458,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Create a new agent before printing setup values",
+        "defaultValue": null
       },
       {
         "flags": "--name <name>",
@@ -5677,7 +6472,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent name (required with --create)",
+        "defaultValue": null
       },
       {
         "flags": "--description <description>",
@@ -5689,7 +6486,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Agent description (optional with --create)",
+        "defaultValue": null
       },
       {
         "flags": "--json",
@@ -5701,7 +6500,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Print setup values as JSON",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5709,6 +6510,7 @@
   },
   {
     "path": "pfid",
+    "description": "Generate PFIDs",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -5716,6 +6518,7 @@
   },
   {
     "path": "pfid generate",
+    "description": "Generate PFIDs",
     "arguments": [],
     "options": [
       {
@@ -5728,7 +6531,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Account ID",
+        "defaultValue": null
       },
       {
         "flags": "--count <count>",
@@ -5740,7 +6545,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": "parsePositiveInt"
+        "parser": "parsePositiveInt",
+        "description": "Number of IDs to generate",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5748,6 +6555,7 @@
   },
   {
     "path": "bulk",
+    "description": "Execute bulk query and action operations",
     "arguments": [],
     "options": [],
     "hasSubcommands": true,
@@ -5755,6 +6563,7 @@
   },
   {
     "path": "bulk execute",
+    "description": "Execute bulk requests",
     "arguments": [],
     "options": [
       {
@@ -5767,7 +6576,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "JSON array or @file",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5775,6 +6586,7 @@
   },
   {
     "path": "ping",
+    "description": "Verify the selected or supplied API token",
     "arguments": [],
     "options": [
       {
@@ -5787,7 +6599,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "API token to verify",
+        "defaultValue": null
       },
       {
         "flags": "--api-url <apiUrl>",
@@ -5799,7 +6613,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "API URL to use with --api-token",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5807,6 +6623,7 @@
   },
   {
     "path": "version",
+    "description": "Print CLI version",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -5814,6 +6631,7 @@
   },
   {
     "path": "install",
+    "description": "Install the Prefactor CLI into the managed user-local location",
     "arguments": [],
     "options": [
       {
@@ -5829,7 +6647,9 @@
           "stable",
           "latest"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Release channel to install",
+        "defaultValue": null
       },
       {
         "flags": "--version <version>",
@@ -5841,7 +6661,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Pinned release version to install",
+        "defaultValue": null
       },
       {
         "flags": "--source-binary <path>",
@@ -5853,7 +6675,9 @@
         "negate": false,
         "hidden": true,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "",
+        "defaultValue": null
       },
       {
         "flags": "--resolved-tag <tag>",
@@ -5865,7 +6689,9 @@
         "negate": false,
         "hidden": true,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "",
+        "defaultValue": null
       },
       {
         "flags": "--asset-name <asset>",
@@ -5877,7 +6703,9 @@
         "negate": false,
         "hidden": true,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "",
+        "defaultValue": null
       },
       {
         "flags": "--wait-for-pid <pid>",
@@ -5889,7 +6717,9 @@
         "negate": false,
         "hidden": true,
         "choices": null,
-        "parser": "parseWaitForPid"
+        "parser": "parseWaitForPid",
+        "description": "",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5897,6 +6727,7 @@
   },
   {
     "path": "update",
+    "description": "Update the installed Prefactor CLI",
     "arguments": [],
     "options": [
       {
@@ -5912,7 +6743,9 @@
           "stable",
           "latest"
         ],
-        "parser": null
+        "parser": null,
+        "description": "Release channel to install",
+        "defaultValue": null
       },
       {
         "flags": "--version <version>",
@@ -5924,7 +6757,9 @@
         "negate": false,
         "hidden": false,
         "choices": null,
-        "parser": null
+        "parser": null,
+        "description": "Pinned release version to install",
+        "defaultValue": null
       }
     ],
     "hasSubcommands": false,
@@ -5932,6 +6767,7 @@
   },
   {
     "path": "uninstall",
+    "description": "Remove the managed Prefactor CLI installation",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,
@@ -5939,6 +6775,7 @@
   },
   {
     "path": "doctor",
+    "description": "Print diagnostic information about the managed Prefactor CLI installation",
     "arguments": [],
     "options": [],
     "hasSubcommands": false,

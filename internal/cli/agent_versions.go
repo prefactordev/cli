@@ -65,7 +65,7 @@ func newAgentVersionsCommand(app *App) *cobra.Command {
 	create.Flags().String("agent-id", "", "Agent ID")
 	create.Flags().String("external-identifier", "", "External identifier")
 	create.Flags().String("agent-schema-version-id", "", "Agent schema version ID")
-	create.Flags().String("execution-mode", "", "Where this version runs (hosted, remote)")
+	create.Flags().String("execution-mode", "", "Where this version runs")
 	_ = create.MarkFlagRequired("agent-id")
 	_ = create.MarkFlagRequired("external-identifier")
 	versions.AddCommand(create)

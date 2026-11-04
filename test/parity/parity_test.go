@@ -10,9 +10,10 @@
 // Each line in cases/*.txt is one case written with the TypeScript CLI's
 // names: "<command words> | <arguments>". The command words and flag names
 // are converted to kebab case for this CLI; argument values are not. A line
-// starting with "help:" prints help, whose layout differs between Commander
-// and Cobra, so it compares the exit code, the requests and which streams
-// have output, not the text.
+// starting with "help:" prints help: its text is compared in kebab case and
+// without this CLI's "Global Options:" section, except for the root's help,
+// which lists options and commands only one CLI has, so only which streams
+// have output is compared.
 package parity
 
 import (
@@ -162,10 +163,7 @@ func TestParity(t *testing.T) {
 				t.Errorf("requests differ\nts: %s\ngo: %s", dump(ts.requests), dump(got.requests))
 			}
 			if tc.help {
-				if (ts.stdout == "") != (got.stdout == "") || (ts.stderr == "") != (got.stderr == "") {
-					t.Errorf("help went to different streams\nts: stdout %d bytes, stderr %d bytes\ngo: stdout %d bytes, stderr %d bytes",
-						len(ts.stdout), len(ts.stderr), len(got.stdout), len(got.stderr))
-				}
+				compareHelp(t, ts, got)
 				return
 			}
 			if ts.stdout != got.stdout {
@@ -381,4 +379,110 @@ func asP2Accepts(requests []recordedRequest) []recordedRequest {
 		out[i] = r
 	}
 	return out
+}
+
+// compareHelp compares help output; see the package comment.
+func compareHelp(t *testing.T, ts, got result) {
+	t.Helper()
+	if strings.HasPrefix(ts.stdout+ts.stderr, "Usage: prefactor [options] [command]") {
+		if (ts.stdout == "") != (got.stdout == "") || (ts.stderr == "") != (got.stderr == "") {
+			t.Errorf("help went to different streams\nts: stdout %d bytes, stderr %d bytes\ngo: stdout %d bytes, stderr %d bytes",
+				len(ts.stdout), len(ts.stderr), len(got.stdout), len(got.stderr))
+		}
+		return
+	}
+	if want, have := kebabHelp(t, ts.stdout), withoutGlobalOptions(got.stdout); want != have {
+		t.Errorf("help on stdout differs\nts (kebab):\n%s\ngo:\n%s", want, have)
+	}
+	if want, have := kebabHelp(t, ts.stderr), withoutGlobalOptions(got.stderr); want != have {
+		t.Errorf("help on stderr differs\nts (kebab):\n%s\ngo:\n%s", want, have)
+	}
+}
+
+// typescriptCommands reads the TypeScript CLI's command paths.
+func typescriptCommands(t *testing.T) []string {
+	t.Helper()
+	raw, err := os.ReadFile("../../internal/cli/testdata/typescript-commands.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var commands []struct {
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal(raw, &commands); err != nil {
+		t.Fatal(err)
+	}
+	paths := make([]string, len(commands))
+	for i, c := range commands {
+		paths[i] = c.Path
+	}
+	return paths
+}
+
+var (
+	commandWordsOnce sync.Once
+	commandWords     *regexp.Regexp
+)
+
+// kebabHelp converts the TypeScript CLI's help to kebab case: option names,
+// their placeholders and command names, but not argument names or choices
+// such as "on_demand".
+func kebabHelp(t *testing.T, help string) string {
+	t.Helper()
+	commandWordsOnce.Do(func() {
+		seen := map[string]bool{}
+		var words []string
+		for _, path := range typescriptCommands(t) {
+			for _, word := range strings.Fields(path) {
+				if strings.Contains(word, "_") && !seen[word] {
+					seen[word] = true
+					words = append(words, regexp.QuoteMeta(word))
+				}
+			}
+		}
+		commandWords = regexp.MustCompile(`\b(` + strings.Join(words, "|") + `)\b`)
+	})
+	kebab := func(w string) string { return strings.ReplaceAll(w, "_", "-") }
+	return commandWords.ReplaceAllStringFunc(helpOption.ReplaceAllStringFunc(help, kebab), kebab)
+}
+
+// helpOption matches an option name and its placeholder, but not argument
+// names, which both CLIs write in snake case.
+var helpOption = regexp.MustCompile(`--[a-z0-9_]+(=| <[a-z0-9_]+>)?`)
+
+// withoutGlobalOptions drops the "Global Options:" section this CLI adds at
+// the end of a subcommand's help.
+func withoutGlobalOptions(help string) string {
+	if before, _, found := strings.Cut(help, "\nGlobal Options:\n"); found {
+		return before
+	}
+	return help
+}
+
+// laterCommands are TypeScript commands this CLI adds later or leaves out.
+var laterCommands = map[string]bool{"setup": true, "install": true, "update": true, "uninstall": true, "doctor": true, "playground": true}
+
+// TestHelpMatchesTypeScript compares every command's --help with the
+// TypeScript CLI's.
+func TestHelpMatchesTypeScript(t *testing.T) {
+	tsCLI := tsCommand()
+	if tsCLI == nil {
+		t.Skip("PARITY_TS_CLI is not set")
+	}
+
+	for _, path := range typescriptCommands(t) {
+		words := strings.Fields(path)
+		if len(words) == 0 || laterCommands[words[0]] {
+			continue
+		}
+		t.Run(path, func(t *testing.T) {
+			t.Parallel()
+			ts := run(t, &recorder{}, "http://127.0.0.1:1", append(append(append([]string{}, tsCLI...), words...), "--help"))
+			got := run(t, &recorder{}, "http://127.0.0.1:1", append(append([]string{goBinary}, kebabWords(words)...), "--help"))
+			if ts.exit != got.exit {
+				t.Errorf("exit: ts=%d go=%d", ts.exit, got.exit)
+			}
+			compareHelp(t, ts, got)
+		})
+	}
 }

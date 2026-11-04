@@ -20,7 +20,7 @@ Resource commands cover the operations in the Prefactor API, grouped by resource
 
 | Flag | Environment variable | Effect |
 |------|----------------------|--------|
-| `--json` | `PREFACTOR_OUTPUT_FORMAT=json` | Print JSON from every command except `--version`/`-V`, including `version`, `profiles` and `login` (whose instructions and token prompt then go to stderr). The variable only sets the default, so `--content-only` still prints plain content |
+| `--json` | `PREFACTOR_OUTPUT_FORMAT=json` | Print JSON from every command except `--version`/`-V`, including `version`, `profiles` and `login` (whose instructions and token prompt then go to stderr). The variable only sets the default, so `--content-only` still prints plain content, and values other than `json` are ignored |
 | `--fields <a,b.c>` | | Keep only these fields of the JSON output. Paths continue through arrays, so `summaries.id` keeps the id of every summary. Implies `--json` |
 | `--no-input` | `PREFACTOR_NO_INPUT=1` | Never prompt |
 | `--yes` | | Accept the default answer to every prompt |
@@ -29,11 +29,11 @@ The CLI is interactive only when stdin and stdout are terminals and no coding ag
 
 ### Pickers and `@latest`
 
-In interactive mode, a command missing a required resource ID shows a list to choose from (type `/` to search), for example the agents for `prefactor agent-instances list`. Every other check runs first, so the CLI never asks you to pick for a command that would fail anyway. Resources that belong to another, such as an agent's instances, ask for the parent first unless the command already has it. A list with one entry is used without asking, except on commands that delete, revoke, terminate, archive, retire, suspend or discard data. Pickers draw on stderr, so stdout keeps the command's output; they show at most the newest 1000 entries.
+In interactive mode, a command missing a required resource ID shows a list to choose from (type `/` to search), for example the agents for `prefactor agent-instances list`. Every other check runs first, so the CLI never asks you to pick for a command that would fail anyway. Resources that belong to another, such as an agent's instances, ask for the parent first unless the command already has it. A list with one entry is used without asking, except on commands that delete, revoke, terminate, archive, retire, suspend or discard data. Pickers draw on stderr, so stdout keeps the command's output; they show at most 1000 entries, the newest first except for revisions, which the API cannot sort. `agent-instance-associations` pickers ask for a judge, then one of its runs.
 
 There are no pickers outside interactive mode, when stderr is not a terminal, with `--yes`, or with JSON output (`--json`, `--fields` or `PREFACTOR_OUTPUT_FORMAT=json`); a missing ID then fails with the argument or flag to pass.
 
-`@latest` stands for the instance of an agent with the highest ID, which is the newest one created, wherever an agent instance ID is accepted, including inside ID lists: `prefactor agent-instances retrieve @latest`. Scope it to an agent with `<agent_id>/@latest`, which works without a terminal. Without a scope, the agent comes from the command's `--agent-id`, or from a picker in interactive mode. Case does not matter.
+`@latest` stands for the instance of an agent with the highest ID, which is the newest one created, wherever an agent instance ID is accepted, including inside ID lists: `prefactor agent-instances retrieve @latest`. Scope it to an agent with `<agent_id>/@latest`, which works without a terminal. Without a scope, the agent comes from the command's `--agent-id`, or from a picker in interactive mode. Where a judge run is expected, as in `agent-instance-associations list-from --agent-instance-ids`, `<judge_id>/@latest` is the judge's newest run. Case does not matter.
 
 `--profile <name>` or `PREFACTOR_PROFILE` selects a profile. Without either, the `default` profile is used, and `PREFACTOR_API_TOKEN` and `PREFACTOR_API_URL` apply when it is not configured.
 
@@ -41,12 +41,15 @@ Profiles live in `prefactor.json`, looked up as the TypeScript CLI does: first i
 
 ### Differences from the TypeScript CLI
 
-Commands, flags and output match the TypeScript CLI, renamed to kebab case. These differences are deliberate:
+Commands, flags, output, help and errors match the TypeScript CLI, renamed to kebab case. Command-line mistakes are reported in Commander's words and order. These differences are deliberate:
 
-- Requests send `sorting[field]`/`sorting[direction]` and `agent_ids[]`/`agent_instance_ids[]`, the forms p2 accepts. The TypeScript CLI sends `sorting=-name` and repeated `agent_ids=`, which p2 rejects.
+- Requests send `sorting[field]`/`sorting[direction]` and `agent_ids[]`/`agent_instance_ids[]`/`statuses[]`, the forms p2 accepts. The TypeScript CLI sends `sorting=-name` and repeated `agent_ids=` or `statuses=`, which p2 rejects.
+- Help for a subcommand ends with a "Global Options:" section listing `--profile` and the flags below it.
+- When the server does not offer the browser login, `login` asks for a token only in interactive mode. It does not read one piped on stdin; use `prefactor profiles add default <baseUrl> --api-token <token>` instead.
 - The `X-Prefactor-SDK` header is `prefactor-cli@<version>` rather than `@prefactor/core@<version>`.
 - Errors that come from the runtime are worded by Go rather than Bun, for example invalid JSON in a flag, a missing `@file` and network failures.
 - Pickers, `@latest`, `--json`, `--fields`, `--no-input` and `--yes` are new.
+- The `setup`, `install`, `update`, `uninstall` and `doctor` commands come later, and `playground` is left out.
 
 ## Development
 
@@ -73,10 +76,20 @@ Generation first runs `tools/specnormalize`, which writes `api/openapi.normalize
 
 ### Parity with the TypeScript CLI
 
-`test/parity` runs the cases in `test/parity/cases/` through the TypeScript CLI and this CLI against a recording server, and compares requests, output and exit codes:
+`test/parity` runs the cases in `test/parity/cases/` through the TypeScript CLI and this CLI against a recording server, and compares requests, output and exit codes. It also compares every command's `--help`, except the root's, which lists options and commands only one CLI has:
 
 ```sh
 PARITY_TS_CLI="bun ~/code/typescript-sdk/packages/cli/src/bin/cli.ts" go test -tags parity ./test/parity/
 ```
 
 Build the TypeScript SDK first (`bun run build` in that repository), because the TypeScript CLI runs against the built `@prefactor/core`.
+
+### Command-line checks
+
+`internal/cli/commander_flags.go` holds each option's string, choices and argument parser as the TypeScript CLI defines them. It is generated from `internal/cli/testdata/typescript-commands.json` by `go generate ./...`. To refresh the JSON after the TypeScript CLI changes:
+
+```sh
+bun tools/commandergen/dump-commands.ts ~/code/typescript-sdk/packages/cli/src/cli.ts > internal/cli/testdata/typescript-commands.json
+```
+
+`go test ./...` checks every command, argument and option against it, including descriptions and option order.

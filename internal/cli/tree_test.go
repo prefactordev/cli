@@ -2,8 +2,10 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -20,12 +22,15 @@ type typescriptCommand struct {
 		Required bool   `json:"required"`
 		Variadic bool   `json:"variadic"`
 	} `json:"arguments"`
-	Options []struct {
-		Flags      string `json:"flags"`
-		Long       string `json:"long"`
-		Mandatory  bool   `json:"mandatory"`
-		TakesValue bool   `json:"takesValue"`
-		Hidden     bool   `json:"hidden"`
+	Description string `json:"description"`
+	Options     []struct {
+		Flags        string `json:"flags"`
+		Long         string `json:"long"`
+		Mandatory    bool   `json:"mandatory"`
+		TakesValue   bool   `json:"takesValue"`
+		Hidden       bool   `json:"hidden"`
+		Description  string `json:"description"`
+		DefaultValue any    `json:"defaultValue"`
 	} `json:"options"`
 }
 
@@ -129,6 +134,28 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 			}
 			if got, want := optionFlags(cmd, f), kebabNames(opt.Flags); got != want {
 				t.Errorf("%s --%s: option string %q, TypeScript %q", path, name, got, want)
+			}
+			if f.Usage != opt.Description {
+				t.Errorf("%s --%s: description %q, TypeScript %q", path, name, f.Usage, opt.Description)
+			}
+			if opt.DefaultValue != nil && f.DefValue != fmt.Sprint(opt.DefaultValue) {
+				t.Errorf("%s --%s: default %q, TypeScript %v", path, name, f.DefValue, opt.DefaultValue)
+			}
+		}
+
+		if cmd.Short != ts.Description {
+			t.Errorf("%s: description %q, TypeScript %q", path, cmd.Short, ts.Description)
+		}
+		if cmd.HasParent() {
+			var goOrder, tsOrder []string
+			for _, f := range ownOptions(cmd) {
+				goOrder = append(goOrder, f.Name)
+			}
+			for _, opt := range ts.Options {
+				tsOrder = append(tsOrder, strings.TrimPrefix(kebabNames(opt.Long), "--"))
+			}
+			if !slices.Equal(goOrder, tsOrder) {
+				t.Errorf("%s: options in order %v, TypeScript %v", path, goOrder, tsOrder)
 			}
 		}
 

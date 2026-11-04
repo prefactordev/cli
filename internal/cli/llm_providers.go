@@ -12,8 +12,6 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
-var llmProviderKinds = []string{"anthropic", "openai", "ollama_cloud", "together", "custom_openai"}
-
 // newLlmProvidersCommand registers commands for the language model providers
 // that hosted judges run on.
 func newLlmProvidersCommand(app *App) *cobra.Command {
@@ -88,7 +86,7 @@ func newLlmProvidersCommand(app *App) *cobra.Command {
 		},
 	}
 	create.Flags().String("name", "", "Provider name, unique in the account")
-	create.Flags().String("provider", "", "Provider type ("+strings.Join(llmProviderKinds, ", ")+")")
+	create.Flags().String("provider", "", "Provider type")
 	create.Flags().String("api-key", "", "API key, or @path to read it from a file")
 	create.Flags().String("api-base-url", "", "Endpoint URL; required for custom_openai")
 	create.Flags().String("account-id", "", "Account ID")

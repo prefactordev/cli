@@ -376,9 +376,9 @@ var payloadSchemaFlags = []struct{ flag, field string }{
 
 // addPayloadSchemaFlags registers the instance payload schema flags.
 func addPayloadSchemaFlags(cmd *cobra.Command) {
-	cmd.Flags().String("instance-params-payload-schema", "", "Instance params payload schema (JSON object or @file)")
-	cmd.Flags().String("instance-result-payload-schema", "", "Instance result payload schema (JSON object or @file)")
-	cmd.Flags().String("instance-metadata-schema", "", "Instance metadata schema (JSON object or @file)")
+	cmd.Flags().String("instance-params-payload-schema", "", `Schema for the run input: {"schema":{...},"title"?,"description"?,"template"?} or @file`)
+	cmd.Flags().String("instance-result-payload-schema", "", "Schema for the run result, same shape, or @file")
+	cmd.Flags().String("instance-metadata-schema", "", "Schema for the run metadata, same shape, or @file")
 }
 
 // payloadSchemaOptions parses the instance payload schema flags that are set

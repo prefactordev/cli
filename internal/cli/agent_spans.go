@@ -107,7 +107,7 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 	create.Flags().String("agent-instance-id", "", "Agent instance ID")
 	create.Flags().String("payload", "", "JSON object or @file")
 	create.Flags().String("schema-name", "", "Schema name")
-	create.Flags().String("status", "", "Status (active, complete, failed, cancelled)")
+	create.Flags().String("status", "", "Status")
 	create.Flags().String("id", "", "Span ID")
 	create.Flags().String("parent-span-id", "", "Parent span ID")
 	create.Flags().String("started-at", "", "Started at")
@@ -141,7 +141,7 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 		},
 	}
 	finish.Flags().String("timestamp", "", "Timestamp")
-	finish.Flags().String("status", "", "Status (complete, failed, cancelled)")
+	finish.Flags().String("status", "", "Status")
 	finish.Flags().String("result-payload", "", "JSON object or @file")
 	agentSpans.AddCommand(finish)
 

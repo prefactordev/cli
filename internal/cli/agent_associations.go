@@ -107,7 +107,7 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 	create.Flags().String("from-agent-id", "", "Judge agent ID")
 	create.Flags().String("to-agent-id", "", "Agent the judge scores")
 	create.Flags().String("association-type", "", "Association type")
-	create.Flags().String("trigger", "", "When the judge runs (on_demand, on_completion)")
+	create.Flags().String("trigger", "", "When the judge runs")
 	create.Flags().String("id", "", "Association ID")
 	_ = create.MarkFlagRequired("from-agent-id")
 	_ = create.MarkFlagRequired("to-agent-id")
@@ -129,7 +129,7 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 			})
 		},
 	}
-	update.Flags().String("trigger", "", "When the judge runs (on_demand, on_completion)")
+	update.Flags().String("trigger", "", "When the judge runs")
 	_ = update.MarkFlagRequired("trigger")
 	associations.AddCommand(update)
 

@@ -122,7 +122,7 @@ func newJudgesCommand(app *App) *cobra.Command {
 	create.Flags().String("id", "", "Judge agent ID")
 	create.Flags().String("team-id", "", "Team ID")
 	create.Flags().String("owner-person-id", "", "Owner person ID")
-	create.Flags().String("execution-mode", "hosted", "Expected execution (hosted, remote)")
+	create.Flags().String("execution-mode", "hosted", "Expected execution")
 	_ = create.MarkFlagRequired("name")
 	judges.AddCommand(create)
 

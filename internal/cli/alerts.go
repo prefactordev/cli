@@ -69,8 +69,8 @@ func newAlertsCommand(app *App) *cobra.Command {
 	list.Flags().String("agent-instance-id", "", "Agent instance ID")
 	list.Flags().String("agent-id", "", "Agent ID")
 	list.Flags().String("environment-id", "", "Environment ID")
-	list.Flags().String("status", "", "Alert status (raised, cleared)")
-	list.Flags().String("severity", "", "Alert severity (critical, error, warning, info)")
+	list.Flags().String("status", "", "Alert status")
+	list.Flags().String("severity", "", "Alert severity")
 	list.Flags().String("name", "", "Alert name")
 	list.Flags().String("active-during-start-at", "", "Active during start time")
 	list.Flags().String("active-during-finish-at", "", "Active during finish time")
@@ -110,8 +110,8 @@ func newAlertsCommand(app *App) *cobra.Command {
 			})
 		},
 	}
-	count.Flags().String("status", "", "Alert status (raised, cleared)")
-	count.Flags().String("severity", "", "Alert severity (critical, error, warning, info)")
+	count.Flags().String("status", "", "Alert status")
+	count.Flags().String("severity", "", "Alert severity")
 	alerts.AddCommand(count)
 
 	raise := &cobra.Command{
@@ -146,7 +146,7 @@ func newAlertsCommand(app *App) *cobra.Command {
 	}
 	raise.Flags().String("agent-instance-id", "", "Agent instance ID")
 	raise.Flags().String("name", "", "Alert name")
-	raise.Flags().String("severity", "", "Alert severity (critical, error, warning, info)")
+	raise.Flags().String("severity", "", "Alert severity")
 	raise.Flags().String("payload", "", "JSON object or @file")
 	raise.Flags().String("raised-at", "", "Raised at")
 	raise.Flags().Bool("payload-sensitive-encoding", false, "Payload uses sensitive encoding")
@@ -186,7 +186,7 @@ func newAlertsCommand(app *App) *cobra.Command {
 	clearCmd.Flags().String("agent-instance-id", "", "Agent instance ID")
 	clearCmd.Flags().String("name", "", "Alert name")
 	clearCmd.Flags().String("payload", "", "JSON object or @file")
-	clearCmd.Flags().String("severity", "", "Alert severity (critical, error, warning, info)")
+	clearCmd.Flags().String("severity", "", "Alert severity")
 	clearCmd.Flags().String("cleared-at", "", "Cleared at")
 	clearCmd.Flags().Bool("payload-sensitive-encoding", false, "Payload uses sensitive encoding")
 	_ = clearCmd.MarkFlagRequired("agent-instance-id")

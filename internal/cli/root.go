@@ -16,6 +16,9 @@ func NewRootCommand(version string) *cobra.Command {
 }
 
 func newRootCommand(app *App) *cobra.Command {
+	// Help lists commands in the order they are added, as Commander does.
+	cobra.EnableCommandSorting = false
+
 	root := &cobra.Command{
 		Use:           "prefactor",
 		Short:         "Prefactor CLI for managing Prefactor resources",
@@ -74,8 +77,11 @@ func newRootCommand(app *App) *cobra.Command {
 		newVersionCommand(app),
 	)
 
-	prepareCommandLine(root, &help, func() []string { return app.Argv })
+	root.SetHelpFunc(func(cmd *cobra.Command, _ []string) { writeHelp(cmd) })
+	argv := func() []string { return app.Argv }
+	prepareCommandLine(root, &help, argv)
 	useResolvedArgs(root, app)
+	addHelpCommands(root, argv)
 	return root
 }
 

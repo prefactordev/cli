@@ -301,7 +301,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 	register.Flags().String("span-type-schemas", "", "JSON array or @file")
 	register.Flags().String("span-result-schemas", "", "JSON object or @file")
 	register.Flags().String("environment-id", "", "Environment ID")
-	register.Flags().String("purpose", "", "Why the run happened (live, smoke_test, eval)")
+	register.Flags().String("purpose", "", "Why the run happened")
 	addPayloadSchemaFlags(register)
 	register.Flags().String("params-payload", "", "Run input: JSON object or @file")
 	register.Flags().String("metadata", "", "Run metadata: JSON object or @file")
@@ -357,7 +357,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		},
 	}
 	finish.Flags().String("timestamp", "", "Timestamp")
-	finish.Flags().String("status", "", "Status (complete, failed, cancelled)")
+	finish.Flags().String("status", "", "Status")
 	finish.Flags().String("result-payload", "", "Run result: JSON object or @file. Recorded on complete or failed; ignored on cancelled")
 	agentInstances.AddCommand(finish)
 

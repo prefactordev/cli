@@ -35,6 +35,17 @@ help: agents | --help
 help: agents create | --help
 help: help |
 help: help | agents
+help: help | agents list
+help: help | nosuch
+help: help | help
+help: agents help |
+help: agents help | list
+help: agents help | nosuch
+help: agents help | help
+help: agents help | list extra --bogus
+help: agents help | --bogus list
+help: knowledgebase_documents help | update
+agents help | --version
 # --version and -V work anywhere before --.
 agents list | --version
 agents create | --version

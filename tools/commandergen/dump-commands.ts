@@ -6,6 +6,7 @@ const { createCli } = await import(process.argv[2]);
 
 type Node = {
   path: string;
+  description: string;
   arguments: { name: string; required: boolean; variadic: boolean }[];
   options: {
     flags: string;
@@ -18,6 +19,8 @@ type Node = {
     hidden: boolean;
     choices: string[] | null;
     parser: string | null;
+    description: string;
+    defaultValue: unknown;
   }[];
   hasSubcommands: boolean;
   hasAction: boolean;
@@ -29,6 +32,7 @@ function walk(cmd: any, prefix: string[]) {
   const path = [...prefix, cmd.name()].slice(1).join(' ');
   out.push({
     path,
+    description: cmd.description(),
     // biome-ignore lint/suspicious/noExplicitAny: Commander's internals are not typed.
     arguments: cmd.registeredArguments.map((a: any) => ({
       name: a.name(),
@@ -48,6 +52,8 @@ function walk(cmd: any, prefix: string[]) {
       choices: o.argChoices ?? null,
       // The name of an argParser function; choices install an unnamed one.
       parser: o.argChoices ? null : o.parseArg?.name || null,
+      description: o.description,
+      defaultValue: o.defaultValue ?? null,
     })),
     hasSubcommands: cmd.commands.length > 0,
     hasAction: !!cmd._actionHandler,
