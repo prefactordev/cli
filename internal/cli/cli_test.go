@@ -54,6 +54,7 @@ func (ta *testApp) runWithStderr(t *testing.T, args ...string) (string, string, 
 	root.SetOut(&out)
 	root.SetErr(&errOut)
 	root.SetArgs(args)
+	ta.Argv = args
 	err := root.ExecuteContext(context.Background())
 	return out.String(), errOut.String(), err
 }

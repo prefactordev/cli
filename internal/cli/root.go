@@ -3,6 +3,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -19,11 +20,23 @@ func newRootCommand(app *App) *cobra.Command {
 		Version:       app.Version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Example: strings.Join([]string{
+			"  prefactor profiles add default --api-token <api-token>",
+			"  prefactor accounts list",
+			"  prefactor agents list",
+			"  prefactor agent-deployments create --agent-id <agent_id> --environment-id <environment_id>",
+			`  prefactor agent-spans create --agent-instance-id <id> --schema-name <schema> --status active --payload '{"step":"tool"}'`,
+		}, "\n"),
 	}
 
 	root.PersistentFlags().String("profile", "", "Profile name to use for commands")
+	root.Flags().BoolP("version", "V", false, "output the version number")
+	root.SetVersionTemplate("{{.Version}}\n")
 	addSessionFlags(root)
-	root.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error {
+	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := checkCommandLine(cmd, args, app.Argv); err != nil {
+			return err
+		}
 		return app.startSession(cmd)
 	}
 
@@ -61,6 +74,7 @@ func newRootCommand(app *App) *cobra.Command {
 		newVersionCommand(app),
 	)
 
+	prepareCommandLine(root)
 	return root
 }
 

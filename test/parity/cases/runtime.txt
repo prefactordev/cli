@@ -8,11 +8,11 @@ agent_instances list | --agent_id a1 --statuses active,bogus
 agent_instances list | --agent_id a1 --statuses " , "
 agent_instances list | --agent_id a1 --statuses ""
 agent_instances list | --agent_id ""
-framework: agent_instances list |
+agent_instances list |
 
 # agent_instances retrieve
 agent_instances retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
-framework: agent_instances retrieve |
+agent_instances retrieve |
 
 # agent_instances show
 agent_instances show | --agent_instance_id i1
@@ -44,8 +44,8 @@ agent_instances register | --agent_id a1 --agent_version_external_identifier v1 
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --params_payload @fixtures/array.json
 agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1 --metadata '[]'
 agent_instances register | --agent_id "" --agent_version_external_identifier "" --agent_version_name "" --agent_schema_version_external_identifier "" --agent_version_description "" --environment_id "" --id "" --span_schemas "" --params_payload ""
-framework: agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1
-framework: agent_instances register | --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1
+agent_instances register | --agent_id a1 --agent_version_external_identifier v1 --agent_version_name V1
+agent_instances register | --agent_version_external_identifier v1 --agent_version_name V1 --agent_schema_version_external_identifier s1
 
 # agent_instances start
 agent_instances start | i1
@@ -64,7 +64,7 @@ agent_instances finish | i1 --result_payload '[1]'
 agent_instances prepare | i1 --params_payload '{"q":"hi"}'
 agent_instances prepare | i1 --params_payload @fixtures/object.json
 agent_instances prepare | i1 --params_payload @fixtures/array.json
-framework: agent_instances prepare | i1
+agent_instances prepare | i1
 
 # agent_instances record_quality
 agent_instances record_quality | i1 --name accuracy --payload '{"score":0.9}'
@@ -72,8 +72,8 @@ agent_instances record_quality | i1 --name accuracy --payload @fixtures/object.j
 agent_instances record_quality | i1 --name accuracy --payload null
 agent_instances record_quality | i1 --name "" --payload null
 agent_instances record_quality | i1 --name accuracy --payload '[1]'
-framework: agent_instances record_quality | i1 --name accuracy
-framework: agent_instances record_quality | i1 --payload null
+agent_instances record_quality | i1 --name accuracy
+agent_instances record_quality | i1 --payload null
 
 # agent_instances discard_sensitive
 agent_instances discard_sensitive | i1
@@ -82,12 +82,12 @@ agent_instances discard_sensitive | i1
 agent_instances terminate | i1 --reason "too slow"
 agent_instances terminate | i1 --reason stop --timestamp 2026-01-01T00:00:00Z
 agent_instances terminate | i1 --reason ""
-framework: agent_instances terminate | i1
+agent_instances terminate | i1
 
 # agent_spans list
 agent_spans list | --agent_instance_id i1 --start_time 2026-01-01T00:00:00Z --end_time 2026-01-02T00:00:00Z
 agent_spans list | --agent_instance_id i1 --start_time s --end_time e --include_summaries
-framework: agent_spans list | --agent_instance_id i1 --start_time s
+agent_spans list | --agent_instance_id i1 --start_time s
 
 # agent_spans retrieve
 agent_spans retrieve | sp1
@@ -104,8 +104,8 @@ agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --sta
 agent_spans create | --agent_instance_id i1 --payload '[]' --schema_name s --status active
 agent_spans create | --agent_instance_id i1 --payload @fixtures/array.json --schema_name s --status active
 agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s --status active --result_payload '[]'
-framework: agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s
-framework: agent_spans create | --agent_instance_id i1 --schema_name s --status active
+agent_spans create | --agent_instance_id i1 --payload '{}' --schema_name s
+agent_spans create | --agent_instance_id i1 --schema_name s --status active
 
 # agent_spans finish
 agent_spans finish | sp1
@@ -148,8 +148,8 @@ alerts raise | --agent_instance_id i1 --name high_cost --severity critical --pay
 alerts raise | --agent_instance_id i1 --name n --severity error --payload '{}' --raised_at ""
 alerts raise | --agent_instance_id i1 --name n --severity bogus --payload '{}'
 alerts raise | --agent_instance_id i1 --name n --severity info --payload '[]'
-framework: alerts raise | --agent_instance_id i1 --name n --payload '{}'
-framework: alerts raise | --agent_instance_id i1 --name n --severity info
+alerts raise | --agent_instance_id i1 --name n --payload '{}'
+alerts raise | --agent_instance_id i1 --name n --severity info
 
 # alerts clear
 alerts clear | --agent_instance_id i1 --name high_cost
@@ -158,7 +158,7 @@ alerts clear | --agent_instance_id i1 --name n --payload @fixtures/object.json -
 alerts clear | --agent_instance_id i1 --name n --payload "" --cleared_at ""
 alerts clear | --agent_instance_id i1 --name n --severity bogus
 alerts clear | --agent_instance_id i1 --name n --payload '[]'
-framework: alerts clear | --agent_instance_id i1
+alerts clear | --agent_instance_id i1
 
 # bulk execute
 bulk execute | --items @fixtures/bulk-items.json
@@ -181,5 +181,5 @@ bulk execute | --items '[{"_type":"t","idempotency_key":"1234567"}]'
 bulk execute | --items '[{"_type":"t","idempotency_key":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]'
 bulk execute | --items '[{"_type":"t","idempotency_key":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]'
 bulk execute | --items '[{"_type":"t","idempotency_key":"12345678"},{"_type":"u","idempotency_key":"12345678"}]'
-framework: bulk execute |
+bulk execute |
 

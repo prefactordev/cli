@@ -10,8 +10,9 @@
 // Each line in cases/*.txt is one case written with the TypeScript CLI's
 // names: "<command words> | <arguments>". The command words and flag names
 // are converted to kebab case for this CLI; argument values are not. A line
-// starting with "framework:" compares only the exit code and requests,
-// because the error comes from Commander or Cobra rather than CLI code.
+// starting with "help:" prints help, whose layout differs between Commander
+// and Cobra, so it compares the exit code, the requests and which streams
+// have output, not the text.
 package parity
 
 import (
@@ -41,14 +42,27 @@ const responseBody = `{"status":"success","details":{"id":"01m6jcdypz3tq23qmke2c
 
 var goBinary string
 
+// TestMain builds this CLI with the TypeScript CLI's version, so version
+// output compares too.
 func TestMain(m *testing.M) {
 	dir, err := os.MkdirTemp("", "parity-bin")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	version := "0.0.0"
+	if tsCLI := tsCommand(); tsCLI != nil {
+		out, err := exec.Command(tsCLI[0], append(tsCLI[1:], "--version")...).Output()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "TypeScript CLI --version:", err)
+			os.Exit(1)
+		}
+		version = strings.TrimSpace(string(out))
+	}
+
 	goBinary = filepath.Join(dir, "prefactor")
-	build := exec.Command("go", "build", "-ldflags", "-X main.version=0.7.0", "-o", goBinary, "../../cmd/prefactor")
+	build := exec.Command("go", "build", "-ldflags", "-X main.version="+version, "-o", goBinary, "../../cmd/prefactor")
 	build.Stdout, build.Stderr = os.Stdout, os.Stderr
 	if err := build.Run(); err != nil {
 		os.Exit(1)
@@ -110,19 +124,18 @@ type result struct {
 }
 
 type parityCase struct {
-	file      string
-	line      int
-	framework bool
-	words     []string
-	args      []string
+	file  string
+	line  int
+	help  bool
+	words []string
+	args  []string
 }
 
 func TestParity(t *testing.T) {
-	tsCLI := os.Getenv("PARITY_TS_CLI")
-	if tsCLI == "" {
+	tsCommand := tsCommand()
+	if tsCommand == nil {
 		t.Skip("PARITY_TS_CLI is not set")
 	}
-	tsCommand := strings.Fields(os.ExpandEnv(strings.ReplaceAll(tsCLI, "~", "$HOME")))
 
 	cases := loadCases(t)
 	if len(cases) == 0 {
@@ -148,7 +161,11 @@ func TestParity(t *testing.T) {
 			if !reflect.DeepEqual(normalizeGenerated(ts.requests), normalizeGenerated(got.requests)) {
 				t.Errorf("requests differ\nts: %s\ngo: %s", dump(ts.requests), dump(got.requests))
 			}
-			if tc.framework {
+			if tc.help {
+				if (ts.stdout == "") != (got.stdout == "") || (ts.stderr == "") != (got.stderr == "") {
+					t.Errorf("help went to different streams\nts: stdout %d bytes, stderr %d bytes\ngo: stdout %d bytes, stderr %d bytes",
+						len(ts.stdout), len(ts.stderr), len(got.stdout), len(got.stderr))
+				}
 				return
 			}
 			if ts.stdout != got.stdout {
@@ -159,6 +176,15 @@ func TestParity(t *testing.T) {
 			}
 		})
 	}
+}
+
+// tsCommand returns the TypeScript CLI command from PARITY_TS_CLI, or nil.
+func tsCommand() []string {
+	tsCLI := os.Getenv("PARITY_TS_CLI")
+	if tsCLI == "" {
+		return nil
+	}
+	return strings.Fields(os.ExpandEnv(strings.ReplaceAll(tsCLI, "~", "$HOME")))
 }
 
 func run(t *testing.T, rec *recorder, serverURL string, argv []string) result {
@@ -237,8 +263,8 @@ func loadCases(t *testing.T) []parityCase {
 			}
 
 			tc := parityCase{file: filepath.Base(file), line: line}
-			if rest, ok := strings.CutPrefix(text, "framework:"); ok {
-				tc.framework = true
+			if rest, ok := strings.CutPrefix(text, "help:"); ok {
+				tc.help = true
 				text = strings.TrimSpace(rest)
 			}
 
@@ -314,9 +340,10 @@ func kebabFlags(args []string) []string {
 	return out
 }
 
-var messageFlag = regexp.MustCompile(`--[a-z0-9]+(_[a-z0-9]+)+`)
+var messageFlag = regexp.MustCompile(`(--|<)[a-z0-9]+(_[a-z0-9]+)+`)
 
-// kebabMessage converts flag names in TypeScript CLI messages to kebab case.
+// kebabMessage converts flag names and option placeholders (<agent_id>) in
+// TypeScript CLI messages to kebab case.
 func kebabMessage(s string) string {
 	return messageFlag.ReplaceAllStringFunc(s, func(f string) string { return strings.ReplaceAll(f, "_", "-") })
 }

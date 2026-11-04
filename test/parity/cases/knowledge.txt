@@ -13,11 +13,11 @@ knowledgebases list | --pagination_offset 1.5
 knowledgebases list | --pagination_page_size 0
 knowledgebases list | --pagination_page_size 3abc
 knowledgebases retrieve | kb1
-framework: knowledgebases retrieve |
+knowledgebases retrieve |
 knowledgebases create | --name KB
 knowledgebases create | --name KB --account_id acc --description "A knowledgebase"
 knowledgebases create | --name "" --description ""
-framework: knowledgebases create |
+knowledgebases create |
 knowledgebases update | kb1 --name New
 knowledgebases update | kb1 --description D
 knowledgebases update | kb1 --clear_description
@@ -39,30 +39,30 @@ knowledgebase_documents list | --knowledgebase_id kb1 --sort_field name
 knowledgebase_documents list | --knowledgebase_id kb1 --sort_direction asc
 knowledgebase_documents list | --knowledgebase_id kb1 --pagination_offset x
 knowledgebase_documents list | --knowledgebase_id kb1 --pagination_page_size -2
-framework: knowledgebase_documents list |
+knowledgebase_documents list |
 knowledgebase_documents retrieve | doc1
 knowledgebase_documents retrieve | doc1 --content_only
 knowledgebase_documents create | --knowledgebase_id kb1 --path a.md --content "hello world"
 knowledgebase_documents create | --knowledgebase_id kb1 --path a.md --content @fixtures/text.md --content_type text/markdown
 knowledgebase_documents create | --knowledgebase_id kb1 --path a.md --content "" --content_type ""
-framework: knowledgebase_documents create | --knowledgebase_id kb1 --path a.md
-framework: knowledgebase_documents create | --knowledgebase_id kb1 --content x
-framework: knowledgebase_documents create | --path a.md --content x
+knowledgebase_documents create | --knowledgebase_id kb1 --path a.md
+knowledgebase_documents create | --knowledgebase_id kb1 --content x
+knowledgebase_documents create | --path a.md --content x
 knowledgebase_documents update | doc1 --base_revision_id rev1 --content "new body"
 knowledgebase_documents update | doc1 --base_revision_id rev1 --content @fixtures/text.md --content_type text/markdown
 knowledgebase_documents update | doc1 --base_revision_id rev1 --content_type text/plain
 knowledgebase_documents update | doc1 --base_revision_id rev1 --content ""
 knowledgebase_documents update | doc1 --base_revision_id rev1
-framework: knowledgebase_documents update | doc1 --content x
+knowledgebase_documents update | doc1 --content x
 knowledgebase_documents rename | doc1 --base_revision_id rev1 --path b.md
-framework: knowledgebase_documents rename | doc1 --base_revision_id rev1
-framework: knowledgebase_documents rename | doc1 --path b.md
+knowledgebase_documents rename | doc1 --base_revision_id rev1
+knowledgebase_documents rename | doc1 --path b.md
 knowledgebase_documents archive | doc1 --base_revision_id rev1
-framework: knowledgebase_documents archive | doc1
+knowledgebase_documents archive | doc1
 knowledgebase_documents unarchive | doc1 --base_revision_id rev1
 knowledgebase_documents unarchive | doc1 --base_revision_id rev1 --path restored.md
 knowledgebase_documents unarchive | doc1 --base_revision_id rev1 --path ""
-framework: knowledgebase_documents unarchive | doc1
+knowledgebase_documents unarchive | doc1
 knowledgebase_documents delete | doc1
 
 # knowledgebase_document_revisions
@@ -70,7 +70,7 @@ knowledgebase_document_revisions list | --knowledgebase_document_id doc1
 knowledgebase_document_revisions list | --knowledgebase_document_id doc1 --pagination_offset 2 --pagination_page_size 3
 knowledgebase_document_revisions list | --knowledgebase_document_id doc1 --pagination_offset abc
 knowledgebase_document_revisions list | --knowledgebase_document_id doc1 --pagination_page_size 0
-framework: knowledgebase_document_revisions list |
+knowledgebase_document_revisions list |
 knowledgebase_document_revisions retrieve | drev1
 knowledgebase_document_revisions retrieve | drev1 --content_only
 
@@ -79,11 +79,11 @@ knowledgebase_revisions list | --knowledgebase_id kb1
 knowledgebase_revisions list | --knowledgebase_id kb1 --pagination_offset 0 --pagination_page_size 50
 knowledgebase_revisions list | --knowledgebase_id kb1 --pagination_offset -5
 knowledgebase_revisions list | --knowledgebase_id kb1 --pagination_page_size x
-framework: knowledgebase_revisions list |
+knowledgebase_revisions list |
 knowledgebase_revisions retrieve | krev1
 knowledgebase_revisions list_documents | krev1
 knowledgebase_revisions list_documents | krev1 --path_prefix docs/ --pagination_offset 1 --pagination_page_size 2
 knowledgebase_revisions list_documents | krev1 --path_prefix ""
 knowledgebase_revisions list_documents | krev1 --pagination_offset 1e3
 knowledgebase_revisions list_documents | krev1 --pagination_page_size 0
-framework: knowledgebase_revisions list_documents |
+knowledgebase_revisions list_documents |

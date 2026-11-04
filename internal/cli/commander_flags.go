@@ -1,0 +1,51 @@
+// Code generated from internal/cli/testdata/typescript-commands.json. DO NOT EDIT.
+
+package cli
+
+// commanderOptionFlags holds the TypeScript CLI's option strings, in kebab
+// case, where they differ from the default "--name <name>" form. Errors that
+// quote an option use them, as Commander does.
+var commanderOptionFlags = map[string]string{
+	"prefactor --profile":                                                         "--profile <name>",
+	"prefactor agent-associations list-from --agent-ids":                          "--agent-ids <ids>",
+	"prefactor agent-associations list-from --sort-direction":                     "--sort-direction <direction>",
+	"prefactor agent-associations list-from --sort-field":                         "--sort-field <field>",
+	"prefactor agent-associations list-to --sort-direction":                       "--sort-direction <direction>",
+	"prefactor agent-associations list-to --sort-field":                           "--sort-field <field>",
+	"prefactor agent-instance-associations list-from --agent-instance-ids":        "--agent-instance-ids <ids>",
+	"prefactor agent-instance-associations list-from --sort-direction":            "--sort-direction <direction>",
+	"prefactor agent-instance-associations list-from --sort-field":                "--sort-field <field>",
+	"prefactor agent-instance-associations list-to --sort-direction":              "--sort-direction <direction>",
+	"prefactor agent-instance-associations list-to --sort-field":                  "--sort-field <field>",
+	"prefactor agent-instances agent-context --output":                            "--output <path>",
+	"prefactor agent-instances register --instance-metadata-schema":               "--instance-metadata-schema <schema>",
+	"prefactor agent-instances register --instance-params-payload-schema":         "--instance-params-payload-schema <schema>",
+	"prefactor agent-instances register --instance-result-payload-schema":         "--instance-result-payload-schema <schema>",
+	"prefactor agent-schema-versions create --instance-metadata-schema":           "--instance-metadata-schema <schema>",
+	"prefactor agent-schema-versions create --instance-params-payload-schema":     "--instance-params-payload-schema <schema>",
+	"prefactor agent-schema-versions create --instance-result-payload-schema":     "--instance-result-payload-schema <schema>",
+	"prefactor agent-versions create --execution-mode":                            "--execution-mode <mode>",
+	"prefactor integrations update --enabled-events":                              "--enabled-events <events>",
+	"prefactor integrations update --webhook-url":                                 "--webhook-url <url>",
+	"prefactor judges create --execution-mode":                                    "--execution-mode <mode>",
+	"prefactor judges create-version --hosted-llm-provider-model-id":              "--hosted-llm-provider-model-id <id>",
+	"prefactor judges create-version --system-prompt-template":                    "--system-prompt-template <template>",
+	"prefactor knowledgebase-document-revisions list --knowledgebase-document-id": "--knowledgebase-document-id <id>",
+	"prefactor knowledgebase-documents archive --base-revision-id":                "--base-revision-id <id>",
+	"prefactor knowledgebase-documents list --sort-direction":                     "--sort-direction <direction>",
+	"prefactor knowledgebase-documents list --sort-field":                         "--sort-field <field>",
+	"prefactor knowledgebase-documents rename --base-revision-id":                 "--base-revision-id <id>",
+	"prefactor knowledgebase-documents unarchive --base-revision-id":              "--base-revision-id <id>",
+	"prefactor knowledgebase-documents update --base-revision-id":                 "--base-revision-id <id>",
+	"prefactor knowledgebases list --sort-direction":                              "--sort-direction <direction>",
+	"prefactor knowledgebases list --sort-field":                                  "--sort-field <field>",
+	"prefactor llm-provider-models create --models-dev-model-name":                "--models-dev-model-name <name>",
+	"prefactor llm-provider-models create --models-dev-provider":                  "--models-dev-provider <provider>",
+	"prefactor llm-provider-models update --models-dev-model-name":                "--models-dev-model-name <name>",
+	"prefactor llm-provider-models update --models-dev-provider":                  "--models-dev-provider <provider>",
+	"prefactor llm-providers create --api-base-url":                               "--api-base-url <url>",
+	"prefactor llm-providers update --api-base-url":                               "--api-base-url <url>",
+	"prefactor ping --api-token":                                                  "--api-token <apiToken>",
+	"prefactor ping --api-url":                                                    "--api-url <apiUrl>",
+	"prefactor profiles add --api-token":                                          "--api-token <apiToken>",
+}

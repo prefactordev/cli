@@ -1,0 +1,5627 @@
+[
+  {
+    "path": "",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "-V, --version",
+        "long": "--version",
+        "short": "-V",
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--profile <name>",
+        "long": "--profile",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "login",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "profiles",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "profiles list",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "profiles add",
+    "arguments": [
+      {
+        "name": "name",
+        "required": true,
+        "variadic": false
+      },
+      {
+        "name": "baseUrl",
+        "required": false,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--api-token <apiToken>",
+        "long": "--api-token",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "profiles remove",
+    "arguments": [
+      {
+        "name": "name",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "accounts",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "accounts list",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "accounts retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "accounts update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "integrations",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "integrations list",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "integrations retrieve",
+    "arguments": [
+      {
+        "name": "type",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "integrations delete",
+    "arguments": [
+      {
+        "name": "type",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "integrations test",
+    "arguments": [
+      {
+        "name": "type",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "integrations update",
+    "arguments": [
+      {
+        "name": "type",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--webhook_url <url>",
+        "long": "--webhook_url",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--enabled_events <events>",
+        "long": "--enabled_events",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agents list",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents show",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_counts",
+        "long": "--include_counts",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_risk_rollup",
+        "long": "--include_risk_rollup",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents retire",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agents reinstate",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "judges list",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges show",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_counts",
+        "long": "--include_counts",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_risk_rollup",
+        "long": "--include_risk_rollup",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--team_id <team_id>",
+        "long": "--team_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--owner_person_id <owner_person_id>",
+        "long": "--owner_person_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--execution_mode <mode>",
+        "long": "--execution_mode",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "hosted",
+          "remote"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--team_id <team_id>",
+        "long": "--team_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--owner_person_id <owner_person_id>",
+        "long": "--owner_person_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges retire",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges reinstate",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges create_version",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--hosted_llm_provider_model_id <id>",
+        "long": "--hosted_llm_provider_model_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--criterion <criterion>",
+        "long": "--criterion",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--system_prompt_template <template>",
+        "long": "--system_prompt_template",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges templates",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "judges score",
+    "arguments": [
+      {
+        "name": "agent_instance_id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--judge_agent_id <judge_agent_id>",
+        "long": "--judge_agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_associations list_from",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_ids <ids>",
+        "long": "--agent_ids",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations list_to",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--from_agent_id <from_agent_id>",
+        "long": "--from_agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--to_agent_id <to_agent_id>",
+        "long": "--to_agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--association_type <association_type>",
+        "long": "--association_type",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--trigger <trigger>",
+        "long": "--trigger",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "on_demand",
+          "on_completion"
+        ]
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--trigger <trigger>",
+        "long": "--trigger",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "on_demand",
+          "on_completion"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_associations delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instance_associations",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_instance_associations list_from",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_ids <ids>",
+        "long": "--agent_instance_ids",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instance_associations list_to",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instance_associations retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_providers",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "llm_providers list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_providers retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_providers create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--provider <provider>",
+        "long": "--provider",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "anthropic",
+          "openai",
+          "ollama_cloud",
+          "together",
+          "custom_openai"
+        ]
+      },
+      {
+        "flags": "--api_key <api_key>",
+        "long": "--api_key",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--api_base_url <url>",
+        "long": "--api_base_url",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_providers update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--api_key <api_key>",
+        "long": "--api_key",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--api_base_url <url>",
+        "long": "--api_base_url",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_providers delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_provider_models",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "llm_provider_models list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--llm_provider_id <llm_provider_id>",
+        "long": "--llm_provider_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_provider_models retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_provider_models create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--llm_provider_id <llm_provider_id>",
+        "long": "--llm_provider_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--api_name <api_name>",
+        "long": "--api_name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--models_dev_provider <provider>",
+        "long": "--models_dev_provider",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--models_dev_model_name <name>",
+        "long": "--models_dev_model_name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_provider_models update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--api_name <api_name>",
+        "long": "--api_name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--models_dev_provider <provider>",
+        "long": "--models_dev_provider",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--models_dev_model_name <name>",
+        "long": "--models_dev_model_name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "llm_provider_models delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "environments list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments show",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "environments delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_versions",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_versions list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_versions retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_versions create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_schema_version_id <agent_schema_version_id>",
+        "long": "--agent_schema_version_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--execution_mode <mode>",
+        "long": "--execution_mode",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "hosted",
+          "remote"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_schema_versions",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_schema_versions list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_schema_versions retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_schema_versions create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_schemas <span_schemas>",
+        "long": "--span_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_type_schemas <span_type_schemas>",
+        "long": "--span_type_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_result_schemas <span_result_schemas>",
+        "long": "--span_result_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--instance_params_payload_schema <schema>",
+        "long": "--instance_params_payload_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--instance_result_payload_schema <schema>",
+        "long": "--instance_result_payload_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--instance_metadata_schema <schema>",
+        "long": "--instance_metadata_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_instances list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--statuses <statuses>",
+        "long": "--statuses",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances show",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--external_identifier <external_identifier>",
+        "long": "--external_identifier",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_counts",
+        "long": "--include_counts",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_costs",
+        "long": "--include_costs",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_risk_score",
+        "long": "--include_risk_score",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_alert_count",
+        "long": "--include_alert_count",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances agent_context",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--output <path>",
+        "long": "--output",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances register",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_version_external_identifier <agent_version_external_identifier>",
+        "long": "--agent_version_external_identifier",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_version_name <agent_version_name>",
+        "long": "--agent_version_name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_version_description <agent_version_description>",
+        "long": "--agent_version_description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_schema_version_external_identifier <agent_schema_version_external_identifier>",
+        "long": "--agent_schema_version_external_identifier",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_schemas <span_schemas>",
+        "long": "--span_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_type_schemas <span_type_schemas>",
+        "long": "--span_type_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--span_result_schemas <span_result_schemas>",
+        "long": "--span_result_schemas",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--purpose <purpose>",
+        "long": "--purpose",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "live",
+          "smoke_test",
+          "eval"
+        ]
+      },
+      {
+        "flags": "--instance_params_payload_schema <schema>",
+        "long": "--instance_params_payload_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--instance_result_payload_schema <schema>",
+        "long": "--instance_result_payload_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--instance_metadata_schema <schema>",
+        "long": "--instance_metadata_schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--params_payload <params_payload>",
+        "long": "--params_payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--metadata <metadata>",
+        "long": "--metadata",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--update_current_version",
+        "long": "--update_current_version",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances start",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--timestamp <timestamp>",
+        "long": "--timestamp",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances finish",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--timestamp <timestamp>",
+        "long": "--timestamp",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "complete",
+          "failed",
+          "cancelled"
+        ]
+      },
+      {
+        "flags": "--result_payload <result_payload>",
+        "long": "--result_payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances prepare",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--params_payload <params_payload>",
+        "long": "--params_payload",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances record_quality",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances discard_sensitive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_instances terminate",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--reason <reason>",
+        "long": "--reason",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--timestamp <timestamp>",
+        "long": "--timestamp",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_deployments list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--current_version_id <current_version_id>",
+        "long": "--current_version_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--current_version_id <current_version_id>",
+        "long": "--current_version_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments list_promotions",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_deployments promote",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_spans",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "agent_spans list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--start_time <start_time>",
+        "long": "--start_time",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--end_time <end_time>",
+        "long": "--end_time",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--include_summaries",
+        "long": "--include_summaries",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_spans retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--redacted",
+        "long": "--redacted",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_spans create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--schema_name <schema_name>",
+        "long": "--schema_name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "active",
+          "complete",
+          "failed",
+          "cancelled"
+        ]
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--parent_span_id <parent_span_id>",
+        "long": "--parent_span_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--started_at <started_at>",
+        "long": "--started_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--finished_at <finished_at>",
+        "long": "--finished_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--result_payload <result_payload>",
+        "long": "--result_payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_spans finish",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--timestamp <timestamp>",
+        "long": "--timestamp",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "complete",
+          "failed",
+          "cancelled"
+        ]
+      },
+      {
+        "flags": "--result_payload <result_payload>",
+        "long": "--result_payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "agent_spans discard_sensitive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "alerts",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "alerts list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "raised",
+          "cleared"
+        ]
+      },
+      {
+        "flags": "--severity <severity>",
+        "long": "--severity",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "critical",
+          "error",
+          "warning",
+          "info"
+        ]
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--active_during_start_at <active_during_start_at>",
+        "long": "--active_during_start_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--active_during_finish_at <active_during_finish_at>",
+        "long": "--active_during_finish_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sorting <sorting>",
+        "long": "--sorting",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "alerts retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "alerts count",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "raised",
+          "cleared"
+        ]
+      },
+      {
+        "flags": "--severity <severity>",
+        "long": "--severity",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "critical",
+          "error",
+          "warning",
+          "info"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "alerts raise",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--severity <severity>",
+        "long": "--severity",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "critical",
+          "error",
+          "warning",
+          "info"
+        ]
+      },
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--raised_at <raised_at>",
+        "long": "--raised_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--payload_sensitive_encoding",
+        "long": "--payload_sensitive_encoding",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "alerts clear",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--severity <severity>",
+        "long": "--severity",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "critical",
+          "error",
+          "warning",
+          "info"
+        ]
+      },
+      {
+        "flags": "--cleared_at <cleared_at>",
+        "long": "--cleared_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--payload_sensitive_encoding",
+        "long": "--payload_sensitive_encoding",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "people",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "people list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--team_id <team_id>",
+        "long": "--team_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--sorting <sorting>",
+        "long": "--sorting",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "people retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "people create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--email <email>",
+        "long": "--email",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--team_ids <team_ids>",
+        "long": "--team_ids",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--title <title>",
+        "long": "--title",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "people update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--email <email>",
+        "long": "--email",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--team_ids <team_ids>",
+        "long": "--team_ids",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--title <title>",
+        "long": "--title",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "people delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "teams",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "teams list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--sorting <sorting>",
+        "long": "--sorting",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "teams retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "teams create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "teams update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "teams delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "knowledgebases list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "active",
+          "archived"
+        ]
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id",
+          "name"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--clear_description",
+        "long": "--clear_description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases archive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases unarchive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebases delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "knowledgebase_documents list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--knowledgebase_id <knowledgebase_id>",
+        "long": "--knowledgebase_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--path_prefix <path_prefix>",
+        "long": "--path_prefix",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--status <status>",
+        "long": "--status",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "active",
+          "archived"
+        ]
+      },
+      {
+        "flags": "--sort_field <field>",
+        "long": "--sort_field",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "id",
+          "path"
+        ]
+      },
+      {
+        "flags": "--sort_direction <direction>",
+        "long": "--sort_direction",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "asc",
+          "desc"
+        ]
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--content_only",
+        "long": "--content_only",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--knowledgebase_id <knowledgebase_id>",
+        "long": "--knowledgebase_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--path <path>",
+        "long": "--path",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--content <content>",
+        "long": "--content",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--content_type <content_type>",
+        "long": "--content_type",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--base_revision_id <id>",
+        "long": "--base_revision_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--content <content>",
+        "long": "--content",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--content_type <content_type>",
+        "long": "--content_type",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents rename",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--base_revision_id <id>",
+        "long": "--base_revision_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--path <path>",
+        "long": "--path",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents archive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--base_revision_id <id>",
+        "long": "--base_revision_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents unarchive",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--base_revision_id <id>",
+        "long": "--base_revision_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--path <path>",
+        "long": "--path",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_documents delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_document_revisions",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "knowledgebase_document_revisions list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--knowledgebase_document_id <id>",
+        "long": "--knowledgebase_document_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_document_revisions retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--content_only",
+        "long": "--content_only",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_revisions",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "knowledgebase_revisions list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--knowledgebase_id <knowledgebase_id>",
+        "long": "--knowledgebase_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_revisions retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "knowledgebase_revisions list_documents",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--path_prefix <path_prefix>",
+        "long": "--path_prefix",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "risk_profiles list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--sorting <sorting>",
+        "long": "--sorting",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_offset <pagination_offset>",
+        "long": "--pagination_offset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--pagination_page_size <pagination_page_size>",
+        "long": "--pagination_page_size",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles template",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--template_name <template_name>",
+        "long": "--template_name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--ruleset <ruleset>",
+        "long": "--ruleset",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--ruleset <ruleset>",
+        "long": "--ruleset",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "risk_profiles delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "playground create_customer_support_agent",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground create_loan_application_review_agent",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground create_northstar_support_agent",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground create_openclaw_agent",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground create_quality_review_agent",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground create_first_account_agent",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--seed_instances_and_spans",
+        "long": "--seed_instances_and_spans",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_customer_support_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_loan_application_review_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_northstar_support_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_openclaw_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_quality_review_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground record_first_account_spans",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_instance_id <agent_instance_id>",
+        "long": "--agent_instance_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--scenario <scenario>",
+        "long": "--scenario",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "good",
+          "mixed",
+          "bad",
+          "timeout",
+          "active"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_customer_support_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_loan_application_review_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_northstar_support_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_openclaw_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_first_account_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--scenario <scenario>",
+        "long": "--scenario",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "good",
+          "mixed",
+          "bad",
+          "timeout",
+          "active"
+        ]
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "playground register_quality_review_agent_instance",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--id <id>",
+        "long": "--id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--purpose <purpose>",
+        "long": "--purpose",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "live",
+          "smoke_test",
+          "eval"
+        ]
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_users",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "admin_users list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_users retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_users update",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--job_title <job_title>",
+        "long": "--job_title",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--profile_completed_at <profile_completed_at>",
+        "long": "--profile_completed_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_user_invites",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "admin_user_invites list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_user_invites retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_user_invites create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--email <email>",
+        "long": "--email",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "admin_user_invites revoke",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "api_tokens list",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens retrieve",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens create",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--token_scope <token_scope>",
+        "long": "--token_scope",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--agent_id <agent_id>",
+        "long": "--agent_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--environment_id <environment_id>",
+        "long": "--environment_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--expires_at <expires_at>",
+        "long": "--expires_at",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens suspend",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens activate",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens revoke",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "api_tokens delete",
+    "arguments": [
+      {
+        "name": "id",
+        "required": true,
+        "variadic": false
+      }
+    ],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "setup",
+    "arguments": [
+      {
+        "name": "agent_id",
+        "required": false,
+        "variadic": false
+      }
+    ],
+    "options": [
+      {
+        "flags": "--create",
+        "long": "--create",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--name <name>",
+        "long": "--name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--description <description>",
+        "long": "--description",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--json",
+        "long": "--json",
+        "short": null,
+        "mandatory": false,
+        "takesValue": false,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "pfid",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "pfid generate",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--account_id <account_id>",
+        "long": "--account_id",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--count <count>",
+        "long": "--count",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "bulk",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "bulk execute",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--items <items>",
+        "long": "--items",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "ping",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--api-token <apiToken>",
+        "long": "--api-token",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--api-url <apiUrl>",
+        "long": "--api-url",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "version",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "install",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--channel <channel>",
+        "long": "--channel",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "stable",
+          "latest"
+        ]
+      },
+      {
+        "flags": "--version <version>",
+        "long": "--version",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      },
+      {
+        "flags": "--source-binary <path>",
+        "long": "--source-binary",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": true,
+        "choices": null
+      },
+      {
+        "flags": "--resolved-tag <tag>",
+        "long": "--resolved-tag",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": true,
+        "choices": null
+      },
+      {
+        "flags": "--asset-name <asset>",
+        "long": "--asset-name",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": true,
+        "choices": null
+      },
+      {
+        "flags": "--wait-for-pid <pid>",
+        "long": "--wait-for-pid",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": true,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "update",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--channel <channel>",
+        "long": "--channel",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": [
+          "stable",
+          "latest"
+        ]
+      },
+      {
+        "flags": "--version <version>",
+        "long": "--version",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "uninstall",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "doctor",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": false,
+    "hasAction": true
+  }
+]

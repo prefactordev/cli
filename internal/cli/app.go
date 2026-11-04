@@ -24,6 +24,9 @@ type App struct {
 	// terminals, which decides whether the CLI may prompt.
 	StdinIsTerminal  func() bool
 	StdoutIsTerminal func() bool
+	// Argv is the argument list given to the CLI, used to report unknown
+	// options the way Commander does.
+	Argv []string
 
 	session *session
 }
@@ -43,6 +46,7 @@ func DefaultApp(version string) *App {
 		Login:            defaultLoginDeps(),
 		StdinIsTerminal:  func() bool { return term.IsTerminal(int(os.Stdin.Fd())) },
 		StdoutIsTerminal: func() bool { return term.IsTerminal(int(os.Stdout.Fd())) },
+		Argv:             os.Args[1:],
 	}
 }
 

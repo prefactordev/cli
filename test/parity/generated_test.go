@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
-	"strings"
 	"testing"
 )
 
@@ -45,11 +44,10 @@ func normalizeGenerated(requests []recordedRequest) []recordedRequest {
 // agent_instances agent_context --output writes, for responses the default
 // recording server does not send.
 func TestParityAgentContextOutput(t *testing.T) {
-	tsCLI := os.Getenv("PARITY_TS_CLI")
-	if tsCLI == "" {
+	tsCommand := tsCommand()
+	if tsCommand == nil {
 		t.Skip("PARITY_TS_CLI is not set")
 	}
-	tsCommand := strings.Fields(os.ExpandEnv(strings.ReplaceAll(tsCLI, "~", "$HOME")))
 
 	responses := map[string]string{
 		"body object": `{"status":"success","agent_context":{"generated_at":"2026-01-01T00:00:00Z","span_count":2,` +

@@ -1,0 +1,37 @@
+# Command-line mistakes, reported in Commander's words and order.
+| --version
+| -V
+| agentz
+| agnets list
+| --bogus
+| --profle x agents list
+agents | bogus
+agents | lst
+agents list | extra
+agents retrieve |
+agents retrieve | a b
+agents create |
+agents create | --nmae x
+agents create | --name
+agents create | --name x --bogus
+agents create | --name x --descriptoin y
+agents show | --include_counts=yes
+pfid generate | --count
+profiles add |
+profiles add | x --api-token
+knowledgebase_documents update |
+knowledgebase_documents update | doc
+agent_associations create | --trigger on_demand
+agent_instances list | --agent_id a --statuses
+alerts list | --sort_feld id
+api_tokens | --bogus
+# Help: a bare group or root prints help to stderr and exits 1; --help and
+# help print to stdout and exit 0.
+help: |
+help: agents |
+help: knowledgebase_documents |
+help: | --help
+help: agents | --help
+help: agents create | --help
+help: help |
+help: help | agents

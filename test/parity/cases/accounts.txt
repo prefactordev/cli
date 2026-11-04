@@ -3,13 +3,13 @@ accounts list |
 accounts retrieve | acc1
 accounts update | acc1 --name Acme
 accounts update | acc1 --name ""
-framework: accounts update | acc1
-framework: accounts retrieve |
+accounts update | acc1
+accounts retrieve |
 
 # environments
 environments list | --account_id acc1
 environments list | --account_id ""
-framework: environments list |
+environments list |
 environments retrieve | env1
 environments show | --environment_id env1
 environments show | --external_identifier ext1
@@ -20,8 +20,8 @@ environments create | --name Prod --account_id acc1
 environments create | --name Prod --account_id acc1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
 environments create | --name Prod --account_id acc1 --id bad
 environments create | --name Prod --account_id acc1 --id ""
-framework: environments create | --name Prod
-framework: environments create | --account_id acc1
+environments create | --name Prod
+environments create | --account_id acc1
 environments update | env1 --name Staging
 environments update | env1 --name "  "
 environments update | env1
@@ -43,7 +43,7 @@ teams retrieve | team1
 teams create | --name Core
 teams create | --name Core --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
 teams create | --name Core --id bad
-framework: teams create |
+teams create |
 teams update | team1 --name Renamed
 teams update | team1 --name ""
 teams update | team1
@@ -65,8 +65,8 @@ people create | --email a@example.com --name Ann --team_ids @fixtures/array.json
 people create | --email a@example.com --name Ann --team_ids @fixtures/object.json
 people create | --email a@example.com --name Ann --team_ids '{"a":1}'
 people create | --email a@example.com --name Ann --id bad --team_ids '[1]'
-framework: people create | --email a@example.com
-framework: people create | --name Ann
+people create | --email a@example.com
+people create | --name Ann
 people update | p1 --email b@example.com
 people update | p1 --name Bob --title CTO
 people update | p1 --team_ids '["t1"]'
@@ -86,15 +86,15 @@ risk_profiles list | --pagination_page_size 0
 risk_profiles retrieve | rp1
 risk_profiles template | --template_name default
 risk_profiles template | --template_name ""
-framework: risk_profiles template |
+risk_profiles template |
 risk_profiles create | --name Strict --ruleset '{"thresholds":{"critical":9,"high":6,"medium":3}}'
 risk_profiles create | --name Strict --ruleset @fixtures/object.json --description "Very strict" --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
 risk_profiles create | --name Strict --ruleset @fixtures/array.json
 risk_profiles create | --name Strict --ruleset '[1]'
 risk_profiles create | --name Strict --ruleset '{}' --id bad
 risk_profiles create | --name Strict --ruleset '{}' --description ""
-framework: risk_profiles create | --name Strict
-framework: risk_profiles create | --ruleset '{}'
+risk_profiles create | --name Strict
+risk_profiles create | --ruleset '{}'
 risk_profiles update | rp1 --name Lenient
 risk_profiles update | rp1 --description ""
 risk_profiles update | rp1 --ruleset @fixtures/object.json
@@ -113,8 +113,8 @@ integrations update | slack --webhook_url https://hooks.example.com/x --enabled_
 integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events "  "
 integrations update | slack --webhook_url https://hooks.example.com/x --enabled_events "a,,b"
 integrations update | teams --webhook_url https://hooks.example.com/x --enabled_events a
-framework: integrations update | slack --enabled_events a
-framework: integrations update | slack --webhook_url https://hooks.example.com/x
+integrations update | slack --enabled_events a
+integrations update | slack --webhook_url https://hooks.example.com/x
 
 # api_tokens
 api_tokens list |
@@ -132,7 +132,7 @@ api_tokens create | --token_scope account --environment_id env1
 api_tokens create | --token_scope account --agent_id "  "
 api_tokens create | --token_scope bogus
 api_tokens create | --token_scope ""
-framework: api_tokens create |
+api_tokens create |
 api_tokens suspend | tok1
 api_tokens activate | tok1
 api_tokens revoke | tok1
@@ -158,5 +158,5 @@ admin_user_invites retrieve | inv1
 admin_user_invites create | --email a@example.com
 admin_user_invites create | --email a@example.com --account_id acc1
 admin_user_invites create | --email a@example.com --account_id ""
-framework: admin_user_invites create |
+admin_user_invites create |
 admin_user_invites revoke | inv1
