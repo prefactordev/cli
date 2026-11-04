@@ -38,6 +38,7 @@ func newTestApp(t *testing.T) *testApp {
 	}
 	ta.StdinIsTerminal = func() bool { return ta.terminal }
 	ta.StdoutIsTerminal = func() bool { return ta.terminal }
+	ta.StderrIsTerminal = func() bool { return ta.terminal }
 	return ta
 }
 

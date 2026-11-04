@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -225,18 +224,6 @@ func TestNoPickerOutsideInteractiveModeOrWithYes(t *testing.T) {
 	}
 }
 
-func TestMistypedOptionIsReportedBeforeAnyPicker(t *testing.T) {
-	ta, _, picker := pickerTestApp(t, twoAgents)
-
-	_, err := ta.run(t, "agent-instances", "list", "--statuss", "active")
-	if err == nil || !strings.HasPrefix(err.Error(), "error: unknown option '--statuss'") {
-		t.Fatalf("err = %v", err)
-	}
-	if len(picker.prompts) != 0 {
-		t.Fatalf("asked %v", picker.prompts)
-	}
-}
-
 func TestLatestUsesTheNewestInstanceOfThePickedAgent(t *testing.T) {
 	ta, server, picker := pickerTestApp(t, twoAgents)
 	picker.answers = []string{"Billing"}
@@ -290,17 +277,76 @@ func TestLatestErrors(t *testing.T) {
 	}
 }
 
-func TestPickedValueKeepsJSONOutputOnStdout(t *testing.T) {
-	ta, _, picker := pickerTestApp(t, twoAgents)
-	picker.answers = []string{"Support"}
+func TestJSONOutputTurnsPickersOff(t *testing.T) {
+	for name, setup := range map[string]func(ta *testApp) []string{
+		"--json":                       func(*testApp) []string { return []string{"--json"} },
+		"--fields":                     func(*testApp) []string { return []string{"--fields", "details.id"} },
+		"PREFACTOR_OUTPUT_FORMAT=json": func(ta *testApp) []string { ta.env["PREFACTOR_OUTPUT_FORMAT"] = "json"; return nil },
+	} {
+		t.Run(name, func(t *testing.T) {
+			ta, _, picker := pickerTestApp(t, twoAgents)
+			_, err := ta.run(t, append([]string{"agents", "retrieve"}, setup(ta)...)...)
+			if err == nil || err.Error() != "error: missing required argument 'id'" {
+				t.Fatalf("err = %v", err)
+			}
+			if len(picker.prompts) != 0 {
+				t.Fatalf("asked %v", picker.prompts)
+			}
+		})
+	}
+}
 
-	out, stderr, err := ta.runWithStderr(t, "agents", "retrieve", "--json")
-	if err != nil {
+func TestNoPickerWhenStderrIsNotATerminal(t *testing.T) {
+	ta, _, picker := pickerTestApp(t, twoAgents)
+	ta.StderrIsTerminal = func() bool { return false }
+
+	if _, err := ta.run(t, "agents", "retrieve"); err == nil || err.Error() != "error: missing required argument 'id'" {
+		t.Fatalf("err = %v", err)
+	}
+	if len(picker.prompts) != 0 {
+		t.Fatalf("asked %v", picker.prompts)
+	}
+}
+
+func TestEveryOtherCheckRunsBeforeAnyPicker(t *testing.T) {
+	ta, _, picker := pickerTestApp(t, twoAgents)
+
+	_, err := ta.run(t, "agent-schema-versions", "create")
+	if err == nil || err.Error() != "error: required option '--external-identifier <external-identifier>' not specified" {
+		t.Fatalf("err = %v", err)
+	}
+	_, err = ta.run(t, "agents", "retrieve", "--bogus")
+	if err == nil || err.Error() != "error: unknown option '--bogus'" {
+		t.Fatalf("err = %v", err)
+	}
+	if len(picker.prompts) != 0 {
+		t.Fatalf("asked %v before reporting the error", picker.prompts)
+	}
+}
+
+func TestDestructiveCommandsAskEvenForOneChoice(t *testing.T) {
+	ta, server, picker := pickerTestApp(t, map[string]string{
+		"/api/v1/agent": summaries(`{"id":"` + agentA + `","name":"Only bot","status":"active"}`),
+	})
+	picker.answers = []string{"Only bot"}
+
+	if _, err := ta.run(t, "agents", "delete"); err != nil {
 		t.Fatal(err)
 	}
-	var parsed map[string]any
-	if json.Unmarshal([]byte(out), &parsed) != nil || stderr != "" {
-		t.Fatalf("stdout = %q, stderr = %q", out, stderr)
+	if len(picker.prompts) != 1 || picker.prompts[0] != "Choose an agent" {
+		t.Fatalf("prompts = %v; a delete must not pick its target by itself", picker.prompts)
+	}
+	if last := server.last(); !strings.HasPrefix(last, "DELETE /api/v1/agent/"+agentA) {
+		t.Fatalf("request = %s", last)
+	}
+
+	// A non-destructive command uses the single choice without asking.
+	picker.prompts = nil
+	if _, err := ta.run(t, "agents", "retrieve"); err != nil {
+		t.Fatal(err)
+	}
+	if len(picker.prompts) != 0 {
+		t.Fatalf("asked %v", picker.prompts)
 	}
 }
 

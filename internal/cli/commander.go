@@ -94,8 +94,10 @@ func checkEarly(cmd *cobra.Command, args, argv []string) error {
 
 // checkLate reports missing required options, then the first unknown
 // option, then missing or extra arguments, as Commander does.
-func checkLate(cmd *cobra.Command, args, argv []string) error {
-	if err := checkRequiredOptions(cmd); err != nil {
+// pickable, when set, reports the missing required inputs a picker will
+// supply; those are not errors.
+func checkLate(cmd *cobra.Command, args, argv []string, pickable *pickableInputs) error {
+	if err := checkRequiredOptions(cmd, pickable); err != nil {
 		return err
 	}
 
@@ -103,7 +105,14 @@ func checkLate(cmd *cobra.Command, args, argv []string) error {
 		return unknownOptionError(cmd, unknown)
 	}
 
-	return checkArguments(cmd, args)
+	return checkArguments(cmd, args, pickable)
+}
+
+// pickableInputs are the required arguments (by position) and flags (by
+// name) that a picker can supply on this run.
+type pickableInputs struct {
+	args  map[int]bool
+	flags map[string]bool
 }
 
 func isGroup(cmd *cobra.Command) bool {
@@ -112,7 +121,7 @@ func isGroup(cmd *cobra.Command) bool {
 
 // checkRequiredOptions reports the first required option, in definition
 // order, that was not passed.
-func checkRequiredOptions(cmd *cobra.Command) error {
+func checkRequiredOptions(cmd *cobra.Command, pickable *pickableInputs) error {
 	var missing *pflag.Flag
 	local := cmd.LocalFlags()
 	local.SortFlags = false
@@ -121,6 +130,9 @@ func checkRequiredOptions(cmd *cobra.Command) error {
 			return
 		}
 		if _, required := f.Annotations[requiredAnnotation]; required && !f.Changed {
+			if pickable != nil && pickable.flags[f.Name] {
+				return
+			}
 			missing = f
 		}
 	})
@@ -133,11 +145,14 @@ func checkRequiredOptions(cmd *cobra.Command) error {
 
 // checkArguments compares the positional arguments with the <name> and
 // [name] placeholders in the command's Use line.
-func checkArguments(cmd *cobra.Command, args []string) error {
+func checkArguments(cmd *cobra.Command, args []string, pickable *pickableInputs) error {
 	declared := declaredArguments(cmd)
 
 	for i, arg := range declared {
 		if arg.required && i >= len(args) {
+			if pickable != nil && pickable.args[i] {
+				continue
+			}
 			return &UsageError{Message: fmt.Sprintf("error: missing required argument '%s'", arg.name)}
 		}
 	}

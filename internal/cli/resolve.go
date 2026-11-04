@@ -80,15 +80,28 @@ type resolver struct {
 	known map[*resourceKind]string
 }
 
-// missingPickable reports whether the command lacks a required resource ID
-// that a picker could supply.
-func missingPickable(cmd *cobra.Command, args []string) bool {
+// missingPickableInputs lists the required resource IDs the command lacks
+// that a picker can supply.
+func missingPickableInputs(cmd *cobra.Command, args []string) *pickableInputs {
+	inputs := &pickableInputs{args: map[int]bool{}, flags: map[string]bool{}}
 	for _, b := range bindings(cmd) {
-		if _, given := b.value(args); b.required && !given {
-			return true
+		if _, given := b.value(args); !b.required || given {
+			continue
+		}
+		if b.argIndex >= 0 {
+			inputs.args[b.argIndex] = true
+		} else {
+			inputs.flags[b.flag.Name] = true
 		}
 	}
-	return false
+	return inputs
+}
+
+// destructiveCommands never act on a target chosen without the person
+// choosing it: their picker shows even when there is one choice.
+var destructiveCommands = map[string]bool{
+	"delete": true, "revoke": true, "terminate": true, "archive": true,
+	"discard-sensitive": true, "retire": true, "suspend": true,
 }
 
 func (a *App) newResolver(cmd *cobra.Command, args []string) (*resolver, error) {
@@ -122,7 +135,7 @@ func (a *App) pickMissing(cmd *cobra.Command, args []string) ([]string, error) {
 			continue
 		}
 
-		id, err := r.pick(b.kind)
+		id, err := r.pick(b.kind, b.argIndex >= 0 && destructiveCommands[cmd.Name()])
 		if err != nil {
 			return nil, err
 		}
@@ -138,8 +151,9 @@ func (a *App) pickMissing(cmd *cobra.Command, args []string) ([]string, error) {
 }
 
 // pick returns an ID of kind, picking its parent first when the command
-// does not already have it. A single choice is used without asking.
-func (r *resolver) pick(kind *resourceKind) (string, error) {
+// does not already have it. A single choice is used without asking, unless
+// explicit is set because the command destroys what is picked.
+func (r *resolver) pick(kind *resourceKind, explicit bool) (string, error) {
 	if id, ok := r.known[kind]; ok {
 		return id, nil
 	}
@@ -147,7 +161,7 @@ func (r *resolver) pick(kind *resourceKind) (string, error) {
 	parentID := ""
 	if kind.parent != nil {
 		var err error
-		if parentID, err = r.pick(kind.parent); err != nil {
+		if parentID, err = r.pick(kind.parent, false); err != nil {
 			return "", err
 		}
 	}
@@ -162,6 +176,12 @@ func (r *resolver) pick(kind *resourceKind) (string, error) {
 	case 0:
 		return "", fmt.Errorf("No %s found to pick from.", kind.plural)
 	case 1:
+		if explicit {
+			if id, err = r.app.Picker.Pick("Choose "+article(kind.name)+" "+kind.name, choices); err != nil {
+				return "", err
+			}
+			break
+		}
 		id = choices[0].Value
 		fmt.Fprintf(r.cmd.ErrOrStderr(), "Using %s %s\n", kind.name, choices[0].Label)
 	default:
@@ -204,7 +224,7 @@ func (a *App) resolveLatest(cmd *cobra.Command, args []string) ([]string, error)
 		return nil, fmt.Errorf("%s needs an agent to choose from. Pass the agent instance ID instead; 'prefactor agent-instances list --agent-id <agent_id>' lists them.", latestInstance)
 	}
 
-	agentID, err := r.pick(agentKind)
+	agentID, err := r.pick(agentKind, false)
 	if err != nil {
 		return nil, err
 	}
@@ -244,8 +264,13 @@ func newestInstance(ctx context.Context, c *api.Client, agentID string) (string,
 	return page.Summaries[0].ID, nil
 }
 
-// canPick reports whether pickers may run: interactive mode without --yes,
-// because a picker has no default answer.
+// canPick reports whether pickers may run: interactive mode, stderr a
+// terminal (the picker draws there), and neither JSON output, which must
+// never wait on a prompt, nor --yes, because a picker has no default answer.
 func (a *App) canPick() bool {
-	return a.interactive() && a.Picker != nil && (a.session == nil || !a.session.yes)
+	return a.interactive() &&
+		a.Picker != nil &&
+		a.StderrIsTerminal != nil && a.StderrIsTerminal() &&
+		!a.jsonOutput() &&
+		(a.session == nil || !a.session.yes)
 }

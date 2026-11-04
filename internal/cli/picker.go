@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/charmbracelet/huh"
+	"charm.land/huh/v2"
 )
 
 // Choice is one entry in a picker.

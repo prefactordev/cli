@@ -77,8 +77,10 @@ func newRootCommand(app *App) *cobra.Command {
 }
 
 // prepareRun checks the command line and fills in resource IDs before a
-// command runs. In interactive mode a missing required resource ID opens a
-// picker; otherwise the command fails with the argument or flag to pass.
+// command runs, in this order: --version and command groups, session
+// settings, every Commander check (allowing only the missing IDs a picker
+// will supply), pickers, then @latest. When pickers may not run, a missing
+// resource ID fails with the argument or flag to pass.
 func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
 	a.resolvedArgs = args
 
@@ -89,20 +91,22 @@ func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if a.canPick() && missingPickable(cmd, args) {
-		// Report a mistyped option before asking anything.
-		if unknown := firstUnknownOption(cmd, a.Argv); unknown != "" {
-			return unknownOptionError(cmd, unknown)
-		}
+	// Every other check runs before any picker, so a person is never asked
+	// to pick for a command that would fail anyway.
+	var pickable *pickableInputs
+	if a.canPick() {
+		pickable = missingPickableInputs(cmd, args)
+	}
+	if err := checkLate(cmd, args, a.Argv, pickable); err != nil {
+		return err
+	}
+
+	if pickable != nil {
 		picked, err := a.pickMissing(cmd, args)
 		if err != nil {
 			return err
 		}
 		args = picked
-	}
-
-	if err := checkLate(cmd, args, a.Argv); err != nil {
-		return err
 	}
 
 	resolved, err := a.resolveLatest(cmd, args)

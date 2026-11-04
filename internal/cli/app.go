@@ -24,6 +24,9 @@ type App struct {
 	// terminals, which decides whether the CLI may prompt.
 	StdinIsTerminal  func() bool
 	StdoutIsTerminal func() bool
+	// StderrIsTerminal reports whether stderr is a terminal. The picker
+	// draws there, so it only runs when stderr is a terminal too.
+	StderrIsTerminal func() bool
 	// Argv is the argument list given to the CLI, used to report unknown
 	// options the way Commander does.
 	Argv []string
@@ -50,6 +53,7 @@ func DefaultApp(version string) *App {
 		Login:            defaultLoginDeps(),
 		StdinIsTerminal:  func() bool { return term.IsTerminal(int(os.Stdin.Fd())) },
 		StdoutIsTerminal: func() bool { return term.IsTerminal(int(os.Stdout.Fd())) },
+		StderrIsTerminal: func() bool { return term.IsTerminal(int(os.Stderr.Fd())) },
 		Argv:             os.Args[1:],
 		Picker:           huhPicker{},
 	}
