@@ -11,6 +11,14 @@ import (
 	"github.com/prefactordev/cli/internal/profile"
 )
 
+// profileSummary is one profile in profiles list --json. It never includes
+// the token.
+type profileSummary struct {
+	Name    string `json:"name"`
+	BaseURL string `json:"base_url"`
+	Current bool   `json:"current"`
+}
+
 func newProfilesCommand(app *App) *cobra.Command {
 	profiles := &cobra.Command{
 		Use:   "profiles",
@@ -39,12 +47,23 @@ func newProfilesListCommand(app *App) *cobra.Command {
 
 			out := cmd.OutOrStdout()
 			entries := store.Entries()
+			current, _ := app.resolveProfileName(cmd)
+
+			if app.jsonOutput() {
+				list := make([]profileSummary, 0, len(entries))
+				for _, entry := range entries {
+					list = append(list, profileSummary{Name: entry.Name, BaseURL: entry.Profile.BaseURL, Current: entry.Name == current})
+				}
+				return app.printJSONValue(cmd, struct {
+					Profiles []profileSummary `json:"profiles"`
+				}{list})
+			}
+
 			if len(entries) == 0 {
 				_, err := fmt.Fprintln(out, "No profiles configured. Use 'prefactor profiles add <name> [baseUrl] --api-token <apiToken>'.")
 				return err
 			}
 
-			current, _ := app.resolveProfileName(cmd)
 			for _, entry := range entries {
 				marker := ""
 				if entry.Name == current {
@@ -88,6 +107,12 @@ func newProfilesAddCommand(app *App) *cobra.Command {
 				return err
 			}
 
+			if app.jsonOutput() {
+				return app.printJSONValue(cmd, struct {
+					Profile string `json:"profile"`
+					Saved   bool   `json:"saved"`
+				}{args[0], true})
+			}
 			_, err = fmt.Fprintf(cmd.OutOrStdout(), "Profile '%s' saved.\n", args[0])
 			return err
 		},
@@ -113,6 +138,13 @@ func newProfilesRemoveCommand(app *App) *cobra.Command {
 			removed, err := store.Remove(args[0])
 			if err != nil {
 				return err
+			}
+
+			if app.jsonOutput() {
+				return app.printJSONValue(cmd, struct {
+					Profile string `json:"profile"`
+					Removed bool   `json:"removed"`
+				}{args[0], removed})
 			}
 
 			if removed {

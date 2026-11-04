@@ -22,6 +22,10 @@ func newRootCommand(app *App) *cobra.Command {
 	}
 
 	root.PersistentFlags().String("profile", "", "Profile name to use for commands")
+	addSessionFlags(root)
+	root.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error {
+		return app.startSession(cmd)
+	}
 
 	root.AddCommand(
 		newLoginCommand(app),
@@ -54,19 +58,22 @@ func newRootCommand(app *App) *cobra.Command {
 		newBulkCommand(app),
 		newPfidCommand(app),
 		newPingCommand(app),
-		newVersionCommand(app.Version),
+		newVersionCommand(app),
 	)
 
 	return root
 }
 
-func newVersionCommand(version string) *cobra.Command {
+func newVersionCommand(app *App) *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
 		Short: "Print CLI version",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			_, err := fmt.Fprintln(cmd.OutOrStdout(), version)
+			if app.jsonOutput() {
+				return app.printJSONValue(cmd, map[string]string{"version": app.Version})
+			}
+			_, err := fmt.Fprintln(cmd.OutOrStdout(), app.Version)
 			return err
 		},
 	}

@@ -16,6 +16,17 @@ Command-line interface for [Prefactor](https://prefactor.tech).
 
 Resource commands cover every operation in the Prefactor API, grouped by resource: `accounts`, `environments`, `agents`, `judges`, `agent-versions`, `agent-schema-versions`, `agent-deployments`, `agent-associations`, `agent-instance-associations`, `agent-instances`, `agent-spans`, `alerts`, `teams`, `people`, `risk-profiles`, `integrations`, `api-tokens`, `admin-users`, `admin-user-invites`, `llm-providers`, `llm-provider-models`, `knowledgebases`, `knowledgebase-documents`, `knowledgebase-document-revisions`, `knowledgebase-revisions` and `bulk`. Run `prefactor <group> --help` for the subcommands. JSON flags accept a JSON value or `@path/to/file.json`.
 
+### Global flags
+
+| Flag | Environment variable | Effect |
+|------|----------------------|--------|
+| `--json` | `PREFACTOR_OUTPUT_FORMAT=json` | Print JSON on every command, including `version`, `profiles` and `login` (whose instructions then go to stderr) |
+| `--fields <a,b.c>` | | Keep only these fields of the JSON output. Paths continue through arrays, so `summaries.id` keeps the id of every summary. Implies `--json` |
+| `--no-input` | `PREFACTOR_NO_INPUT=1` | Never prompt |
+| `--yes` | | Accept the default answer to every prompt |
+
+The CLI prompts only when stdin and stdout are terminals and no coding agent is detected (`CLAUDECODE`, `CURSOR_AGENT`, `GEMINI_CLI`, `CODEX_SANDBOX`, `CODEX_CI`, `AGENT` or `AI_AGENT` is set). Otherwise a command that needs missing input fails at once and names the flag to pass, so an agent never waits on a prompt.
+
 `--profile <name>` or `PREFACTOR_PROFILE` selects a profile. Without either, the `default` profile is used, and `PREFACTOR_API_TOKEN` and `PREFACTOR_API_URL` apply when it is not configured.
 
 Profiles live in `prefactor.json`: first at the root of the git repository that contains the current directory, then in the install root (`~/.prefactor/prefactor.json`).

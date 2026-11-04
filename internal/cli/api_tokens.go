@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
-	"github.com/prefactordev/cli/internal/output"
 )
 
 func newAPITokensCommand(app *App) *cobra.Command {
@@ -89,7 +88,7 @@ func newAPITokensCommand(app *App) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return output.JSON(cmd.OutOrStdout(), merged)
+			return app.printResult(cmd, merged)
 		},
 	}
 	create.Flags().String("token-scope", "", "Token scope")
@@ -136,7 +135,7 @@ func newAPITokensCommand(app *App) *cobra.Command {
 			}); err != nil {
 				return err
 			}
-			return printValue(cmd, map[string]bool{"ok": true})
+			return app.printJSONValue(cmd, map[string]bool{"ok": true})
 		},
 	})
 

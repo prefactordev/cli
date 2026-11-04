@@ -20,6 +20,8 @@ type testApp struct {
 	*App
 	configPath string
 	env        map[string]string
+	// terminal makes stdin and stdout look like terminals.
+	terminal bool
 }
 
 func newTestApp(t *testing.T) *testApp {
@@ -34,18 +36,26 @@ func newTestApp(t *testing.T) *testApp {
 		Getenv:     func(key string) string { return ta.env[key] },
 		Login:      LoginDeps{},
 	}
+	ta.StdinIsTerminal = func() bool { return ta.terminal }
+	ta.StdoutIsTerminal = func() bool { return ta.terminal }
 	return ta
 }
 
 func (ta *testApp) run(t *testing.T, args ...string) (string, error) {
 	t.Helper()
+	out, _, err := ta.runWithStderr(t, args...)
+	return out, err
+}
+
+func (ta *testApp) runWithStderr(t *testing.T, args ...string) (string, string, error) {
+	t.Helper()
 	root := newRootCommand(ta.App)
-	var out bytes.Buffer
+	var out, errOut bytes.Buffer
 	root.SetOut(&out)
-	root.SetErr(io.Discard)
+	root.SetErr(&errOut)
 	root.SetArgs(args)
 	err := root.ExecuteContext(context.Background())
-	return out.String(), err
+	return out.String(), errOut.String(), err
 }
 
 func (ta *testApp) addProfile(t *testing.T, name, token, baseURL string) {

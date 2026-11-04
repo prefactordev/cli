@@ -250,3 +250,62 @@ func writeString(buf *bytes.Buffer, s string) {
 	}
 	buf.WriteByte('"')
 }
+
+// JSONFields writes raw JSON like JSON, keeping only the given dot-separated
+// paths. A path continues through arrays, so "summaries.id" keeps the id of
+// every summary. Paths that do not exist are left out; key order is kept.
+func JSONFields(w io.Writer, raw []byte, fields []string) error {
+	trimmed := bytes.TrimSpace(raw)
+	value, err := parse(trimmed)
+	if err != nil {
+		return JSON(w, raw)
+	}
+
+	paths := make([][]string, len(fields))
+	for i, field := range fields {
+		paths[i] = strings.Split(field, ".")
+	}
+
+	var buf bytes.Buffer
+	writeValue(&buf, project(value, paths), "")
+	_, err = fmt.Fprintln(w, buf.String())
+	return err
+}
+
+// project keeps the parts of value selected by paths. A value selected by an
+// empty path is kept whole.
+func project(value any, paths [][]string) any {
+	for _, path := range paths {
+		if len(path) == 0 {
+			return value
+		}
+	}
+
+	switch v := value.(type) {
+	case []any:
+		list := make([]any, 0, len(v))
+		for _, item := range v {
+			list = append(list, project(item, paths))
+		}
+		return list
+	case *object:
+		result := &object{values: map[string]any{}}
+		for _, key := range v.keys {
+			var rest [][]string
+			for _, path := range paths {
+				if path[0] == key {
+					rest = append(rest, path[1:])
+				}
+			}
+			if len(rest) == 0 {
+				continue
+			}
+			result.keys = append(result.keys, key)
+			result.values[key] = project(v.values[key], rest)
+		}
+		return result
+	default:
+		// A path that goes past a scalar selects nothing more.
+		return value
+	}
+}

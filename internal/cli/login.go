@@ -93,23 +93,61 @@ func newLoginCommand(app *App) *cobra.Command {
 			}
 
 			deps := app.Login
-			out := cmd.OutOrStdout()
+			// Instructions go to stderr in JSON mode, so stdout holds only
+			// the result.
+			info := cmd.OutOrStdout()
+			if app.jsonOutput() {
+				info = cmd.ErrOrStderr()
+			}
 
 			started, err := startDeviceLogin(cmd.Context(), baseURL, deps, app.Version)
 			if err != nil {
 				return err
 			}
 
+			var grant deviceLoginGrant
 			if started == nil {
-				return loginByPastingToken(out, store, baseURL, deps)
+				if !app.interactive() {
+					return errors.New("Cannot ask for an API token because the CLI is not interactive. Run 'prefactor profiles add default <baseUrl> --api-token <apiToken>' instead.")
+				}
+				grant, err = loginByPastingToken(info, baseURL, deps)
+			} else {
+				grant, err = loginWithDeviceCode(cmd.Context(), info, baseURL, *started, deps)
+			}
+			if err != nil {
+				return err
 			}
 
-			return loginWithDeviceCode(cmd.Context(), out, store, baseURL, *started, deps)
+			if err := store.Set(profile.DefaultName, profile.Profile{APIKey: grant.AccessToken, BaseURL: baseURL}); err != nil {
+				return err
+			}
+
+			if app.jsonOutput() {
+				return app.printJSONValue(cmd, loginResult{
+					Profile:     profile.DefaultName,
+					BaseURL:     baseURL,
+					AccountName: grant.AccountName,
+				})
+			}
+
+			if grant.AccountName != "" {
+				_, err = fmt.Fprintf(cmd.OutOrStdout(), "Authentication successful. Signed in to %s. Credentials saved to the '%s' profile.\n", grant.AccountName, profile.DefaultName)
+				return err
+			}
+			_, err = fmt.Fprintf(cmd.OutOrStdout(), "Authentication successful. Credentials saved to the '%s' profile.\n", profile.DefaultName)
+			return err
 		},
 	}
 }
 
-func loginByPastingToken(out io.Writer, store *profile.Store, baseURL string, deps LoginDeps) error {
+// loginResult is the login --json output. It never includes the token.
+type loginResult struct {
+	Profile     string `json:"profile"`
+	BaseURL     string `json:"base_url"`
+	AccountName string `json:"account_name,omitempty"`
+}
+
+func loginByPastingToken(out io.Writer, baseURL string, deps LoginDeps) (deviceLoginGrant, error) {
 	loginURL := stripTrailingSlashes(baseURL) + "/cli/connect"
 
 	fmt.Fprintf(out, "Opening your browser to: %s\n", loginURL)
@@ -120,28 +158,22 @@ func loginByPastingToken(out io.Writer, store *profile.Store, baseURL string, de
 
 	token, err := deps.PromptForToken("Paste your API token here: ")
 	if err != nil {
-		return err
+		return deviceLoginGrant{}, err
 	}
 	if strings.TrimSpace(token) == "" {
-		return errors.New("No API token provided. Please paste a valid token.")
+		return deviceLoginGrant{}, errors.New("No API token provided. Please paste a valid token.")
 	}
 
-	if err := store.Set(profile.DefaultName, profile.Profile{APIKey: token, BaseURL: baseURL}); err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprintf(out, "Authentication successful. Credentials saved to the '%s' profile.\n", profile.DefaultName)
-	return err
+	return deviceLoginGrant{AccessToken: token}, nil
 }
 
 func loginWithDeviceCode(
 	ctx context.Context,
 	out io.Writer,
-	store *profile.Store,
 	baseURL string,
 	started deviceLoginStart,
 	deps LoginDeps,
-) error {
+) (deviceLoginGrant, error) {
 	columns, known := deps.TerminalColumns()
 	showQRCode := known && qrCodeFits(*started.VerificationQRCode, columns)
 	if showQRCode {
@@ -160,22 +192,7 @@ func loginWithDeviceCode(
 	fmt.Fprintf(out, "Confirm this code in the browser: %s\n", started.UserCode)
 	fmt.Fprintln(out, "Waiting for approval.")
 
-	grant, err := pollForDeviceGrant(ctx, baseURL, started, deps)
-	if err != nil {
-		return err
-	}
-
-	if err := store.Set(profile.DefaultName, profile.Profile{APIKey: grant.AccessToken, BaseURL: baseURL}); err != nil {
-		return err
-	}
-
-	if grant.AccountName != "" {
-		_, err = fmt.Fprintf(out, "Authentication successful. Signed in to %s. Credentials saved to the '%s' profile.\n", grant.AccountName, profile.DefaultName)
-		return err
-	}
-
-	_, err = fmt.Fprintf(out, "Authentication successful. Credentials saved to the '%s' profile.\n", profile.DefaultName)
-	return err
+	return pollForDeviceGrant(ctx, baseURL, started, deps)
 }
 
 // startDeviceLogin returns nil when the server has no device login endpoint.

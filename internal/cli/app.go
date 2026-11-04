@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
@@ -19,6 +20,12 @@ type App struct {
 	// Getenv reads an environment variable.
 	Getenv func(string) string
 	Login  LoginDeps
+	// StdinIsTerminal and StdoutIsTerminal report whether the streams are
+	// terminals, which decides whether the CLI may prompt.
+	StdinIsTerminal  func() bool
+	StdoutIsTerminal func() bool
+
+	session *session
 }
 
 // DefaultApp returns an App for the running process.
@@ -32,8 +39,10 @@ func DefaultApp(version string) *App {
 			}
 			return locator.ConfigPath(), nil
 		},
-		Getenv: os.Getenv,
-		Login:  defaultLoginDeps(),
+		Getenv:           os.Getenv,
+		Login:            defaultLoginDeps(),
+		StdinIsTerminal:  func() bool { return term.IsTerminal(int(os.Stdin.Fd())) },
+		StdoutIsTerminal: func() bool { return term.IsTerminal(int(os.Stdout.Fd())) },
 	}
 }
 

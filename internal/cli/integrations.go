@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
-	"github.com/prefactordev/cli/internal/output"
 )
 
 // findIntegration lists the account's integrations and returns the ID of the
@@ -116,7 +115,7 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 					}
 				}
 
-				return output.JSON(cmd.OutOrStdout(), raw)
+				return app.printResult(cmd, raw)
 			},
 		})
 	}

@@ -5,7 +5,6 @@ import (
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
-	"github.com/prefactordev/cli/internal/output"
 	"github.com/prefactordev/cli/internal/profile"
 )
 
@@ -45,7 +44,7 @@ func newPfidCommand(app *App) *cobra.Command {
 				return err
 			}
 
-			return output.JSON(cmd.OutOrStdout(), raw)
+			return app.printResult(cmd, raw)
 		},
 	}
 	generate.Flags().String("account-id", "", "Account ID")
@@ -85,7 +84,7 @@ func newPingCommand(app *App) *cobra.Command {
 				return err
 			}
 
-			return output.JSON(cmd.OutOrStdout(), raw)
+			return app.printResult(cmd, raw)
 		},
 	}
 

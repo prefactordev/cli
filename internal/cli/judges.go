@@ -174,7 +174,7 @@ func newJudgesCommand(app *App) *cobra.Command {
 			}); err != nil {
 				return err
 			}
-			return printValue(cmd, map[string]bool{"ok": true})
+			return app.printJSONValue(cmd, map[string]bool{"ok": true})
 		},
 	})
 

@@ -209,7 +209,13 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return os.WriteFile(outputPath, append(formatted, '\n'), 0o644)
+			if err := os.WriteFile(outputPath, append(formatted, '\n'), 0o644); err != nil {
+				return err
+			}
+			if app.jsonOutput() {
+				return app.printJSONValue(cmd, map[string]string{"output": outputPath})
+			}
+			return nil
 		},
 	}
 	agentContext.Flags().String("output", "", "Write context JSON body to this file")

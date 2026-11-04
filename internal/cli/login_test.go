@@ -273,6 +273,7 @@ func TestLoginFallsBackToPastingATokenWhenDeviceLoginIsMissing(t *testing.T) {
 	server := newDeviceServer(t, approved())
 	server.startStatus, server.startBody = http.StatusNotFound, ``
 	h := newLoginHarness(t, server)
+	h.terminal = true
 	h.pasted = "pasted-token"
 
 	out, err := h.run(t, "login")

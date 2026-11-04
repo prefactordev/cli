@@ -18,7 +18,6 @@ import (
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
-	"github.com/prefactordev/cli/internal/output"
 )
 
 const maxJSONOptionFileSize = 1024 * 1024
@@ -34,7 +33,7 @@ func (a *App) runAPI(cmd *cobra.Command, call apiCall) error {
 		return err
 	}
 
-	return output.JSON(cmd.OutOrStdout(), raw)
+	return a.printResult(cmd, raw)
 }
 
 // callAPI sends call with the selected profile's client and returns the raw
@@ -48,10 +47,15 @@ func (a *App) callAPI(cmd *cobra.Command, call apiCall) ([]byte, error) {
 	return client.ReadJSON(call(cmd.Context(), apiClient))
 }
 
-// printValue prints a value as indented JSON, for commands whose output the
-// CLI builds itself, such as {"ok": true} after a delete.
-func printValue(cmd *cobra.Command, value any) error {
-	return output.Value(cmd.OutOrStdout(), value)
+// marshalValue encodes a value the CLI builds itself as JSON.
+func marshalValue(value any) ([]byte, error) {
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(value); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 // jsonBody encodes a request body without HTML escaping.
