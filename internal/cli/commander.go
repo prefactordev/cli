@@ -63,9 +63,10 @@ func prepareCommandLine(root *cobra.Command) {
 	walk(root)
 }
 
-// checkCommandLine reports the first command-line mistake the way Commander
-// would. argv is the full argument list given to the CLI.
-func checkCommandLine(cmd *cobra.Command, args, argv []string) error {
+// checkEarly handles what Commander deals with before anything else:
+// --version anywhere, and command groups given no subcommand or an unknown
+// one. argv is the full argument list given to the CLI.
+func checkEarly(cmd *cobra.Command, args, argv []string) error {
 	// Commander handles the root's --version and -V wherever they appear,
 	// before any other check.
 	if versionRequested(cmd, argv) {
@@ -88,7 +89,12 @@ func checkCommandLine(cmd *cobra.Command, args, argv []string) error {
 		_ = cmd.Help()
 		return &exitError{code: 1}
 	}
+	return nil
+}
 
+// checkLate reports missing required options, then the first unknown
+// option, then missing or extra arguments, as Commander does.
+func checkLate(cmd *cobra.Command, args, argv []string) error {
 	if err := checkRequiredOptions(cmd); err != nil {
 		return err
 	}

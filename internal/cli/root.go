@@ -34,10 +34,7 @@ func newRootCommand(app *App) *cobra.Command {
 	root.SetVersionTemplate("{{.Version}}\n")
 	addSessionFlags(root)
 	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := checkCommandLine(cmd, args, app.Argv); err != nil {
-			return err
-		}
-		return app.startSession(cmd)
+		return app.prepareRun(cmd, args)
 	}
 
 	root.AddCommand(
@@ -75,7 +72,58 @@ func newRootCommand(app *App) *cobra.Command {
 	)
 
 	prepareCommandLine(root)
+	useResolvedArgs(root, app)
 	return root
+}
+
+// prepareRun checks the command line and fills in resource IDs before a
+// command runs. In interactive mode a missing required resource ID opens a
+// picker; otherwise the command fails with the argument or flag to pass.
+func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
+	a.resolvedArgs = args
+
+	if err := checkEarly(cmd, args, a.Argv); err != nil {
+		return err
+	}
+	if err := a.startSession(cmd); err != nil {
+		return err
+	}
+
+	if a.canPick() && missingPickable(cmd, args) {
+		// Report a mistyped option before asking anything.
+		if unknown := firstUnknownOption(cmd, a.Argv); unknown != "" {
+			return unknownOptionError(cmd, unknown)
+		}
+		picked, err := a.pickMissing(cmd, args)
+		if err != nil {
+			return err
+		}
+		args = picked
+	}
+
+	if err := checkLate(cmd, args, a.Argv); err != nil {
+		return err
+	}
+
+	resolved, err := a.resolveLatest(cmd, args)
+	if err != nil {
+		return err
+	}
+	a.resolvedArgs = resolved
+	return nil
+}
+
+// useResolvedArgs makes every command run with the arguments prepareRun
+// completed, since Cobra passes RunE the arguments as typed.
+func useResolvedArgs(cmd *cobra.Command, app *App) {
+	if run := cmd.RunE; run != nil {
+		cmd.RunE = func(c *cobra.Command, _ []string) error {
+			return run(c, app.resolvedArgs)
+		}
+	}
+	for _, sub := range cmd.Commands() {
+		useResolvedArgs(sub, app)
+	}
 }
 
 func newVersionCommand(app *App) *cobra.Command {

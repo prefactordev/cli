@@ -27,6 +27,14 @@ Resource commands cover every operation in the Prefactor API, grouped by resourc
 
 The CLI prompts only when stdin and stdout are terminals and no coding agent is detected (`CLAUDECODE`, `CURSOR_AGENT`, `GEMINI_CLI`, `CODEX_SANDBOX`, `CODEX_CI`, `AGENT` or `AI_AGENT` is set). Otherwise a command that needs missing input fails at once and names the flag to pass, so an agent never waits on a prompt.
 
+### Pickers and `@latest`
+
+In interactive mode, a command missing a required resource ID shows a list to choose from (type `/` to search), for example the agents for `prefactor agent-instances list`. Resources that belong to another, such as an agent's instances, ask for the parent first unless the command already has it. A list with one entry is used without asking. Pickers draw on stderr, so stdout keeps the command's output.
+
+`@latest` stands for the most recent instance of an agent wherever an agent instance ID is accepted: `prefactor agent-instances retrieve @latest`. The agent comes from the command's `--agent-id`, or from a picker in interactive mode.
+
+Outside interactive mode, or with `--yes`, there are no pickers; a missing ID fails with the argument or flag to pass.
+
 `--profile <name>` or `PREFACTOR_PROFILE` selects a profile. Without either, the `default` profile is used, and `PREFACTOR_API_TOKEN` and `PREFACTOR_API_URL` apply when it is not configured.
 
 Profiles live in `prefactor.json`: first at the root of the git repository that contains the current directory, then in the install root (`~/.prefactor/prefactor.json`).

@@ -27,8 +27,12 @@ type App struct {
 	// Argv is the argument list given to the CLI, used to report unknown
 	// options the way Commander does.
 	Argv []string
+	// Picker asks the user to choose a resource in interactive mode.
+	Picker Picker
 
 	session *session
+	// resolvedArgs are the positional arguments after pickers and @latest.
+	resolvedArgs []string
 }
 
 // DefaultApp returns an App for the running process.
@@ -47,6 +51,7 @@ func DefaultApp(version string) *App {
 		StdinIsTerminal:  func() bool { return term.IsTerminal(int(os.Stdin.Fd())) },
 		StdoutIsTerminal: func() bool { return term.IsTerminal(int(os.Stdout.Fd())) },
 		Argv:             os.Args[1:],
+		Picker:           huhPicker{},
 	}
 }
 
