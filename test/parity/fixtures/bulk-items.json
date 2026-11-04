@@ -1,0 +1,4 @@
+[
+  {"_type": "query.agent.list", "idempotency_key": "bulk-key-0001", "params": {"z": 1, "a": [true, null]}},
+  {"_type": "action.agent.retire", "idempotency_key": "bulk-key-0002", "agent_id": "abc"}
+]
