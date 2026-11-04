@@ -292,7 +292,7 @@ func (p *parser) string() (string, error) {
 					p.pos += 2
 					low, err := p.hex4()
 					if err == nil && low >= 0xDC00 && low <= 0xDFFF {
-						b.WriteRune(rune(0x10000 + (unit-0xD800)<<10 + (low - 0xDC00)))
+						b.WriteRune(0x10000 + (unit-0xD800)<<10 + (low - 0xDC00))
 						continue
 					}
 					p.pos = save
