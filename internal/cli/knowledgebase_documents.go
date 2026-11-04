@@ -52,14 +52,11 @@ func newKnowledgebaseDocumentsCommand(app *App) *cobra.Command {
 	list.Flags().String("knowledgebase-id", "", "Knowledgebase ID")
 	list.Flags().String("path-prefix", "", "Only documents whose path starts with this prefix")
 	list.Flags().String("status", "", "Document status")
-	listFlags := addListFlags(list, "id", "path")
+	addListFlags(list)
 	_ = list.MarkFlagRequired("knowledgebase-id")
 	list.RunE = func(cmd *cobra.Command, _ []string) error {
-		status, err := parseStatusFlag(cmd)
-		if err != nil {
-			return err
-		}
-		query, err := listFlags.parse(cmd)
+		status := statusFlag(cmd)
+		query, err := parseListFlags(cmd)
 		if err != nil {
 			return err
 		}

@@ -10,8 +10,6 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
-var associationTriggers = []string{"on_demand", "on_completion"}
-
 func newAgentAssociationsCommand(app *App) *cobra.Command {
 	associations := &cobra.Command{
 		Use:   "agent-associations",
@@ -25,9 +23,9 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 	}
 	listFrom.Flags().String("agent-ids", "", "Comma-separated judge agent IDs")
 	_ = listFrom.MarkFlagRequired("agent-ids")
-	listFromOptions := addListFlags(listFrom, "id")
+	addListFlags(listFrom)
 	listFrom.RunE = func(cmd *cobra.Command, _ []string) error {
-		ids, q, err := parseListFlagsWithIDs(cmd, listFromOptions, "agent-ids")
+		ids, q, err := parseListFlagsWithIDs(cmd, "agent-ids")
 		if err != nil {
 			return err
 		}
@@ -49,9 +47,9 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 	}
 	listTo.Flags().String("agent-id", "", "Agent ID")
 	_ = listTo.MarkFlagRequired("agent-id")
-	listToOptions := addListFlags(listTo, "id")
+	addListFlags(listTo)
 	listTo.RunE = func(cmd *cobra.Command, _ []string) error {
-		q, err := listToOptions.parse(cmd)
+		q, err := parseListFlags(cmd)
 		if err != nil {
 			return err
 		}
@@ -84,9 +82,6 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			trigger := stringFlag(cmd, "trigger")
-			if err := checkChoice("--trigger <trigger>", trigger, associationTriggers); err != nil {
-				return err
-			}
 			id := stringFlag(cmd, "id")
 			if err := validateOptionalPfid(id, "--id"); err != nil {
 				return err
@@ -126,9 +121,6 @@ func newAgentAssociationsCommand(app *App) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			trigger := stringFlag(cmd, "trigger")
-			if err := checkChoice("--trigger <trigger>", trigger, associationTriggers); err != nil {
-				return err
-			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				return jsonRequest(map[string]any{"details": map[string]any{"trigger": trigger}}, func(body io.Reader) (*http.Response, error) {

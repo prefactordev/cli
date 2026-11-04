@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -347,19 +348,42 @@ func TestNoPickerWhenStderrIsNotATerminal(t *testing.T) {
 	}
 }
 
+// TestEveryOtherCheckRunsBeforeAnyPicker covers each kind of check: each
+// case must fail with the error it gives when the missing ID is passed, and
+// without asking anything or listing anything first.
 func TestEveryOtherCheckRunsBeforeAnyPicker(t *testing.T) {
-	ta, _, picker := pickerTestApp(t, twoAgents)
+	cases := []struct {
+		name    string
+		args    []string // the command line, missing an ID a picker can supply
+		idFlags []string // the flags that supply that ID
+	}{
+		{"required option", []string{"agent-schema-versions", "create"}, []string{"--agent-id", agentA}},
+		{"unknown option", []string{"agents", "retrieve", "--bogus"}, []string{agentA}},
+		{"choice", []string{"agent-spans", "create", "--status", "bogus", "--payload", "{}", "--schema-name", "s"}, []string{"--agent-instance-id", inst1}},
+		{"argument parser", []string{"knowledgebase-documents", "list", "--pagination-offset", "x"}, []string{"--knowledgebase-id", "kb"}},
+		{"JSON option", []string{"agent-spans", "create", "--status", "active", "--payload", "[1]", "--schema-name", "s"}, []string{"--agent-instance-id", inst1}},
+		{"ID option", []string{"agent-spans", "create", "--status", "active", "--payload", "{}", "--schema-name", "s", "--parent-span-id", "bad"}, []string{"--agent-instance-id", inst1}},
+		{"status list", []string{"agent-instances", "list", "--statuses", "bogus"}, []string{"--agent-id", agentA}},
+		{"sorting", []string{"knowledgebase-documents", "list", "--sort-direction", "asc"}, []string{"--knowledgebase-id", "kb"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			ta, server, picker := pickerTestApp(t, twoAgents)
 
-	_, err := ta.run(t, "agent-schema-versions", "create")
-	if err == nil || err.Error() != "error: required option '--external-identifier <external-identifier>' not specified" {
-		t.Fatalf("err = %v", err)
-	}
-	_, err = ta.run(t, "agents", "retrieve", "--bogus")
-	if err == nil || err.Error() != "error: unknown option '--bogus'" {
-		t.Fatalf("err = %v", err)
-	}
-	if len(picker.prompts) != 0 {
-		t.Fatalf("asked %v before reporting the error", picker.prompts)
+			_, want := ta.run(t, append(slices.Clone(tc.args), tc.idFlags...)...)
+			if want == nil {
+				t.Fatal("the command succeeded with the ID passed")
+			}
+			server.requests = nil
+
+			_, err := ta.run(t, tc.args...)
+			if err == nil || err.Error() != want.Error() {
+				t.Fatalf("err = %v, want %v", err, want)
+			}
+			if len(picker.prompts) != 0 || len(server.requests) != 0 {
+				t.Fatalf("asked %v and sent %v before reporting the error", picker.prompts, server.requests)
+			}
+		})
 	}
 }
 

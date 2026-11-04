@@ -36,6 +36,9 @@ type App struct {
 	session *session
 	// resolvedArgs are the positional arguments after pickers and @latest.
 	resolvedArgs []string
+	// dryRun stops commands at their first API call; see
+	// checkCommandOptions.
+	dryRun bool
 }
 
 // DefaultApp returns an App for the running process.
@@ -87,6 +90,9 @@ func (a *App) resolveProfileName(cmd *cobra.Command) (string, bool) {
 // PREFACTOR_API_TOKEN and PREFACTOR_API_URL when the default profile is
 // selected and not configured.
 func (a *App) authedClient(cmd *cobra.Command) (*api.Client, error) {
+	if a.dryRun {
+		return nil, errDryRun
+	}
 	store, err := a.loadProfiles()
 	if err != nil {
 		return nil, err

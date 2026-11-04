@@ -10,26 +10,6 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
-var (
-	alertSeverityChoices = []string{"critical", "error", "warning", "info"}
-	alertStatusChoices   = []string{"raised", "cleared"}
-)
-
-// checkAlertFilterChoices validates --status and --severity when they are set.
-func checkAlertFilterChoices(cmd *cobra.Command) error {
-	if flagSet(cmd, "status") {
-		if err := checkChoice("--status <status>", stringFlag(cmd, "status"), alertStatusChoices); err != nil {
-			return err
-		}
-	}
-	if flagSet(cmd, "severity") {
-		if err := checkChoice("--severity <severity>", stringFlag(cmd, "severity"), alertSeverityChoices); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func newAlertsCommand(app *App) *cobra.Command {
 	alerts := &cobra.Command{Use: "alerts", Short: "Manage alerts"}
 
@@ -38,9 +18,6 @@ func newAlertsCommand(app *App) *cobra.Command {
 		Short: "List alerts",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := checkAlertFilterChoices(cmd); err != nil {
-				return err
-			}
 			pagination, err := parsePaginationFlags(cmd)
 			if err != nil {
 				return err
@@ -117,9 +94,6 @@ func newAlertsCommand(app *App) *cobra.Command {
 		Short: "Count alerts",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := checkAlertFilterChoices(cmd); err != nil {
-				return err
-			}
 
 			params := &api.QueryAlertCountParams{}
 			if value := stringFlag(cmd, "status"); value != "" {
@@ -145,10 +119,6 @@ func newAlertsCommand(app *App) *cobra.Command {
 		Short: "Raise an alert",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := checkChoice("--severity <severity>", stringFlag(cmd, "severity"), alertSeverityChoices); err != nil {
-				return err
-			}
-
 			payload, err := parseJSONOption(stringFlag(cmd, "payload"), "--payload", "object")
 			if err != nil {
 				return err
@@ -191,12 +161,6 @@ func newAlertsCommand(app *App) *cobra.Command {
 		Short: "Clear an alert",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if flagSet(cmd, "severity") {
-				if err := checkChoice("--severity <severity>", stringFlag(cmd, "severity"), alertSeverityChoices); err != nil {
-					return err
-				}
-			}
-
 			body := map[string]any{
 				"agent_instance_id": stringFlag(cmd, "agent-instance-id"),
 				"name":              stringFlag(cmd, "name"),

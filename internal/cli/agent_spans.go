@@ -68,9 +68,6 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 		Short: "Create agent span",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := checkChoice("--status <status>", stringFlag(cmd, "status"), []string{"active", "complete", "failed", "cancelled"}); err != nil {
-				return err
-			}
 			id := stringFlag(cmd, "id")
 			if err := validateOptionalPfid(id, "--id"); err != nil {
 				return err
@@ -127,12 +124,6 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 		Short: "Finish agent span",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagSet(cmd, "status") {
-				if err := checkChoice("--status <status>", stringFlag(cmd, "status"), []string{"complete", "failed", "cancelled"}); err != nil {
-					return err
-				}
-			}
-
 			body := map[string]any{}
 			optionalString(cmd, body, "timestamp", "timestamp")
 			optionalString(cmd, body, "status", "status")

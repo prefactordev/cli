@@ -10,23 +10,13 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
-// knowledgebaseStatusChoices are the --status values of knowledgebase and
-// document list commands.
-var knowledgebaseStatusChoices = []string{"active", "archived"}
-
-// parseStatusFlag validates --status and returns it, or nil when it is not
-// set.
-func parseStatusFlag(cmd *cobra.Command) (*string, error) {
+// statusFlag returns --status, or nil when it is not set.
+func statusFlag(cmd *cobra.Command) *string {
 	if !flagSet(cmd, "status") {
-		return nil, nil
+		return nil
 	}
-
 	status := stringFlag(cmd, "status")
-	if err := checkChoice("--status <status>", status, knowledgebaseStatusChoices); err != nil {
-		return nil, err
-	}
-
-	return &status, nil
+	return &status
 }
 
 func newKnowledgebasesCommand(app *App) *cobra.Command {
@@ -39,13 +29,10 @@ func newKnowledgebasesCommand(app *App) *cobra.Command {
 	}
 	list.Flags().String("account-id", "", "Account ID")
 	list.Flags().String("status", "", "Knowledgebase status")
-	listFlags := addListFlags(list, "id", "name")
+	addListFlags(list)
 	list.RunE = func(cmd *cobra.Command, _ []string) error {
-		status, err := parseStatusFlag(cmd)
-		if err != nil {
-			return err
-		}
-		query, err := listFlags.parse(cmd)
+		status := statusFlag(cmd)
+		query, err := parseListFlags(cmd)
 		if err != nil {
 			return err
 		}

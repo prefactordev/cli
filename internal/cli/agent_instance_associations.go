@@ -22,9 +22,9 @@ func newAgentInstanceAssociationsCommand(app *App) *cobra.Command {
 	}
 	listFrom.Flags().String("agent-instance-ids", "", "Comma-separated agent instance IDs (the judge runs)")
 	_ = listFrom.MarkFlagRequired("agent-instance-ids")
-	listFromOptions := addListFlags(listFrom, "id")
+	addListFlags(listFrom)
 	listFrom.RunE = func(cmd *cobra.Command, _ []string) error {
-		ids, q, err := parseListFlagsWithIDs(cmd, listFromOptions, "agent-instance-ids")
+		ids, q, err := parseListFlagsWithIDs(cmd, "agent-instance-ids")
 		if err != nil {
 			return err
 		}
@@ -46,9 +46,9 @@ func newAgentInstanceAssociationsCommand(app *App) *cobra.Command {
 	}
 	listTo.Flags().String("agent-instance-id", "", "Judged agent instance ID")
 	_ = listTo.MarkFlagRequired("agent-instance-id")
-	listToOptions := addListFlags(listTo, "id")
+	addListFlags(listTo)
 	listTo.RunE = func(cmd *cobra.Command, _ []string) error {
-		q, err := listToOptions.parse(cmd)
+		q, err := parseListFlags(cmd)
 		if err != nil {
 			return err
 		}

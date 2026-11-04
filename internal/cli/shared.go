@@ -167,19 +167,13 @@ func readOptionFile(path, optionName string) (string, error) {
 	return string(contents), nil
 }
 
-// listOptions are the sorting and pagination flags of list commands that
-// use --sort-field and --sort-direction.
-type listOptions struct {
-	sortFields []string
-}
-
-// addListFlags registers --sort-field (limited to fields), --sort-direction,
-// --pagination-offset and --pagination-page-size.
-func addListFlags(cmd *cobra.Command, fields ...string) listOptions {
+// addListFlags registers the sorting and pagination flags of list commands
+// that use --sort-field and --sort-direction. Their choices are checked as
+// Commander checks them, from commanderOptionChoices.
+func addListFlags(cmd *cobra.Command) {
 	cmd.Flags().String("sort-field", "", "Sort field")
 	cmd.Flags().String("sort-direction", "", "Sort direction")
 	addPaginationFlags(cmd)
-	return listOptions{sortFields: fields}
 }
 
 // addPaginationFlags registers --pagination-offset and --pagination-page-size.
@@ -195,21 +189,10 @@ type listQuery struct {
 	PageSize *int
 }
 
-// parse validates the list flags. Sorting is the field name, or -field when
-// the direction is desc.
-func (o listOptions) parse(cmd *cobra.Command) (listQuery, error) {
+// parseListFlags reads the list flags. Sorting is the field name, or -field
+// when the direction is desc.
+func parseListFlags(cmd *cobra.Command) (listQuery, error) {
 	var q listQuery
-
-	if flagSet(cmd, "sort-field") {
-		if err := checkChoice("--sort-field <field>", stringFlag(cmd, "sort-field"), o.sortFields); err != nil {
-			return q, err
-		}
-	}
-	if flagSet(cmd, "sort-direction") {
-		if err := checkChoice("--sort-direction <direction>", stringFlag(cmd, "sort-direction"), []string{"asc", "desc"}); err != nil {
-			return q, err
-		}
-	}
 
 	pagination, err := parsePaginationFlags(cmd)
 	if err != nil {
@@ -264,17 +247,6 @@ type UsageError struct {
 
 func (e *UsageError) Error() string {
 	return e.Message
-}
-
-// checkChoice mirrors Commander's .choices() check.
-func checkChoice(option, value string, choices []string) error {
-	for _, choice := range choices {
-		if value == choice {
-			return nil
-		}
-	}
-
-	return &UsageError{Message: fmt.Sprintf("error: option '%s' argument '%s' is invalid. Allowed choices are %s.", option, value, strings.Join(choices, ", "))}
 }
 
 var nonNegativeInteger = regexp.MustCompile(`^\d+$`)

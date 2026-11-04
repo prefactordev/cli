@@ -44,12 +44,6 @@ func newAgentVersionsCommand(app *App) *cobra.Command {
 		Short: "Create agent version",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if flagSet(cmd, "execution-mode") {
-				if err := checkChoice("--execution-mode <mode>", stringFlag(cmd, "execution-mode"), []string{"hosted", "remote"}); err != nil {
-					return err
-				}
-			}
-
 			details := map[string]any{
 				"agent_id":            stringFlag(cmd, "agent-id"),
 				"external_identifier": stringFlag(cmd, "external-identifier"),

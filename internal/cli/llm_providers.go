@@ -56,9 +56,6 @@ func newLlmProvidersCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			provider := stringFlag(cmd, "provider")
-			if err := checkChoice("--provider <provider>", provider, llmProviderKinds); err != nil {
-				return err
-			}
 			id := stringFlag(cmd, "id")
 			if err := validateOptionalPfid(id, "--id"); err != nil {
 				return err

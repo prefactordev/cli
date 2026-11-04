@@ -20,10 +20,10 @@ func jsonRequest(value any, send func(body io.Reader) (*http.Response, error)) (
 // parseListFlagsWithIDs parses the list flags of a list_from command in the
 // TypeScript CLI's order: Commander's choice and pagination checks, then the
 // ID list, then the --sort-direction requires --sort-field check.
-func parseListFlagsWithIDs(cmd *cobra.Command, opts listOptions, idFlag string) ([]string, listQuery, error) {
+func parseListFlagsWithIDs(cmd *cobra.Command, idFlag string) ([]string, listQuery, error) {
 	ids, idErr := parseIDList(stringFlag(cmd, idFlag), "--"+idFlag)
 
-	q, err := opts.parse(cmd)
+	q, err := parseListFlags(cmd)
 	if err != nil {
 		directionOnly := flagSet(cmd, "sort-direction") && !flagSet(cmd, "sort-field") &&
 			err.Error() == "--sort-direction requires --sort-field."

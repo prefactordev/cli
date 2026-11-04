@@ -150,3 +150,19 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 	}
 	walk(root)
 }
+
+// TestEveryOptionParserIsImplemented fails when a TypeScript option this CLI
+// has uses an argument parser optionParsers does not implement.
+func TestEveryOptionParserIsImplemented(t *testing.T) {
+	root := newRootCommand(&App{Version: "test"})
+	for key, name := range commanderOptionParsers {
+		path, flag, _ := strings.Cut(key, " --")
+		cmd, rest, err := root.Find(strings.Fields(path)[1:])
+		if err != nil || len(rest) != 0 || cmd.CommandPath() != path || cmd.Flags().Lookup(flag) == nil {
+			continue
+		}
+		if optionParsers[name] == nil {
+			t.Errorf("%s uses %s, which optionParsers does not implement", key, name)
+		}
+	}
+}

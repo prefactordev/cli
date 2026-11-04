@@ -224,11 +224,6 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		Short: "Register agent instance",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if flagSet(cmd, "purpose") {
-				if err := checkChoice("--purpose <purpose>", stringFlag(cmd, "purpose"), []string{"live", "smoke_test", "eval"}); err != nil {
-					return err
-				}
-			}
 			if err := validateSpanSchemaOptions(cmd); err != nil {
 				return err
 			}
@@ -344,12 +339,6 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		Short: "Finish agent instance",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagSet(cmd, "status") {
-				if err := checkChoice("--status <status>", stringFlag(cmd, "status"), []string{"complete", "failed", "cancelled"}); err != nil {
-					return err
-				}
-			}
-
 			body := map[string]any{}
 			optionalString(cmd, body, "timestamp", "timestamp")
 			optionalString(cmd, body, "status", "status")

@@ -43,3 +43,29 @@ agents | -V
 agent_instances register | --version 1.0.0
 agents list | --profile --version
 agents list | -- --version
+knowledgebases list | --sort_field --version
+# Option values are checked as Commander reads them: in argv order, before
+# --help, required options and unknown options.
+agent_versions create | --execution_mode bogus
+agent_versions create | --name x --execution_mode bogus
+knowledgebases list | --bogus --sort_field bogus
+knowledgebases list | --sort_field bogus --status bogus
+knowledgebases list | --status bogus --sort_field bogus
+knowledgebases list | --pagination_offset x --bogus
+knowledgebases list | --pagination_page_size 0 --sort_field bogus
+knowledgebases list | --sort_field bogus --pagination_offset
+knowledgebases list | --sort_field=bogus
+alerts list | --severity bogus extra
+alerts count | --status bogus
+agent_spans finish | --status bogus
+agent_associations list_from | --sort_direction up
+agent_instances register | --purpose bogus
+agent_instances register | --update_current_version=yes
+help: knowledgebases list | --sort_field bogus --help
+help: knowledgebases list | --help --sort_field bogus
+help: knowledgebases list | -h --sort_field bogus
+help: knowledgebases list | --bogus --help
+help: knowledgebases list | --help extra
+help: agents | bogus --help
+help: agents | --bogus --help
+help: agent_instances register | --help

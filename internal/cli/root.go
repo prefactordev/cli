@@ -2,7 +2,9 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -33,8 +35,9 @@ func newRootCommand(app *App) *cobra.Command {
 	root.Flags().BoolP("version", "V", false, "output the version number")
 	root.SetVersionTemplate("{{.Version}}\n")
 	addSessionFlags(root)
+	var help bool
 	root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		return app.prepareRun(cmd, args)
+		return app.prepareRun(cmd, args, help)
 	}
 
 	root.AddCommand(
@@ -71,20 +74,20 @@ func newRootCommand(app *App) *cobra.Command {
 		newVersionCommand(app),
 	)
 
-	prepareCommandLine(root)
+	prepareCommandLine(root, &help, func() []string { return app.Argv })
 	useResolvedArgs(root, app)
 	return root
 }
 
 // prepareRun checks the command line and fills in resource IDs before a
-// command runs, in this order: --version and command groups, session
-// settings, every Commander check (allowing only the missing IDs a picker
-// will supply), pickers, then @latest. When pickers may not run, a missing
-// resource ID fails with the argument or flag to pass.
-func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
+// command runs, in this order: --version, option values, help and command
+// groups, session settings, every other Commander check (allowing only the
+// missing IDs a picker will supply), pickers, then @latest. When pickers may
+// not run, a missing resource ID fails with the argument or flag to pass.
+func (a *App) prepareRun(cmd *cobra.Command, args []string, help bool) error {
 	a.resolvedArgs = args
 
-	if err := checkEarly(cmd, args, a.Argv); err != nil {
+	if err := checkEarly(cmd, args, a.Argv, help); err != nil {
 		return err
 	}
 	if err := a.startSession(cmd); err != nil {
@@ -101,7 +104,10 @@ func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if pickable != nil {
+	if pickable.any() {
+		if err := a.checkCommandOptions(cmd, args, pickable); err != nil {
+			return err
+		}
 		picked, err := a.pickMissing(cmd, args)
 		if err != nil {
 			return err
@@ -114,6 +120,29 @@ func (a *App) prepareRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	a.resolvedArgs = resolved
+	return nil
+}
+
+// errDryRun stops a command when it asks for an API client while
+// checkCommandOptions runs it.
+var errDryRun = errors.New("stopped before the first API call")
+
+// checkCommandOptions runs the command up to its first API call, with the
+// IDs a picker will supply left empty, so that its own checks of the other
+// options fail before anyone is asked to pick.
+func (a *App) checkCommandOptions(cmd *cobra.Command, args []string, pickable *pickableInputs) error {
+	placeholders := slices.Clone(args)
+	for pickable.args[len(placeholders)] {
+		placeholders = append(placeholders, "")
+	}
+
+	a.resolvedArgs = placeholders
+	a.dryRun = true
+	defer func() { a.dryRun = false }()
+
+	if err := cmd.RunE(cmd, placeholders); err != nil && !errors.Is(err, errDryRun) {
+		return err
+	}
 	return nil
 }
 

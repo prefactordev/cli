@@ -87,11 +87,6 @@ func newJudgesCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			executionMode := stringFlag(cmd, "execution-mode")
-			if flagSet(cmd, "execution-mode") {
-				if err := checkChoice("--execution-mode <mode>", executionMode, []string{"hosted", "remote"}); err != nil {
-					return err
-				}
-			}
 			id := stringFlag(cmd, "id")
 			if err := validateOptionalPfid(id, "--id"); err != nil {
 				return err

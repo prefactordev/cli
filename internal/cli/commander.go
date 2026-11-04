@@ -3,19 +3,25 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
+//go:generate go run ../../tools/commandergen testdata/typescript-commands.json commander_flags.go
+
 // The CLI reports command-line mistakes in the same words and the same order
 // as the TypeScript CLI, which uses Commander. Commander checks, in order:
-// option values while reading options, missing required options (in
-// definition order), the first unknown option, then missing and extra
-// arguments. A command group given no subcommand prints its help to stderr
-// and exits 1; given an unknown one, it suggests similar names.
+// --version, then each option's value as it reads it (choices, argument
+// parsers and missing values, in argv order, skipping unknown options), then
+// --help, missing required options (in definition order), the first unknown
+// option, then missing and extra arguments. A command group given nothing
+// prints its help to stderr and exits 1; given an unknown command, it
+// suggests similar names.
 
 // exitError ends the run with a status code and prints nothing more.
 type exitError struct {
@@ -39,11 +45,24 @@ func ExitCode(err error) (int, bool) {
 const requiredAnnotation = cobra.BashCompOneRequiredFlag
 
 // prepareCommandLine sets up every command in the tree for Commander-style
-// checks: Cobra's own argument and unknown flag checks are turned off,
-// command groups get a handler, and the Cobra completion command is removed.
-func prepareCommandLine(root *cobra.Command) {
+// checks: Cobra's own argument, unknown flag and help checks are turned off,
+// boolean flags given a value are left for the unknown option check, command
+// groups get a handler, and the Cobra completion command is removed. argv
+// returns the full argument list given to the CLI.
+func prepareCommandLine(root *cobra.Command, help *bool, argv func() []string) {
 	root.CompletionOptions.DisableDefaultCmd = true
-	root.SetFlagErrorFunc(flagError)
+	root.PersistentFlags().VarPF(helpFlag{requested: help}, "help", "h", "display help for command").NoOptDefVal = "true"
+	root.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
+		// pflag stops at a value missing from the last option. Commander
+		// reads every option before it first.
+		if versionRequested(cmd, argv()) {
+			return printVersion(cmd)
+		}
+		if err := checkOptionValues(cmd, argv()); err != nil {
+			return err
+		}
+		return flagError(cmd, err)
+	})
 
 	var walk func(cmd *cobra.Command)
 	walk = func(cmd *cobra.Command) {
@@ -53,6 +72,13 @@ func prepareCommandLine(root *cobra.Command) {
 		cmd.Flags().SortFlags = false
 		cmd.LocalFlags().SortFlags = false
 		cmd.PersistentFlags().SortFlags = false
+		for _, flags := range []*pflag.FlagSet{cmd.LocalNonPersistentFlags(), cmd.PersistentFlags()} {
+			flags.VisitAll(func(f *pflag.Flag) {
+				if f.Value.Type() == "bool" && f.Name != "help" {
+					f.Value = lenientBool{f.Value}
+				}
+			})
+		}
 		if cmd.HasSubCommands() && cmd.RunE == nil && cmd.Run == nil {
 			cmd.RunE = func(*cobra.Command, []string) error { return nil }
 		}
@@ -63,18 +89,61 @@ func prepareCommandLine(root *cobra.Command) {
 	walk(root)
 }
 
-// checkEarly handles what Commander deals with before anything else:
-// --version anywhere, and command groups given no subcommand or an unknown
-// one. argv is the full argument list given to the CLI.
-func checkEarly(cmd *cobra.Command, args, argv []string) error {
-	// Commander handles the root's --version and -V wherever they appear,
-	// before any other check.
+// helpFlag records --help and -h so that prepareRun shows help where
+// Commander does. Cobra always reads it as false, so it never shows help
+// before the option values are checked.
+type helpFlag struct {
+	requested *bool
+}
+
+func (h helpFlag) String() string   { return "false" }
+func (h helpFlag) Set(string) error { *h.requested = true; return nil }
+func (h helpFlag) Type() string     { return "bool" }
+func (h helpFlag) IsBoolFlag() bool { return true }
+
+// lenientBool accepts any value, so that --flag=value on a boolean flag is
+// reported as an unknown option, in Commander's order, rather than stopping
+// flag parsing.
+type lenientBool struct {
+	pflag.Value
+}
+
+func (b lenientBool) Set(value string) error {
+	if _, err := strconv.ParseBool(value); err != nil {
+		return nil
+	}
+	return b.Value.Set(value)
+}
+
+func (b lenientBool) IsBoolFlag() bool { return true }
+
+func printVersion(cmd *cobra.Command) error {
+	if _, err := fmt.Fprintln(cmd.OutOrStdout(), cmd.Root().Version); err != nil {
+		return err
+	}
+	return &exitError{code: 0}
+}
+
+// checkEarly handles what Commander deals with before required options:
+// --version anywhere, option values, command groups given nothing, --help,
+// and command groups given an unknown command or option. argv is the full
+// argument list given to the CLI.
+func checkEarly(cmd *cobra.Command, args, argv []string, help bool) error {
 	if versionRequested(cmd, argv) {
-		root := cmd.Root()
-		_, err := fmt.Fprintln(cmd.OutOrStdout(), root.Version)
-		if err != nil {
-			return err
-		}
+		return printVersion(cmd)
+	}
+	if err := checkOptionValues(cmd, argv); err != nil {
+		return err
+	}
+
+	unknown := firstUnknownOption(cmd, argv)
+	if isGroup(cmd) && len(args) == 0 && unknown == "" && !help {
+		cmd.SetOut(cmd.ErrOrStderr())
+		_ = cmd.Help()
+		return &exitError{code: 1}
+	}
+	if help {
+		_ = cmd.Help()
 		return &exitError{code: 0}
 	}
 
@@ -82,12 +151,94 @@ func checkEarly(cmd *cobra.Command, args, argv []string) error {
 		if len(args) > 0 {
 			return &UsageError{Message: fmt.Sprintf("error: unknown command '%s'%s", args[0], suggestSimilar(args[0], subcommandNames(cmd)))}
 		}
-		if unknown := firstUnknownOption(cmd, argv); unknown != "" {
-			return unknownOptionError(cmd, unknown)
+		return unknownOptionError(cmd, unknown)
+	}
+	return nil
+}
+
+// optionParsers implements the TypeScript argument parsers named in
+// commanderOptionParsers. Their errors are printed as they are.
+var optionParsers = map[string]func(string) error{
+	"parsePaginationOffset": func(value string) error { _, err := parsePaginationOffset(value); return err },
+	"parsePositiveInt":      func(value string) error { _, err := parsePositiveInt(value); return err },
+}
+
+// checkOptionValues checks each option value in argv as Commander reads it:
+// in order, against the option's choices and argument parser. Unknown
+// options are skipped without taking a value, and a value missing from the
+// last option is left for pflag to report.
+func checkOptionValues(cmd *cobra.Command, argv []string) error {
+	flags := cmd.Flags()
+	var group string // the rest of a group of short options, such as -ab
+	for i := 0; i < len(argv) || group != ""; {
+		token := group
+		if token == "" {
+			token = argv[i]
+			i++
 		}
-		cmd.SetOut(cmd.ErrOrStderr())
-		_ = cmd.Help()
-		return &exitError{code: 1}
+		group = ""
+
+		var f *pflag.Flag
+		var value string
+		switch {
+		case token == "--":
+			return nil
+		case strings.HasPrefix(token, "--"):
+			name, inline, hasValue := strings.Cut(token[2:], "=")
+			if f = flags.Lookup(name); f == nil || !takesValue(f) {
+				continue
+			}
+			if hasValue {
+				value = inline
+			} else if i < len(argv) {
+				value = argv[i]
+				i++
+			} else {
+				return nil
+			}
+		case strings.HasPrefix(token, "-") && len(token) > 1:
+			if f = flags.ShorthandLookup(token[1:2]); f == nil {
+				continue
+			}
+			if !takesValue(f) {
+				if len(token) > 2 {
+					group = "-" + token[2:]
+				}
+				continue
+			}
+			if len(token) > 2 {
+				value = token[2:]
+			} else if i < len(argv) {
+				value = argv[i]
+				i++
+			} else {
+				return nil
+			}
+		default:
+			continue
+		}
+
+		if err := checkOptionValue(cmd, f, value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkOptionValue(cmd *cobra.Command, f *pflag.Flag, value string) error {
+	key := cmd.CommandPath() + " --" + f.Name
+	if choices, ok := commanderOptionChoices[key]; ok && !slices.Contains(choices, value) {
+		return &UsageError{Message: fmt.Sprintf("error: option '%s' argument '%s' is invalid. Allowed choices are %s.", optionFlags(cmd, f), value, strings.Join(choices, ", "))}
+	}
+	if name, ok := commanderOptionParsers[key]; ok {
+		if err := optionParsers[name](value); err != nil {
+			return err
+		}
+	}
+	if f.Name == "fields" {
+		if _, err := parseFields(value); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -113,6 +264,11 @@ func checkLate(cmd *cobra.Command, args, argv []string, pickable *pickableInputs
 type pickableInputs struct {
 	args  map[int]bool
 	flags map[string]bool
+}
+
+// any reports whether a picker will supply anything.
+func (p *pickableInputs) any() bool {
+	return p != nil && (len(p.args) > 0 || len(p.flags) > 0)
 }
 
 func isGroup(cmd *cobra.Command) bool {
@@ -204,9 +360,11 @@ func declaredArguments(cmd *cobra.Command) []declaredArgument {
 }
 
 // versionRequested reports whether --version or -V appears in argv as an
-// option rather than as another option's value or after --.
+// option rather than as another option's value or after --. Like
+// Commander's root, it knows only the root options, so --version after a
+// subcommand option that takes a value still counts.
 func versionRequested(cmd *cobra.Command, argv []string) bool {
-	flags := cmd.Flags()
+	flags := cmd.Root().Flags()
 	for i := 0; i < len(argv); i++ {
 		token := argv[i]
 		switch {
