@@ -7,6 +7,7 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -174,8 +175,8 @@ func TestInstallWritesStateAndPrintsPathGuidance(t *testing.T) {
   "platform": "darwin",
   "arch": "arm64",
   "libc": null,
-  "installRoot": "` + root + `",
-  "binPath": "` + bin + `",
+  "installRoot": ` + jsonString(t, root) + `,
+  "binPath": ` + jsonString(t, bin) + `,
   "installedAt": "2026-11-05T01:02:03.456Z"
 }`
 	if raw, _ := os.ReadFile(filepath.Join(root, "install.json")); string(raw) != want {
@@ -529,4 +530,14 @@ func TestUpdateReportsAFailedInstaller(t *testing.T) {
 	if _, err := Update(UpdateOptions{}, d); err == nil || err.Error() != "The downloaded installer failed." {
 		t.Fatalf("err = %v", err)
 	}
+}
+
+// jsonString quotes s as JSON, escaping Windows path separators.
+func jsonString(t *testing.T, s string) string {
+	t.Helper()
+	b, err := json.Marshal(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
 }

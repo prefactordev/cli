@@ -133,7 +133,7 @@ jobs:
           esac
           for url in "$base/$ASSET" "$base/SHA256SUMS"; do
             code=0
-            for i in $(seq 1 60); do
+            for _ in $(seq 1 60); do
               code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url" || true)
               [ "$code" = "200" ] && break
               echo "waiting for $url (HTTP $code) ..."
@@ -185,7 +185,7 @@ jobs:
             latest) arg="latest" ;;
             pinned) arg="$EXPECTED_TAG" ;;
           esac
-          curl -fsSL "https://raw.githubusercontent.com/$REPO/main/install.sh" | bash -s -- $arg
+          curl -fsSL "https://raw.githubusercontent.com/$REPO/main/install.sh" | bash -s -- ${arg:+"$arg"}
           version_output="$("$HOME/.prefactor/bin/prefactor" --version)"
           [ -n "$version_output" ] || { echo "Empty version output"; exit 1; }
           echo "Installed version: $version_output"

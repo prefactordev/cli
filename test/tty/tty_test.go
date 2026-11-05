@@ -169,6 +169,23 @@ func (s *session) send(keys string) {
 	time.Sleep(150 * time.Millisecond)
 }
 
+// sendUntilExit sends keys every two seconds until the CLI exits or limit
+// passes.
+func (s *session) sendUntilExit(keys string, limit time.Duration) {
+	s.t.Helper()
+	deadline := time.After(limit)
+	for {
+		s.send(keys)
+		select {
+		case <-s.done:
+			return
+		case <-deadline:
+			return
+		case <-time.After(2 * time.Second):
+		}
+	}
+}
+
 // wait waits for the CLI to exit and returns its exit code.
 func (s *session) wait(limit time.Duration) int {
 	s.t.Helper()
@@ -403,7 +420,9 @@ func TestSetupCreatesAnAgentFromThePicker(t *testing.T) {
 	waitForStderr(t, stderrText, "Agent name")
 	s.send("Support bot\r")
 	waitForStderr(t, stderrText, "Agent description")
-	s.send("\r")
+	// On a slow machine the prompt can still miss the key; Enter again
+	// once it exits reaches nothing.
+	s.sendUntilExit("\r", 20*time.Second)
 	if code := s.wait(5 * time.Second); code != 0 {
 		t.Fatalf("exit %d: stdout %q stderr %q", code, s.output(), stderrText())
 	}
