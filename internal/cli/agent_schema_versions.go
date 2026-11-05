@@ -19,12 +19,18 @@ func newAgentSchemaVersionsCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			agentID := stringFlag(cmd, "agent-id")
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAgentSchemaVersionListParams{AgentId: &agentID, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentSchemaVersionList(ctx, &api.QueryAgentSchemaVersionListParams{AgentId: &agentID})
+				return c.QueryAgentSchemaVersionList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("agent-id", "", "Agent ID")
+	addListFlags(list, "id", "external_identifier")
 	_ = list.MarkFlagRequired("agent-id")
 	schemaVersions.AddCommand(list)
 
@@ -75,6 +81,12 @@ func newAgentSchemaVersionsCommand(app *App) *cobra.Command {
 			for field, schema := range schemas {
 				details[field] = schema
 			}
+			if err := validateOptionalPfid(stringFlag(cmd, "id"), "--id"); err != nil {
+				return err
+			}
+			if err := fieldsBody(cmd, details, "id", "alert_schemas", "quality_schemas"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				return jsonRequest(map[string]any{"details": details}, func(body io.Reader) (*http.Response, error) {
@@ -89,6 +101,8 @@ func newAgentSchemaVersionsCommand(app *App) *cobra.Command {
 	create.Flags().String("span-type-schemas", "", "JSON array or @file")
 	create.Flags().String("span-result-schemas", "", "JSON object or @file")
 	addPayloadSchemaFlags(create)
+	create.Flags().String("id", "", "Agent schema version ID")
+	addSchemaListFlags(create)
 	_ = create.MarkFlagRequired("agent-id")
 	_ = create.MarkFlagRequired("external-identifier")
 	schemaVersions.AddCommand(create)

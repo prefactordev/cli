@@ -69,10 +69,12 @@ func loadTypescriptCommands(t *testing.T) []typescriptCommand {
 
 // TestCommandTreeMatchesTypeScript checks every TypeScript command, argument
 // and option exists here, in kebab case, with the same required-ness and the
-// same option string in error messages.
+// same option string in error messages. Commands and options the TypeScript
+// CLI lacks must call an API operation or send one of its request fields.
 func TestCommandTreeMatchesTypeScript(t *testing.T) {
 	root := newRootCommand(&App{Version: "test"})
 	seen := map[string]bool{}
+	fromSpec := specOptions(t)
 
 	for _, ts := range loadTypescriptCommands(t) {
 		words := strings.Fields(ts.Path)
@@ -149,7 +151,9 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 		if cmd.HasParent() {
 			var goOrder, tsOrder []string
 			for _, f := range ownOptions(cmd) {
-				goOrder = append(goOrder, f.Name)
+				if tsFlags[f.Name] {
+					goOrder = append(goOrder, f.Name)
+				}
 			}
 			for _, opt := range ts.Options {
 				tsOrder = append(tsOrder, strings.TrimPrefix(kebabNames(opt.Long), "--"))
@@ -160,20 +164,32 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 		}
 
 		cmd.LocalFlags().VisitAll(func(f *pflag.Flag) {
-			if !tsFlags[f.Name] && !goOnlyFlags[f.Name] && f.Name != "version" {
+			if !tsFlags[f.Name] && !goOnlyFlags[f.Name] && !fromSpec[path][f.Name] && f.Name != "version" {
 				t.Errorf("%s: option --%s is not in the TypeScript CLI", path, f.Name)
 			}
 		})
 	}
 
-	var walk func(cmd *cobra.Command)
-	walk = func(cmd *cobra.Command) {
-		if cmd.Name() != "help" && !seen[cmd.CommandPath()] {
-			t.Errorf("%s is not in the TypeScript CLI", cmd.CommandPath())
+	var walk func(cmd *cobra.Command) bool
+	walk = func(cmd *cobra.Command) bool {
+		known := seen[cmd.CommandPath()]
+		if _, ok := fromSpec[cmd.CommandPath()]; ok && !known {
+			known = true
+			cmd.LocalFlags().VisitAll(func(f *pflag.Flag) {
+				if !goOnlyFlags[f.Name] && !fromSpec[cmd.CommandPath()][f.Name] {
+					t.Errorf("%s: option --%s sends no field of the API operation", cmd.CommandPath(), f.Name)
+				}
+			})
 		}
 		for _, sub := range cmd.Commands() {
-			walk(sub)
+			if walk(sub) && sub.Name() != "help" {
+				known = true
+			}
 		}
+		if !known && cmd.Name() != "help" {
+			t.Errorf("%s is not in the TypeScript CLI and calls no API operation", cmd.CommandPath())
+		}
+		return known
 	}
 	walk(root)
 }

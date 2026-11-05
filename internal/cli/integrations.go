@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -149,7 +150,9 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				if id != "" {
-					body, err := jsonBody(map[string]any{"details": map[string]any{"config": config}})
+					details := map[string]any{"config": config}
+					optionalString(cmd, details, "status", "status")
+					body, err := jsonBody(map[string]any{"details": details})
 					if err != nil {
 						return nil, err
 					}
@@ -158,7 +161,7 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 
 				body, err := jsonBody(map[string]any{"details": map[string]any{
 					"integration_type": integrationType,
-					"status":           "active",
+					"status":           cmp.Or(stringFlag(cmd, "status"), "active"),
 					"config":           config,
 				}})
 				if err != nil {
@@ -170,6 +173,7 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 	}
 	update.Flags().String("webhook-url", "", "Slack incoming webhook URL (replaces the saved URL)")
 	update.Flags().String("enabled-events", "", `Comma-separated event names; use "" for no events`)
+	addChoiceFlag(update, "status", "Integration status (a new integration is active unless this is set)", "active", "paused")
 	_ = update.MarkFlagRequired("webhook-url")
 	_ = update.MarkFlagRequired("enabled-events")
 	integrations.AddCommand(update)

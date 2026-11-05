@@ -304,11 +304,10 @@ func checkOptionValues(cmd *cobra.Command, argv []string) error {
 }
 
 func checkOptionValue(cmd *cobra.Command, f *pflag.Flag, value string) error {
-	key := cmd.CommandPath() + " --" + f.Name
-	if choices, ok := commanderOptionChoices[key]; ok && !slices.Contains(choices, value) {
+	if choices, ok := optionChoices(cmd, f); ok && !slices.Contains(choices, value) {
 		return &UsageError{Message: fmt.Sprintf("error: option '%s' argument '%s' is invalid. Allowed choices are %s.", optionFlags(cmd, f), value, strings.Join(choices, ", "))}
 	}
-	if name, ok := commanderOptionParsers[key]; ok {
+	if name, ok := optionParser(cmd, f); ok {
 		if err := optionParsers[name](value); err != nil {
 			return err
 		}
@@ -547,7 +546,11 @@ func optionFlags(cmd *cobra.Command, f *pflag.Flag) string {
 		flags = "-" + f.Shorthand + ", " + flags
 	}
 	if takesValue(f) {
-		flags += " <" + f.Name + ">"
+		placeholder := f.Name
+		if annotation, ok := f.Annotations[placeholderAnnotation]; ok {
+			placeholder = annotation[0]
+		}
+		flags += " <" + placeholder + ">"
 	}
 	return flags
 }

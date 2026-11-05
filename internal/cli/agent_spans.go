@@ -29,9 +29,15 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 				includeSummaries := true
 				params.IncludeSummaries = &includeSummaries
 			}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params.PaginationOffset, params.PaginationPageSize = q.Offset, q.PageSize
+			filters := fieldsQuery(cmd, "agent_id", "environment_id", "purpose", "alert_id", "include_risk_level", "redacted")
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentSpanList(ctx, params)
+				return c.QueryAgentSpanList(ctx, params, filters, sortingQuery(q.Sorting))
 			})
 		},
 	}
@@ -39,6 +45,13 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 	list.Flags().String("start-time", "", "Start time")
 	list.Flags().String("end-time", "", "End time")
 	list.Flags().Bool("include-summaries", false, "Include summaries")
+	list.Flags().String("agent-id", "", "Agent ID")
+	list.Flags().String("environment-id", "", "Only spans from agent instances in this environment")
+	addChoiceFlag(list, "purpose", "Only spans with this purpose", "activity", "quality", "alert")
+	list.Flags().String("alert-id", "", "Only spans for this alert")
+	list.Flags().Bool("include-risk-level", false, "Score each activity span against the agent's risk profile")
+	list.Flags().Bool("redacted", false, "Return redacted payloads")
+	addListFlags(list, "id", "started_at", "finished_at", "status")
 	_ = list.MarkFlagRequired("agent-instance-id")
 	_ = list.MarkFlagRequired("start-time")
 	_ = list.MarkFlagRequired("end-time")
@@ -94,6 +107,9 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 			if err := optionalJSONObject(cmd, details, "result-payload", "result_payload"); err != nil {
 				return err
 			}
+			if err := fieldsBody(cmd, details, "sensitive_encoding"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -113,6 +129,7 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 	create.Flags().String("started-at", "", "Started at")
 	create.Flags().String("finished-at", "", "Finished at")
 	create.Flags().String("result-payload", "", "JSON object or @file")
+	create.Flags().Bool("sensitive-encoding", false, "Payloads mark sensitive values with $sensitive")
 	_ = create.MarkFlagRequired("agent-instance-id")
 	_ = create.MarkFlagRequired("payload")
 	_ = create.MarkFlagRequired("schema-name")
@@ -130,6 +147,9 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 			if err := optionalJSONObject(cmd, body, "result-payload", "result_payload"); err != nil {
 				return err
 			}
+			if err := fieldsBody(cmd, body, "sensitive_encoding"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				reader, err := jsonBody(body)
@@ -143,6 +163,7 @@ func newAgentSpansCommand(app *App) *cobra.Command {
 	finish.Flags().String("timestamp", "", "Timestamp")
 	finish.Flags().String("status", "", "Status")
 	finish.Flags().String("result-payload", "", "JSON object or @file")
+	finish.Flags().Bool("sensitive-encoding", false, "The result payload marks sensitive values with $sensitive")
 	agentSpans.AddCommand(finish)
 
 	agentSpans.AddCommand(&cobra.Command{

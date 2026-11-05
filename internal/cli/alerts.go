@@ -106,12 +106,13 @@ func newAlertsCommand(app *App) *cobra.Command {
 			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAlertCount(ctx, params)
+				return c.QueryAlertCount(ctx, params, fieldsQuery(cmd, "active_during[start_at]", "active_during[finish_at]"))
 			})
 		},
 	}
 	count.Flags().String("status", "", "Alert status")
 	count.Flags().String("severity", "", "Alert severity")
+	addTimeRangeFlags(count, "active-during", "the range alerts must be active in")
 	alerts.AddCommand(count)
 
 	raise := &cobra.Command{

@@ -14,7 +14,9 @@ Command-line interface for [Prefactor](https://prefactor.tech).
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |
 
-Resource commands cover the operations in the Prefactor API, grouped by resource. `api/coverage.yaml` lists the operations that have no command yet (pending) or are left out on purpose (excluded). The groups are `accounts`, `environments`, `agents`, `judges`, `agent-versions`, `agent-schema-versions`, `agent-deployments`, `agent-associations`, `agent-instance-associations`, `agent-instances`, `agent-spans`, `alerts`, `teams`, `people`, `risk-profiles`, `integrations`, `api-tokens`, `admin-users`, `admin-user-invites`, `llm-providers`, `llm-provider-models`, `knowledgebases`, `knowledgebase-documents`, `knowledgebase-document-revisions`, `knowledgebase-revisions` and `bulk`. Run `prefactor <group> --help` for the subcommands. JSON flags accept a JSON value or `@path/to/file.json`.
+Resource commands cover every operation in the Prefactor API, grouped by resource; `api/coverage.yaml` lists the few left out on purpose. The groups are `accounts`, `environments`, `agents`, `judges`, `agent-versions`, `agent-schema-versions`, `agent-deployments`, `agent-associations`, `agent-instance-associations`, `agent-knowledgebase-links`, `agent-risk-versions`, `agent-instances`, `agent-spans`, `alerts`, `teams`, `people`, `risk-profiles`, `integrations`, `api-tokens`, `admin-users`, `admin-user-invites`, `llm-providers`, `llm-provider-models`, `knowledgebases`, `knowledgebase-documents`, `knowledgebase-document-revisions`, `knowledgebase-revisions`, `bulk` and `utils`. Run `prefactor <group> --help` for the subcommands.
+
+Each command has an option for every field of its API request, named after the field in kebab case: `agent_version_id` is `--agent-version-id` and `time_range[start_at]` is `--time-range-start-at`. List commands take `--sort-field`, `--sort-direction`, `--pagination-offset` and `--pagination-page-size`. JSON options accept a JSON value or `@path/to/file.json`.
 
 ### Global flags
 
@@ -49,6 +51,7 @@ Commands, flags, output, help and errors match the TypeScript CLI, renamed to ke
 - The `X-Prefactor-SDK` header is `prefactor-cli@<version>` rather than `@prefactor/core@<version>`.
 - Errors that come from the runtime are worded by Go rather than Bun, for example invalid JSON in a flag, a missing `@file` and network failures.
 - Pickers, `@latest`, `--json`, `--fields`, `--no-input` and `--yes` are new.
+- Commands and options for API operations and request fields the TypeScript CLI lacks are new: `agent-instances create` and `send-message`, `admin-users update-role`, `admin-user-invites resend`, `api-tokens update`, the `utils`, `agent-knowledgebase-links` and `agent-risk-versions` groups, and options such as `environments create --purpose`. Their values are checked as the TypeScript CLI checks its own, with choices listed in help. Where p2 is stricter than the OpenAPI document, the CLI says so: `--pagination-page-with-id` is refused without `--sort-field`, and the help for `environments create --purpose` says p2 requires it. The option stays optional there so that the command still matches the TypeScript CLI, which has no `--purpose`.
 - The `setup`, `install`, `update`, `uninstall` and `doctor` commands come later, and `playground` is left out.
 
 ## Development
@@ -72,11 +75,11 @@ go generate ./...
 
 Generation first runs `tools/specnormalize`, which writes `api/openapi.normalized.json`. The p2 document describes most request bodies as `"in": "body"` parameters, which OpenAPI 3.0 does not allow, so the normaliser moves them into a JSON `requestBody` before `oapi-codegen` runs. CI fails when the committed generated files differ from a fresh `go generate`.
 
-`api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it.
+`api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it, and when a command has no option for a field of its operation's request (`internal/cli/request_fields_test.go` lists the few exceptions).
 
 ### Parity with the TypeScript CLI
 
-`test/parity` runs the cases in `test/parity/cases/` through the TypeScript CLI and this CLI against a recording server, and compares requests, output and exit codes. It also compares every command's `--help`, except the root's, which lists options and commands only one CLI has:
+`test/parity` runs the cases in `test/parity/cases/` through the TypeScript CLI and this CLI against a recording server, and compares requests, output and exit codes. It also compares every command's `--help`, except the root's, which lists options and commands only one CLI has. Options and commands this CLI adds from the API are left out of the comparison:
 
 ```sh
 PARITY_TS_CLI="bun ~/code/typescript-sdk/packages/cli/src/bin/cli.ts" go test -tags parity ./test/parity/
@@ -92,4 +95,4 @@ Build the TypeScript SDK first (`bun run build` in that repository), because the
 bun tools/commandergen/dump-commands.ts ~/code/typescript-sdk/packages/cli/src/cli.ts > internal/cli/testdata/typescript-commands.json
 ```
 
-`go test ./...` checks every command, argument and option against it, including descriptions and option order.
+`go test ./...` checks every command, argument and option against it, including descriptions and option order. A command or option the TypeScript CLI lacks must call an API operation or send one of its request fields.

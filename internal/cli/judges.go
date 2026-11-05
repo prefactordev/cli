@@ -220,6 +220,9 @@ func newJudgesCommand(app *App) *cobra.Command {
 				}
 				details["system_prompt_template"] = contents
 			}
+			if err := optionalPfid(cmd, details, "id", "id"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				return jsonRequest(map[string]any{"details": details}, func(body io.Reader) (*http.Response, error) {
@@ -233,6 +236,7 @@ func newJudgesCommand(app *App) *cobra.Command {
 	createVersion.Flags().String("criterion", "", "Judge criterion, or @path to read a text file")
 	createVersion.Flags().String("external-identifier", "", "External identifier")
 	createVersion.Flags().String("system-prompt-template", "", "Liquid system prompt template, or @path to read a text file. criterion is the only variable")
+	createVersion.Flags().String("id", "", "Agent version ID")
 	_ = createVersion.MarkFlagRequired("agent-id")
 	_ = createVersion.MarkFlagRequired("hosted-llm-provider-model-id")
 	_ = createVersion.MarkFlagRequired("criterion")

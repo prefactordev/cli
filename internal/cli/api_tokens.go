@@ -21,16 +21,21 @@ func newAPITokensCommand(app *App) *cobra.Command {
 		Short: "List API tokens",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			params := &api.QueryApiTokenListParams{}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryApiTokenListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			if accountID := stringFlag(cmd, "account-id"); accountID != "" {
 				params.AccountId = &accountID
 			}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryApiTokenList(ctx, params)
+				return c.QueryApiTokenList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("account-id", "", "Account ID")
+	addListFlags(list, "id", "status")
 	apiTokens.AddCommand(list)
 
 	apiTokens.AddCommand(&cobra.Command{
@@ -73,6 +78,7 @@ func newAPITokensCommand(app *App) *cobra.Command {
 			if expiresAt := stringFlag(cmd, "expires-at"); expiresAt != "" {
 				details["expires_at"] = expiresAt
 			}
+			optionalString(cmd, details, "role", "role")
 
 			raw, err := app.callAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -97,8 +103,27 @@ func newAPITokensCommand(app *App) *cobra.Command {
 	create.Flags().String("agent-id", "", "Agent ID (required when token_scope is agent_deployment)")
 	create.Flags().String("environment-id", "", "Environment ID (required when token_scope is agent_deployment)")
 	create.Flags().String("expires-at", "", "Expiration timestamp")
+	addChoiceFlag(create, "role", "Access role", accessRoles...)
 	_ = create.MarkFlagRequired("token-scope")
 	apiTokens.AddCommand(create)
+
+	update := &cobra.Command{
+		Use:   "update <id>",
+		Short: "Update API token",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
+				body, err := jsonBody(map[string]any{"details": map[string]any{"role": stringFlag(cmd, "role")}})
+				if err != nil {
+					return nil, err
+				}
+				return c.ActionApiTokenUpdateWithBody(ctx, args[0], "application/json", body)
+			})
+		},
+	}
+	addChoiceFlag(update, "role", "Access role", accessRoles...)
+	_ = update.MarkFlagRequired("role")
+	apiTokens.AddCommand(update)
 
 	for _, action := range []struct {
 		name, short string

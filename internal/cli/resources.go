@@ -146,6 +146,14 @@ var (
 	knowledgebaseDocumentRevisionKind = &resourceKind{name: "document revision", plural: "document revisions", parent: knowledgebaseDocumentKind, list: func(ctx context.Context, c *api.Client, documentID string, p pageRequest) (*http.Response, error) {
 		return c.QueryKnowledgebaseDocumentRevisionList(ctx, &api.QueryKnowledgebaseDocumentRevisionListParams{KnowledgebaseDocumentId: documentID, PaginationOffset: &p.offset, PaginationPageSize: &p.size})
 	}, unsorted: true}
+	agentKnowledgebaseLinkKind = &resourceKind{name: "agent knowledgebase link", plural: "agent knowledgebase links", parent: agentKind, list: func(ctx context.Context, c *api.Client, agentID string, p pageRequest) (*http.Response, error) {
+		o, n := p.params()
+		return c.QueryAgentKnowledgebaseLinkList(ctx, &api.QueryAgentKnowledgebaseLinkListParams{AgentId: &agentID, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
+	}}
+	agentRiskVersionKind = &resourceKind{name: "agent risk version", plural: "agent risk versions", parent: agentKind, list: func(ctx context.Context, c *api.Client, agentID string, p pageRequest) (*http.Response, error) {
+		o, n := p.params()
+		return c.QueryAgentRiskVersionList(ctx, &api.QueryAgentRiskVersionListParams{AgentId: agentID, PaginationOffset: o, PaginationPageSize: n}, newestFirst())
+	}}
 	knowledgebaseRevisionKind = &resourceKind{name: "knowledgebase revision", plural: "knowledgebase revisions", parent: knowledgebaseKind, list: func(ctx context.Context, c *api.Client, knowledgebaseID string, p pageRequest) (*http.Response, error) {
 		return c.QueryKnowledgebaseRevisionList(ctx, &api.QueryKnowledgebaseRevisionListParams{KnowledgebaseId: knowledgebaseID, PaginationOffset: &p.offset, PaginationPageSize: &p.size})
 	}, unsorted: true}
@@ -168,6 +176,8 @@ var groupKinds = map[string]*resourceKind{
 	"agent-deployments":                agentDeploymentKind,
 	"agent-associations":               agentAssociationKind,
 	"agent-instance-associations":      agentInstanceAssociationKind,
+	"agent-knowledgebase-links":        agentKnowledgebaseLinkKind,
+	"agent-risk-versions":              agentRiskVersionKind,
 	"teams":                            teamKind,
 	"people":                           personKind,
 	"risk-profiles":                    riskProfileKind,
@@ -190,6 +200,7 @@ var flagKinds = map[string]*resourceKind{
 	"judge-agent-id":               judgeKind,
 	"agent-instance-id":            agentInstanceKind,
 	"agent-instance-ids":           judgeRunKind,
+	"agent-version-id":             agentVersionKind,
 	"knowledgebase-id":             knowledgebaseKind,
 	"knowledgebase-document-id":    knowledgebaseDocumentKind,
 	"base-revision-id":             knowledgebaseDocumentRevisionKind,

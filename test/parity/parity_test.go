@@ -391,12 +391,80 @@ func compareHelp(t *testing.T, ts, got result) {
 		}
 		return
 	}
-	if want, have := kebabHelp(t, ts.stdout), withoutGlobalOptions(got.stdout); want != have {
+	if want, have := sameHelpItems(kebabHelp(t, ts.stdout), withoutGlobalOptions(got.stdout)); want != have {
 		t.Errorf("help on stdout differs\nts (kebab):\n%s\ngo:\n%s", want, have)
 	}
-	if want, have := kebabHelp(t, ts.stderr), withoutGlobalOptions(got.stderr); want != have {
+	if want, have := sameHelpItems(kebabHelp(t, ts.stderr), withoutGlobalOptions(got.stderr)); want != have {
 		t.Errorf("help on stderr differs\nts (kebab):\n%s\ngo:\n%s", want, have)
 	}
+}
+
+// helpLine is one line of help, or one option or command with its wrapped
+// description.
+type helpLine struct {
+	text string
+	// name is the option's long name or the command's name, for items.
+	name string
+}
+
+var helpItemName = regexp.MustCompile(`^  (?:-\S, )?(--\S+|\S+)`)
+
+// helpLines splits help into lines, joining each item's lines.
+func helpLines(help string) []helpLine {
+	var lines []helpLine
+	for _, line := range strings.Split(help, "\n") {
+		switch {
+		case strings.HasPrefix(line, "   ") && len(lines) > 0 && lines[len(lines)-1].name != "":
+			lines[len(lines)-1].text += "\n" + line
+		case helpItemName.MatchString(line):
+			lines = append(lines, helpLine{text: line, name: helpItemName.FindStringSubmatch(line)[1]})
+		default:
+			lines = append(lines, helpLine{text: line})
+		}
+	}
+	return lines
+}
+
+// sameHelpItems returns the two helps to compare. Options and commands this
+// CLI adds from the API, which the TypeScript CLI lacks, are dropped from
+// got. Since they widen the term column and add [options] to commands that
+// had none, when there are any the rest is compared with whitespace
+// collapsed and without [options] in command terms.
+func sameHelpItems(want, got string) (string, string) {
+	tsItems := map[string]string{}
+	for _, line := range helpLines(want) {
+		tsItems[line.name] = line.text
+	}
+	var kept []string
+	added := false
+	for _, line := range helpLines(got) {
+		tsText, inTS := tsItems[line.name]
+		switch {
+		case line.name == "":
+		case !inTS:
+			added = true
+			continue
+		case !strings.HasPrefix(line.name, "-") && strings.Contains(line.text, " [options]") && !strings.Contains(tsText, " [options]"):
+			added = true
+		}
+		kept = append(kept, line.text)
+	}
+	if !added {
+		return want, got
+	}
+
+	loose := func(help string) string {
+		var out []string
+		for _, line := range helpLines(help) {
+			text := strings.Join(strings.Fields(line.text), " ")
+			if line.name != "" && !strings.HasPrefix(line.name, "-") {
+				text = strings.Replace(text, " [options]", "", 1)
+			}
+			out = append(out, text)
+		}
+		return strings.Join(out, "\n")
+	}
+	return loose(want), loose(strings.Join(kept, "\n"))
 }
 
 // typescriptCommands reads the TypeScript CLI's command paths.

@@ -11,6 +11,16 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
+// addEnvironmentFlags registers the environment fields other than its name.
+// p2 rejects an environment created without a purpose, although the OpenAPI
+// document does not mark it required; it stays optional, as in the
+// TypeScript CLI, and its usage says so.
+func addEnvironmentFlags(cmd *cobra.Command, purposeUsage string) {
+	addChoiceFlag(cmd, "purpose", purposeUsage, "development", "staging", "testing", "production")
+	cmd.Flags().String("description", "", "Environment description")
+	cmd.Flags().String("external-identifier", "", "External identifier")
+}
+
 func newEnvironmentsCommand(app *App) *cobra.Command {
 	environments := &cobra.Command{Use: "environments", Short: "Manage environments"}
 
@@ -20,12 +30,18 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			accountID := stringFlag(cmd, "account-id")
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryEnvironmentListParams{AccountId: &accountID, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryEnvironmentList(ctx, &api.QueryEnvironmentListParams{AccountId: &accountID})
+				return c.QueryEnvironmentList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("account-id", "", "Account ID")
+	addListFlags(list, "id", "name")
 	_ = list.MarkFlagRequired("account-id")
 	environments.AddCommand(list)
 
@@ -85,6 +101,9 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 			if id != "" {
 				details["id"] = id
 			}
+			if err := fieldsBody(cmd, details, "purpose", "description", "external_identifier"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -98,6 +117,7 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 	create.Flags().String("name", "", "Environment name")
 	create.Flags().String("account-id", "", "Account ID")
 	create.Flags().String("id", "", "Environment ID")
+	addEnvironmentFlags(create, "Environment purpose (the API requires it)")
 	_ = create.MarkFlagRequired("name")
 	_ = create.MarkFlagRequired("account-id")
 	environments.AddCommand(create)
@@ -107,13 +127,19 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 		Short: "Update environment",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			name := stringFlag(cmd, "name")
-			if strings.TrimSpace(name) == "" {
+			details := map[string]any{}
+			if name := stringFlag(cmd, "name"); strings.TrimSpace(name) != "" {
+				details["name"] = name
+			}
+			if err := fieldsBody(cmd, details, "purpose", "description", "external_identifier"); err != nil {
+				return err
+			}
+			if len(details) == 0 {
 				return errors.New("No fields provided to update. Specify --name <name>.")
 			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				body, err := jsonBody(map[string]any{"details": map[string]any{"name": name}})
+				body, err := jsonBody(map[string]any{"details": details})
 				if err != nil {
 					return nil, err
 				}
@@ -122,6 +148,7 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 		},
 	}
 	update.Flags().String("name", "", "Environment name")
+	addEnvironmentFlags(update, "Environment purpose")
 	environments.AddCommand(update)
 
 	environments.AddCommand(&cobra.Command{

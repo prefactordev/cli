@@ -129,6 +129,10 @@ func parseJSONOption(value, optionName, expected string) (json.RawMessage, error
 		if _, ok := parsed.(map[string]any); !ok {
 			return nil, fmt.Errorf("%s must be a JSON object.", optionName)
 		}
+	case "object or null":
+		if _, ok := parsed.(map[string]any); !ok && parsed != nil {
+			return nil, fmt.Errorf("%s must be a JSON object or null.", optionName)
+		}
 	}
 
 	return json.RawMessage(strings.TrimSpace(contents)), nil
@@ -168,18 +172,30 @@ func readOptionFile(path, optionName string) (string, error) {
 }
 
 // addListFlags registers the sorting and pagination flags of list commands
-// that use --sort-field and --sort-direction. Their choices are checked as
-// Commander checks them, from commanderOptionChoices.
-func addListFlags(cmd *cobra.Command) {
+// that use --sort-field and --sort-direction. sortFields are the fields the
+// operation sorts by; the TypeScript CLI's commands take theirs from
+// commanderOptionChoices.
+func addListFlags(cmd *cobra.Command, sortFields ...string) {
 	cmd.Flags().String("sort-field", "", "Sort field")
-	cmd.Flags().String("sort-direction", "", "Sort direction")
+	setPlaceholder(cmd, "sort-field", "field")
+	if len(sortFields) > 0 {
+		_ = cmd.Flags().SetAnnotation("sort-field", choicesAnnotation, sortFields)
+	}
+	addChoiceFlag(cmd, "sort-direction", "Sort direction", "asc", "desc")
+	setPlaceholder(cmd, "sort-direction", "direction")
 	addPaginationFlags(cmd)
 }
 
 // addPaginationFlags registers --pagination-offset and --pagination-page-size.
 func addPaginationFlags(cmd *cobra.Command) {
 	cmd.Flags().String("pagination-offset", "", "Pagination offset")
+	_ = cmd.Flags().SetAnnotation("pagination-offset", parserAnnotation, []string{"parsePaginationOffset"})
 	cmd.Flags().String("pagination-page-size", "", "Pagination page size")
+	_ = cmd.Flags().SetAnnotation("pagination-page-size", parserAnnotation, []string{"parsePositiveInt"})
+}
+
+func setPlaceholder(cmd *cobra.Command, flag, placeholder string) {
+	_ = cmd.Flags().SetAnnotation(flag, placeholderAnnotation, []string{placeholder})
 }
 
 // listQuery holds the parsed sorting and pagination values.
@@ -298,6 +314,19 @@ func validateOptionalPfid(value, optionName string) error {
 	return fmt.Errorf("%s must be a valid Prefactor ID.", optionName)
 }
 
+// optionalPfid checks the flag is a PFID and copies it into body[field],
+// when it is set.
+func optionalPfid(cmd *cobra.Command, body map[string]any, flag, field string) error {
+	value := stringFlag(cmd, flag)
+	if err := validateOptionalPfid(value, "--"+flag); err != nil {
+		return err
+	}
+	if value != "" {
+		body[field] = value
+	}
+	return nil
+}
+
 // parseIDList splits a comma-separated list of IDs, dropping blanks, and
 // fails when none remain.
 func parseIDList(value, optionName string) ([]string, error) {
@@ -379,6 +408,12 @@ func addPayloadSchemaFlags(cmd *cobra.Command) {
 	cmd.Flags().String("instance-params-payload-schema", "", `Schema for the run input: {"schema":{...},"title"?,"description"?,"template"?} or @file`)
 	cmd.Flags().String("instance-result-payload-schema", "", "Schema for the run result, same shape, or @file")
 	cmd.Flags().String("instance-metadata-schema", "", "Schema for the run metadata, same shape, or @file")
+}
+
+// addSchemaListFlags registers --alert-schemas and --quality-schemas.
+func addSchemaListFlags(cmd *cobra.Command) {
+	addJSONFlag(cmd, "alert-schemas", `Alert schemas: [{"name":...,"schema":{...}}] or @file`, "array")
+	addJSONFlag(cmd, "quality-schemas", `Quality schemas: [{"name":...,"schema":{...}}] or @file`, "array")
 }
 
 // payloadSchemaOptions parses the instance payload schema flags that are set

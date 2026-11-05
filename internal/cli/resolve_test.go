@@ -582,6 +582,8 @@ func TestPickersListTheRightResource(t *testing.T) {
 		{knowledgebaseDocumentKind, knowledgebaseKind, "GET /api/v1/knowledgebase_document knowledgebase_id=P"},
 		{knowledgebaseDocumentRevisionKind, knowledgebaseDocumentKind, "GET /api/v1/knowledgebase_document_revision knowledgebase_document_id=P"},
 		{knowledgebaseRevisionKind, knowledgebaseKind, "GET /api/v1/knowledgebase_revision knowledgebase_id=P"},
+		{agentKnowledgebaseLinkKind, agentKind, "GET /api/v1/agent_knowledgebase_link agent_id=P"},
+		{agentRiskVersionKind, agentKind, "GET /api/v1/agent_risk_version agent_id=P"},
 	}
 
 	var got string

@@ -13,6 +13,9 @@ import (
 // clearNullableSentinel is the value that clears a nullable admin user field.
 const clearNullableSentinel = "null"
 
+// accessRoles are the roles of admin users, invites and API tokens.
+var accessRoles = []string{"read_only", "full_access"}
+
 func newAdminUsersCommand(app *App) *cobra.Command {
 	adminUsers := &cobra.Command{Use: "admin-users", Short: "Manage admin users"}
 
@@ -21,16 +24,21 @@ func newAdminUsersCommand(app *App) *cobra.Command {
 		Short: "List admin users",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			params := &api.QueryAdminUserListParams{}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAdminUserListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			if accountID := stringFlag(cmd, "account-id"); accountID != "" {
 				params.AccountId = &accountID
 			}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAdminUserList(ctx, params)
+				return c.QueryAdminUserList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("account-id", "", "Account ID")
+	addListFlags(list, "id", "name", "email")
 	adminUsers.AddCommand(list)
 
 	adminUsers.AddCommand(&cobra.Command{
@@ -49,7 +57,7 @@ func newAdminUsersCommand(app *App) *cobra.Command {
 		Short: "Update admin user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !flagSet(cmd, "name") && !flagSet(cmd, "job-title") && !flagSet(cmd, "profile-completed-at") {
+			if !flagSet(cmd, "name") && !flagSet(cmd, "job-title") && !flagSet(cmd, "profile-completed-at") && !flagSet(cmd, "eval-familiarity") {
 				return errors.New("No fields provided to update. Specify --name, --job-title, or --profile-completed-at.")
 			}
 
@@ -71,6 +79,8 @@ func newAdminUsersCommand(app *App) *cobra.Command {
 				}
 			}
 
+			optionalString(cmd, details, "eval-familiarity", "eval_familiarity")
+
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
 				if err != nil {
@@ -83,7 +93,26 @@ func newAdminUsersCommand(app *App) *cobra.Command {
 	update.Flags().String("name", "", "Name")
 	update.Flags().String("job-title", "", "Job title ("+clearNullableSentinel+" clears the field)")
 	update.Flags().String("profile-completed-at", "", "Profile completed at ("+clearNullableSentinel+" clears the field)")
+	addChoiceFlag(update, "eval-familiarity", "How familiar the admin user is with evals", "new", "some", "very")
 	adminUsers.AddCommand(update)
+
+	updateRole := &cobra.Command{
+		Use:   "update-role <id>",
+		Short: "Change admin user role",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
+				body, err := jsonBody(map[string]any{"details": map[string]any{"role": stringFlag(cmd, "role")}})
+				if err != nil {
+					return nil, err
+				}
+				return c.ActionAdminUserUpdateRoleWithBody(ctx, args[0], "application/json", body)
+			})
+		},
+	}
+	addChoiceFlag(updateRole, "role", "Access role", accessRoles...)
+	_ = updateRole.MarkFlagRequired("role")
+	adminUsers.AddCommand(updateRole)
 
 	return adminUsers
 }
@@ -96,16 +125,21 @@ func newAdminUserInvitesCommand(app *App) *cobra.Command {
 		Short: "List admin user invites",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			params := &api.QueryAdminUserInviteListParams{}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAdminUserInviteListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			if accountID := stringFlag(cmd, "account-id"); accountID != "" {
 				params.AccountId = &accountID
 			}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAdminUserInviteList(ctx, params)
+				return c.QueryAdminUserInviteList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("account-id", "", "Account ID")
+	addListFlags(list, "id", "email", "status")
 	invites.AddCommand(list)
 
 	invites.AddCommand(&cobra.Command{
@@ -128,6 +162,7 @@ func newAdminUserInvitesCommand(app *App) *cobra.Command {
 			if accountID := stringFlag(cmd, "account-id"); accountID != "" {
 				details["account_id"] = accountID
 			}
+			optionalString(cmd, details, "role", "role")
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -140,8 +175,20 @@ func newAdminUserInvitesCommand(app *App) *cobra.Command {
 	}
 	create.Flags().String("email", "", "Email")
 	create.Flags().String("account-id", "", "Account ID")
+	addChoiceFlag(create, "role", "Access role", accessRoles...)
 	_ = create.MarkFlagRequired("email")
 	invites.AddCommand(create)
+
+	invites.AddCommand(&cobra.Command{
+		Use:   "resend <id>",
+		Short: "Resend admin user invite email",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
+				return c.ActionAdminUserInviteResendWithBody(ctx, args[0], "application/json", emptyObject())
+			})
+		},
+	})
 
 	invites.AddCommand(&cobra.Command{
 		Use:   "revoke <id>",

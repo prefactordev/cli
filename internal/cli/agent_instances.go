@@ -95,6 +95,16 @@ func extractAgentContextBody(raw []byte) (json.RawMessage, error) {
 	return body, nil
 }
 
+// instanceDetailFields are the query fields that retrieve and show share
+// beyond the TypeScript CLI's.
+var instanceDetailFields = []string{"include_judges", "time_range[start_at]", "time_range[finish_at]"}
+
+// addInstanceDetailFlags registers the options for instanceDetailFields.
+func addInstanceDetailFlags(cmd *cobra.Command) {
+	cmd.Flags().Bool("include-judges", false, "Include the judges that scored the instance")
+	addTimeRangeFlags(cmd, "time-range", "the time range")
+}
+
 func newAgentInstancesCommand(app *App) *cobra.Command {
 	agentInstances := &cobra.Command{Use: "agent-instances", Short: "Manage agent instances"}
 
@@ -104,7 +114,6 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			agentID := stringFlag(cmd, "agent-id")
-			params := &api.QueryAgentInstanceListParams{AgentId: &agentID}
 			var statuses []string
 			if flagSet(cmd, "statuses") {
 				var err error
@@ -112,27 +121,56 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 					return err
 				}
 			}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			if flagSet(cmd, "pagination-page-with-id") {
+				if flagSet(cmd, "pagination-offset") {
+					return errors.New("Use only one of --pagination-offset or --pagination-page-with-id.")
+				}
+				// p2 rejects page_with_id without sorting, which the OpenAPI
+				// document does not say.
+				if !flagSet(cmd, "sort-field") {
+					return errors.New("--pagination-page-with-id requires --sort-field.")
+				}
+			}
+			params := &api.QueryAgentInstanceListParams{AgentId: &agentID, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
+			filters := fieldsQuery(cmd, "agent_version_id", "active_during[start_at]", "active_during[finish_at]", "include_risk_score", "include_alert_count", "pagination[page_with_id]")
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentInstanceList(ctx, params, idListQuery("statuses", statuses))
+				return c.QueryAgentInstanceList(ctx, params, idListQuery("statuses", statuses), filters, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("agent-id", "", "Agent ID")
 	list.Flags().String("statuses", "", "Comma-separated statuses to include ("+strings.Join(agentInstanceStatuses, ", ")+")")
+	list.Flags().String("agent-version-id", "", "Agent version ID")
+	addTimeRangeFlags(list, "active-during", "the range instances must be active in")
+	list.Flags().Bool("include-risk-score", false, "Include risk score")
+	list.Flags().Bool("include-alert-count", false, "Include raised alert count")
+	addListFlags(list, "id", "status", "last_activity_span_at")
+	list.Flags().String("pagination-page-with-id", "", "Return the page that contains this agent instance ID (requires --sort-field)")
 	_ = list.MarkFlagRequired("agent-id")
 	agentInstances.AddCommand(list)
 
-	agentInstances.AddCommand(&cobra.Command{
+	retrieve := &cobra.Command{
 		Use:   "retrieve <id>",
 		Short: "Retrieve agent instance",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			query := fieldsQuery(cmd, append(instanceDetailFields, "include_counts", "include_costs", "include_risk_score", "include_alert_count")...)
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentInstanceGetDetailsById(ctx, args[0], &api.QueryAgentInstanceGetDetailsByIdParams{})
+				return c.QueryAgentInstanceGetDetailsById(ctx, args[0], &api.QueryAgentInstanceGetDetailsByIdParams{}, query)
 			})
 		},
-	})
+	}
+	retrieve.Flags().Bool("include-counts", false, "Include span counts")
+	retrieve.Flags().Bool("include-costs", false, "Include cost breakdown")
+	retrieve.Flags().Bool("include-risk-score", false, "Include risk score")
+	retrieve.Flags().Bool("include-alert-count", false, "Include raised alert count")
+	addInstanceDetailFlags(retrieve)
+	agentInstances.AddCommand(retrieve)
 
 	show := &cobra.Command{
 		Use:   "show",
@@ -166,8 +204,9 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 				params.IncludeAlertCount = &yes
 			}
 
+			query := fieldsQuery(cmd, instanceDetailFields...)
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentInstanceGetDetailsByLookup(ctx, params)
+				return c.QueryAgentInstanceGetDetailsByLookup(ctx, params, query)
 			})
 		},
 	}
@@ -177,6 +216,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 	show.Flags().Bool("include-costs", false, "Include cost breakdown")
 	show.Flags().Bool("include-risk-score", false, "Include risk score")
 	show.Flags().Bool("include-alert-count", false, "Include raised alert count")
+	addInstanceDetailFlags(show)
 	agentInstances.AddCommand(show)
 
 	agentContext := &cobra.Command{
@@ -185,7 +225,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			call := func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentInstanceGetAgentContext(ctx, args[0], &api.QueryAgentInstanceGetAgentContextParams{})
+				return c.QueryAgentInstanceGetAgentContext(ctx, args[0], &api.QueryAgentInstanceGetAgentContextParams{}, fieldsQuery(cmd, "include_risk_level"))
 			}
 
 			outputPath := stringFlag(cmd, "output")
@@ -217,6 +257,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 		},
 	}
 	agentContext.Flags().String("output", "", "Write context JSON body to this file")
+	agentContext.Flags().Bool("include-risk-level", false, "Include each span's risk level")
 	agentInstances.AddCommand(agentContext)
 
 	register := &cobra.Command{
@@ -237,6 +278,9 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 				"name":                stringFlag(cmd, "agent-version-name"),
 			}
 			optionalString(cmd, agentVersion, "agent-version-description", "description")
+			if err := fieldBody(cmd, agentVersion, "agent-version-runtime-environment", "runtime_environment"); err != nil {
+				return err
+			}
 
 			schemaVersion := map[string]any{
 				"external_identifier": stringFlag(cmd, "agent-schema-version-external-identifier"),
@@ -261,6 +305,9 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 			for field, schema := range schemas {
 				schemaVersion[field] = schema
 			}
+			if err := fieldsBody(cmd, schemaVersion, "alert_schemas", "quality_schemas"); err != nil {
+				return err
+			}
 
 			body := map[string]any{
 				"agent_id":             stringFlag(cmd, "agent-id"),
@@ -278,6 +325,7 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 			if id != "" {
 				body["id"] = id
 			}
+			optionalString(cmd, body, "external-identifier", "external_identifier")
 			if boolFlag(cmd, "update-current-version") {
 				body["update_current_version"] = true
 			}
@@ -307,11 +355,78 @@ func newAgentInstancesCommand(app *App) *cobra.Command {
 	register.Flags().String("metadata", "", "Run metadata: JSON object or @file")
 	register.Flags().String("id", "", "Agent instance ID")
 	register.Flags().Bool("update-current-version", false, "Update current version")
+	register.Flags().String("external-identifier", "", "Agent instance external identifier")
+	addJSONFlag(register, "agent-version-runtime-environment", "Agent version SDK, runtime and OS details: JSON object or @file", "object")
+	addSchemaListFlags(register)
 	_ = register.MarkFlagRequired("agent-id")
 	_ = register.MarkFlagRequired("agent-version-external-identifier")
 	_ = register.MarkFlagRequired("agent-version-name")
 	_ = register.MarkFlagRequired("agent-schema-version-external-identifier")
 	agentInstances.AddCommand(register)
+
+	create := &cobra.Command{
+		Use:   "create",
+		Short: "Create agent instance from an existing agent version",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if err := validateOptionalPfid(stringFlag(cmd, "id"), "--id"); err != nil {
+				return err
+			}
+
+			body := map[string]any{
+				"agent_version_id": stringFlag(cmd, "agent-version-id"),
+				"environment_id":   stringFlag(cmd, "environment-id"),
+			}
+			if err := fieldsBody(cmd, body, "external_identifier", "id", "params_payload", "purpose", "status"); err != nil {
+				return err
+			}
+			if boolFlag(cmd, "no-update-current-version") {
+				body["update_current_version"] = false
+			}
+			body["idempotency_key"] = newIdempotencyKey()
+
+			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
+				reader, err := jsonBody(body)
+				if err != nil {
+					return nil, err
+				}
+				return c.ActionAgentInstanceCreateWithBody(ctx, "application/json", reader)
+			})
+		},
+	}
+	create.Flags().String("agent-version-id", "", "Agent version ID")
+	create.Flags().String("environment-id", "", "Environment ID")
+	create.Flags().String("external-identifier", "", "External identifier")
+	create.Flags().String("id", "", "Agent instance ID")
+	addJSONFlag(create, "params-payload", "Run input: JSON object or @file", "object")
+	addChoiceFlag(create, "purpose", "Why the run happened", "live", "smoke_test", "eval")
+	addChoiceFlag(create, "status", "Status at create; use preparing when the run input is not ready", "pending", "preparing")
+	create.Flags().Bool("no-update-current-version", false, "Keep the deployment's current version")
+	_ = create.MarkFlagRequired("agent-version-id")
+	_ = create.MarkFlagRequired("environment-id")
+	agentInstances.AddCommand(create)
+
+	sendMessage := &cobra.Command{
+		Use:   "send-message <id>",
+		Short: "Send a user message to a hosted agent instance",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			body := map[string]any{
+				"message":         stringFlag(cmd, "message"),
+				"idempotency_key": newIdempotencyKey(),
+			}
+			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
+				reader, err := jsonBody(body)
+				if err != nil {
+					return nil, err
+				}
+				return c.ActionAgentInstanceSendMessageWithBody(ctx, args[0], "application/json", reader)
+			})
+		},
+	}
+	sendMessage.Flags().String("message", "", "User message")
+	_ = sendMessage.MarkFlagRequired("message")
+	agentInstances.AddCommand(sendMessage)
 
 	start := &cobra.Command{
 		Use:   "start <id>",

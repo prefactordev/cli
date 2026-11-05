@@ -143,7 +143,7 @@ func helpOptions(cmd *cobra.Command) []helpItem {
 // Commander does.
 func optionDescription(cmd *cobra.Command, f *pflag.Flag) string {
 	var extra []string
-	if choices, ok := commanderOptionChoices[cmd.CommandPath()+" --"+f.Name]; ok {
+	if choices, ok := optionChoices(cmd, f); ok {
 		quoted := make([]string, len(choices))
 		for i, choice := range choices {
 			quoted[i] = fmt.Sprintf("%q", choice)

@@ -112,6 +112,9 @@ func newKnowledgebaseDocumentsCommand(app *App) *cobra.Command {
 			if flagSet(cmd, "content-type") {
 				details["content_type"] = stringFlag(cmd, "content-type")
 			}
+			if err := optionalPfid(cmd, details, "id", "id"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -126,6 +129,7 @@ func newKnowledgebaseDocumentsCommand(app *App) *cobra.Command {
 	create.Flags().String("path", "", "Document path")
 	create.Flags().String("content", "", documentContentUsage)
 	create.Flags().String("content-type", "", "MIME content type")
+	create.Flags().String("id", "", "Document ID")
 	_ = create.MarkFlagRequired("knowledgebase-id")
 	_ = create.MarkFlagRequired("path")
 	_ = create.MarkFlagRequired("content")

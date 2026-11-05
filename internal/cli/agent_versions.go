@@ -18,13 +18,18 @@ func newAgentVersionsCommand(app *App) *cobra.Command {
 		Short: "List agent versions",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			params := &api.QueryAgentVersionListParams{AgentId: stringFlag(cmd, "agent-id")}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAgentVersionListParams{AgentId: stringFlag(cmd, "agent-id"), PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentVersionList(ctx, params)
+				return c.QueryAgentVersionList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("agent-id", "", "Agent ID")
+	addListFlags(list, "id", "external_identifier")
 	_ = list.MarkFlagRequired("agent-id")
 	versions.AddCommand(list)
 
@@ -54,6 +59,12 @@ func newAgentVersionsCommand(app *App) *cobra.Command {
 			if mode := stringFlag(cmd, "execution-mode"); mode != "" {
 				details["execution_mode"] = mode
 			}
+			if err := validateOptionalPfid(stringFlag(cmd, "id"), "--id"); err != nil {
+				return err
+			}
+			if err := fieldsBody(cmd, details, "id", "name", "description", "hosted_configuration", "runtime_environment"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				return jsonRequest(map[string]any{"details": details}, func(body io.Reader) (*http.Response, error) {
@@ -66,6 +77,11 @@ func newAgentVersionsCommand(app *App) *cobra.Command {
 	create.Flags().String("external-identifier", "", "External identifier")
 	create.Flags().String("agent-schema-version-id", "", "Agent schema version ID")
 	create.Flags().String("execution-mode", "", "Where this version runs")
+	create.Flags().String("id", "", "Agent version ID")
+	create.Flags().String("name", "", "Agent version name")
+	create.Flags().String("description", "", "Agent version description")
+	addJSONFlag(create, "hosted-configuration", `Settings for a hosted version: {"mode":...,"llm_provider_model_id":...} or @file`, "object")
+	addJSONFlag(create, "runtime-environment", "SDK, runtime and OS details: JSON object or @file", "object")
 	_ = create.MarkFlagRequired("agent-id")
 	_ = create.MarkFlagRequired("external-identifier")
 	versions.AddCommand(create)

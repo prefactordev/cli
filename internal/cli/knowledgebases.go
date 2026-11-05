@@ -79,6 +79,9 @@ func newKnowledgebasesCommand(app *App) *cobra.Command {
 			if flagSet(cmd, "description") {
 				details["description"] = stringFlag(cmd, "description")
 			}
+			if err := optionalPfid(cmd, details, "id", "id"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -92,6 +95,7 @@ func newKnowledgebasesCommand(app *App) *cobra.Command {
 	create.Flags().String("name", "", "Knowledgebase name")
 	create.Flags().String("account-id", "", "Account ID")
 	create.Flags().String("description", "", "Knowledgebase description")
+	create.Flags().String("id", "", "Knowledgebase ID")
 	_ = create.MarkFlagRequired("name")
 	knowledgebases.AddCommand(create)
 

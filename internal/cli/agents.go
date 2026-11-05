@@ -10,30 +10,75 @@ import (
 	"github.com/prefactordev/cli/internal/api"
 )
 
+var (
+	agentRoles     = []string{"standard", "judge"}
+	executionModes = []string{"hosted", "remote"}
+)
+
+// addOwnershipFlags registers the team, owner and risk profile of an agent.
+func addOwnershipFlags(cmd *cobra.Command) {
+	cmd.Flags().String("team-id", "", "Team ID")
+	cmd.Flags().String("owner-person-id", "", "Owner person ID")
+	cmd.Flags().String("risk-profile-id", "", "Risk profile ID")
+}
+
+// addTimeRangeFlags registers prefix-start-at and prefix-finish-at, the
+// bounds of a time range, described as the range.
+func addTimeRangeFlags(cmd *cobra.Command, prefix, rangeName string) {
+	cmd.Flags().String(prefix+"-start-at", "", "Start of "+rangeName+" (ISO 8601)")
+	cmd.Flags().String(prefix+"-finish-at", "", "End of "+rangeName+" (ISO 8601)")
+}
+
 func newAgentsCommand(app *App) *cobra.Command {
 	agents := &cobra.Command{Use: "agents", Short: "Manage agents"}
 
-	agents.AddCommand(&cobra.Command{
+	list := &cobra.Command{
 		Use:   "list",
 		Short: "List agents",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			var agentIDs []string
+			if flagSet(cmd, "agent-ids") {
+				var err error
+				if agentIDs, err = parseIDList(stringFlag(cmd, "agent-ids"), "--agent-ids"); err != nil {
+					return err
+				}
+			}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAgentListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
+			filters := fieldsQuery(cmd, "role", "team_id", "owner_person_id", "risk_profile_id", "instances_active_during[start_at]", "instances_active_during[finish_at]")
+
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentList(ctx, &api.QueryAgentListParams{})
+				return c.QueryAgentList(ctx, params, filters, idListQuery("agent_ids", agentIDs), sortingQuery(q.Sorting))
 			})
 		},
-	})
+	}
+	addChoiceFlag(list, "role", "Agent role", agentRoles...)
+	addOwnershipFlags(list)
+	list.Flags().String("agent-ids", "", "Comma-separated agent IDs")
+	addTimeRangeFlags(list, "instances-active-during", "the range instance counts cover")
+	addListFlags(list, "id", "name", "status", "last_activity_span_at")
+	agents.AddCommand(list)
 
-	agents.AddCommand(&cobra.Command{
+	retrieve := &cobra.Command{
 		Use:   "retrieve <id>",
 		Short: "Retrieve agent",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			query := fieldsQuery(cmd, "environment_id", "include_counts", "include_risk_rollup", "instances_active_during[start_at]", "instances_active_during[finish_at]")
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentGetDetailsById(ctx, args[0], &api.QueryAgentGetDetailsByIdParams{})
+				return c.QueryAgentGetDetailsById(ctx, args[0], &api.QueryAgentGetDetailsByIdParams{}, query)
 			})
 		},
-	})
+	}
+	retrieve.Flags().String("environment-id", "", "Environment ID")
+	retrieve.Flags().Bool("include-counts", false, "Include instance counts")
+	retrieve.Flags().Bool("include-risk-rollup", false, "Include risk rollup")
+	addTimeRangeFlags(retrieve, "instances-active-during", "the range instance counts cover")
+	agents.AddCommand(retrieve)
 
 	show := &cobra.Command{
 		Use:   "show",
@@ -65,8 +110,9 @@ func newAgentsCommand(app *App) *cobra.Command {
 				params.IncludeRiskRollup = &includeRiskRollup
 			}
 
+			activeDuring := fieldsQuery(cmd, "instances_active_during[start_at]", "instances_active_during[finish_at]")
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentGetDetailsByLookup(ctx, params)
+				return c.QueryAgentGetDetailsByLookup(ctx, params, activeDuring)
 			})
 		},
 	}
@@ -75,6 +121,7 @@ func newAgentsCommand(app *App) *cobra.Command {
 	show.Flags().String("environment-id", "", "Environment ID")
 	show.Flags().Bool("include-counts", false, "Include instance counts")
 	show.Flags().Bool("include-risk-rollup", false, "Include risk rollup")
+	addTimeRangeFlags(show, "instances-active-during", "the range instance counts cover")
 	agents.AddCommand(show)
 
 	create := &cobra.Command{
@@ -94,6 +141,9 @@ func newAgentsCommand(app *App) *cobra.Command {
 			if id != "" {
 				details["id"] = id
 			}
+			if err := fieldsBody(cmd, details, "external_identifier", "role", "execution_mode", "team_id", "owner_person_id", "risk_profile_id"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -107,6 +157,10 @@ func newAgentsCommand(app *App) *cobra.Command {
 	create.Flags().String("name", "", "Agent name")
 	create.Flags().String("description", "", "Agent description")
 	create.Flags().String("id", "", "Agent ID")
+	create.Flags().String("external-identifier", "", "External identifier")
+	addChoiceFlag(create, "role", "Agent role", agentRoles...)
+	addChoiceFlag(create, "execution-mode", "Where the agent runs", executionModes...)
+	addOwnershipFlags(create)
 	_ = create.MarkFlagRequired("name")
 	agents.AddCommand(create)
 
@@ -122,6 +176,9 @@ func newAgentsCommand(app *App) *cobra.Command {
 			if description := stringFlag(cmd, "description"); description != "" {
 				details["description"] = description
 			}
+			if err := fieldsBody(cmd, details, "team_id", "owner_person_id", "risk_profile_id"); err != nil {
+				return err
+			}
 
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				body, err := jsonBody(map[string]any{"details": details})
@@ -134,6 +191,7 @@ func newAgentsCommand(app *App) *cobra.Command {
 	}
 	update.Flags().String("name", "", "Agent name")
 	update.Flags().String("description", "", "Agent description")
+	addOwnershipFlags(update)
 	agents.AddCommand(update)
 
 	agents.AddCommand(&cobra.Command{

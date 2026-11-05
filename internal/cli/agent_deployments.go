@@ -25,12 +25,18 @@ func newAgentDeploymentsCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			agentID := stringFlag(cmd, "agent-id")
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryAgentDeploymentListParams{AgentId: &agentID, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryAgentDeploymentList(ctx, &api.QueryAgentDeploymentListParams{AgentId: &agentID})
+				return c.QueryAgentDeploymentList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("agent-id", "", "Agent ID")
+	addListFlags(list, "id")
 	_ = list.MarkFlagRequired("agent-id")
 	deployments.AddCommand(list)
 

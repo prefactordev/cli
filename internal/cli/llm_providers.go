@@ -25,16 +25,21 @@ func newLlmProvidersCommand(app *App) *cobra.Command {
 		Short: "List LLM providers",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			params := &api.QueryLlmProviderListParams{}
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryLlmProviderListParams{PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			if accountID := stringFlag(cmd, "account-id"); accountID != "" {
 				params.AccountId = &accountID
 			}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryLlmProviderList(ctx, params)
+				return c.QueryLlmProviderList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("account-id", "", "Account ID")
+	addListFlags(list, "id", "name")
 	providers.AddCommand(list)
 
 	providers.AddCommand(&cobra.Command{
@@ -160,12 +165,18 @@ func newLlmProviderModelsCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			providerID := stringFlag(cmd, "llm-provider-id")
+			q, err := parseListFlags(cmd)
+			if err != nil {
+				return err
+			}
+			params := &api.QueryLlmProviderModelListParams{LlmProviderId: &providerID, PaginationOffset: q.Offset, PaginationPageSize: q.PageSize}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
-				return c.QueryLlmProviderModelList(ctx, &api.QueryLlmProviderModelListParams{LlmProviderId: &providerID})
+				return c.QueryLlmProviderModelList(ctx, params, sortingQuery(q.Sorting))
 			})
 		},
 	}
 	list.Flags().String("llm-provider-id", "", "LLM provider ID")
+	addListFlags(list, "id", "name")
 	_ = list.MarkFlagRequired("llm-provider-id")
 	models.AddCommand(list)
 
