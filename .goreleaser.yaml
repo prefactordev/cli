@@ -49,6 +49,11 @@ checksum:
   name_template: SHA256SUMS
   algorithm: sha256
 
+git:
+  # The canary pre-release's tag moves with main and is not a version.
+  ignore_tags:
+    - canary
+
 snapshot:
   # The canary workflow sets PREFACTOR_CANARY_VERSION to the next patch
   # version with the commit, so `prefactor version` on the latest channel
