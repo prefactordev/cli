@@ -27,6 +27,9 @@ func newRootCommand(app *App) *cobra.Command {
 		SilenceErrors: true,
 		Example: strings.Join([]string{
 			"  prefactor profiles add default --api-token <api-token>",
+			"  prefactor setup <agent_id>",
+			`  prefactor setup --create --name "<agent-name>" --description "<description>"`,
+			"  prefactor setup <agent_id> --json",
 			"  prefactor accounts list",
 			"  prefactor agents list",
 			"  prefactor agent-deployments create --agent-id <agent_id> --environment-id <environment_id>",
@@ -73,6 +76,7 @@ func newRootCommand(app *App) *cobra.Command {
 		newAgentInstancesCommand(app),
 		newAgentSpansCommand(app),
 		newAlertsCommand(app),
+		newSetupCommand(app),
 		newBulkCommand(app),
 		newUtilsCommand(app),
 		newPfidCommand(app),

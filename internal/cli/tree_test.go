@@ -37,7 +37,6 @@ type typescriptCommand struct {
 // laterCommands are TypeScript commands that later issues add, or that the
 // CLI leaves out on purpose.
 var laterCommands = map[string]string{
-	"setup":      "PRE-709",
 	"install":    "PRE-712",
 	"update":     "PRE-712",
 	"uninstall":  "PRE-712",

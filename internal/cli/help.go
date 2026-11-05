@@ -191,12 +191,14 @@ func subcommandTerm(cmd *cobra.Command) string {
 	return term
 }
 
-// globalOptions lists the root's options other than --version and --help.
+// globalOptions lists the root's options other than --version and --help,
+// and those cmd defines itself, such as setup's --json.
 func globalOptions(cmd *cobra.Command) []helpItem {
 	root := cmd.Root()
+	own := cmd.LocalNonPersistentFlags()
 	var items []helpItem
 	root.PersistentFlags().VisitAll(func(f *pflag.Flag) {
-		if !f.Hidden && f.Name != "help" {
+		if !f.Hidden && f.Name != "help" && own.Lookup(f.Name) == nil {
 			items = append(items, helpItem{term: optionFlags(root, f), description: f.Usage})
 		}
 	})

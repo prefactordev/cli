@@ -313,34 +313,7 @@ func TestThePickerDrawsOnStderr(t *testing.T) {
 		"GET /api/v1/agent/01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb": `{"status":"success","details":{"id":"01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Billing bot"}}`,
 	})
 
-	errMaster, errTTY, err := pty.Open()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = errMaster.Close(); _ = errTTY.Close() }()
-	if err := pty.Setsize(errMaster, &pty.Winsize{Rows: 40, Cols: 120}); err != nil {
-		t.Fatal(err)
-	}
-	var stderr bytes.Buffer
-	var stderrMu sync.Mutex
-	go func() {
-		buf := make([]byte, 4096)
-		for {
-			n, err := errMaster.Read(buf)
-			stderrMu.Lock()
-			stderr.Write(buf[:n])
-			stderrMu.Unlock()
-			if err != nil {
-				return
-			}
-		}
-	}()
-	stderrText := func() string {
-		stderrMu.Lock()
-		defer stderrMu.Unlock()
-		return stderr.String()
-	}
-
+	errTTY, stderrText := stderrTerminal(t)
 	s := start(t, server.URL, errTTY, "agents", "retrieve")
 
 	deadline := time.Now().Add(10 * time.Second)
@@ -362,6 +335,68 @@ func TestThePickerDrawsOnStderr(t *testing.T) {
 	}
 	if !strings.HasPrefix(stdout, "{") || !strings.Contains(stdout, `"name": "Billing bot"`) {
 		t.Fatalf("stdout = %q", stdout)
+	}
+}
+
+// stderrTerminal opens a terminal for the CLI's stderr and returns it with
+// a function that reads what was written to it.
+func stderrTerminal(t *testing.T) (*os.File, func() string) {
+	t.Helper()
+	errMaster, errTTY, err := pty.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = errMaster.Close(); _ = errTTY.Close() })
+	if err := pty.Setsize(errMaster, &pty.Winsize{Rows: 40, Cols: 120}); err != nil {
+		t.Fatal(err)
+	}
+	var stderr lockedBuffer
+	go func() { _, _ = io.Copy(&stderr, errMaster) }()
+	return errTTY, stderr.String
+}
+
+// waitForStderr waits until stderr shows text.
+func waitForStderr(t *testing.T, stderrText func() string, text string) {
+	t.Helper()
+	deadline := time.Now().Add(10 * time.Second)
+	for !strings.Contains(stderrText(), text) && time.Now().Before(deadline) {
+		time.Sleep(20 * time.Millisecond)
+	}
+	if !strings.Contains(stderrText(), text) {
+		t.Fatalf("stderr never showed %q; it showed %q", text, stderrText())
+	}
+}
+
+// TestSetupCreatesAnAgentFromThePicker runs setup with no agent in a
+// terminal: it offers to create one, asks for its name and description on
+// stderr, and prints only the setup values on stdout.
+func TestSetupCreatesAnAgentFromThePicker(t *testing.T) {
+	id := "01m6aaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	server := jsonServer(t, map[string]string{
+		"GET /api/v1/agent":            `{"status":"success","summaries":[{"id":"01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Billing bot"}],"pagination":{"next_page_offset":null}}`,
+		"POST /api/v1/agent":           `{"status":"success","details":{"id":"` + id + `"}}`,
+		"GET /api/v1/agent/" + id:      `{"status":"success","details":{"id":"` + id + `"}}`,
+		"GET /api/v1/agent_deployment": `{"status":"success","summaries":[{"environment_id":"env1"}]}`,
+		"POST /api/v1/api_token":       `{"status":"success","details":{},"token":"deploy-token"}`,
+		"GET /api/v1/ping":             `{"status":"success","details":{"token_type":"api_session_agent_deployment_scope","agent_id":"` + id + `"}}`,
+	})
+	errTTY, stderrText := stderrTerminal(t)
+
+	s := start(t, server.URL, errTTY, "setup")
+	waitForStderr(t, stderrText, "Create a new agent")
+	s.send("\r")
+	waitForStderr(t, stderrText, "Agent name")
+	s.send("Support bot\r")
+	waitForStderr(t, stderrText, "Agent description")
+	s.send("\r")
+	if code := s.wait(5 * time.Second); code != 0 {
+		t.Fatalf("exit %d: stdout %q stderr %q", code, s.output(), stderrText())
+	}
+
+	stdout := strings.TrimSpace(strings.ReplaceAll(s.output(), "\r", ""))
+	want := "PREFACTOR_API_URL=" + server.URL + "\nPREFACTOR_API_TOKEN=deploy-token\nPREFACTOR_AGENT_ID=" + id + "\nPREFACTOR_AGENT_IDENTIFIER=1.0.0"
+	if stdout != want {
+		t.Fatalf("stdout = %q, want %q", stdout, want)
 	}
 }
 

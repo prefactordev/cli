@@ -90,17 +90,26 @@ func (a *App) resolveProfileName(cmd *cobra.Command) (string, bool) {
 // PREFACTOR_API_TOKEN and PREFACTOR_API_URL when the default profile is
 // selected and not configured.
 func (a *App) authedClient(cmd *cobra.Command) (*api.Client, error) {
+	baseURL, token, err := a.credentials(cmd)
+	if err != nil {
+		return nil, err
+	}
+	return client.New(baseURL, token, a.Version)
+}
+
+// credentials returns the base URL and API token authedClient uses.
+func (a *App) credentials(cmd *cobra.Command) (baseURL, token string, err error) {
 	if a.dryRun {
-		return nil, errDryRun
+		return "", "", errDryRun
 	}
 	store, err := a.loadProfiles()
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	name, isDefault := a.resolveProfileName(cmd)
 	if selected, ok := store.Get(name); ok {
-		return client.New(selected.BaseURL, selected.APIKey, a.Version)
+		return selected.BaseURL, selected.APIKey, nil
 	}
 
 	if token := a.Getenv("PREFACTOR_API_TOKEN"); token != "" && isDefault {
@@ -108,10 +117,10 @@ func (a *App) authedClient(cmd *cobra.Command) (*api.Client, error) {
 		if apiURL == "" {
 			apiURL = profile.DefaultBaseURL
 		}
-		return client.New(apiURL, token, a.Version)
+		return apiURL, token, nil
 	}
 
-	return nil, fmt.Errorf(
+	return "", "", fmt.Errorf(
 		"No profile found for '%s'. Run 'prefactor profiles add <name> [baseUrl] --api-token <apiToken>' to configure one.",
 		name,
 	)

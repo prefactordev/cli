@@ -43,6 +43,17 @@ func (p *fakePicker) Pick(title, note string, choices []Choice) (string, error) 
 	return "", errPickCancelled
 }
 
+// Input answers with the next scripted text.
+func (p *fakePicker) Input(title string, _ bool) (string, error) {
+	p.prompts = append(p.prompts, title)
+	if len(p.answers) == 0 {
+		return "", errPickCancelled
+	}
+	answer := p.answers[0]
+	p.answers = p.answers[1:]
+	return answer, nil
+}
+
 // listServer answers list requests by path and records every request.
 type listServer struct {
 	*httptest.Server

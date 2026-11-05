@@ -85,6 +85,9 @@ type recordedRequest struct {
 type recorder struct {
 	mu       sync.Mutex
 	requests []recordedRequest
+	// routes, when set, answers "METHOD path" with its body instead of
+	// responseBody.
+	routes map[string]string
 }
 
 func (r *recorder) handler(w http.ResponseWriter, req *http.Request) {
@@ -107,6 +110,10 @@ func (r *recorder) handler(w http.ResponseWriter, req *http.Request) {
 	r.mu.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
+	if body, ok := r.routes[req.Method+" "+req.URL.Path]; ok {
+		_, _ = io.WriteString(w, body)
+		return
+	}
 	_, _ = io.WriteString(w, responseBody)
 }
 
@@ -338,12 +345,11 @@ func kebabFlags(args []string) []string {
 	return out
 }
 
-var messageFlag = regexp.MustCompile(`(--|<)[a-z0-9]+(_[a-z0-9]+)+`)
-
-// kebabMessage converts flag names and option placeholders (<agent_id>) in
-// TypeScript CLI messages to kebab case.
+// kebabMessage converts option names and their placeholders
+// (--agent_id <agent_id>) in TypeScript CLI messages to kebab case, but not
+// argument names such as <agent_id>, which both CLIs write in snake case.
 func kebabMessage(s string) string {
-	return messageFlag.ReplaceAllStringFunc(s, func(f string) string { return strings.ReplaceAll(f, "_", "-") })
+	return helpOption.ReplaceAllStringFunc(s, func(f string) string { return strings.ReplaceAll(f, "_", "-") })
 }
 
 func dump(requests []recordedRequest) string {
@@ -528,7 +534,7 @@ func withoutGlobalOptions(help string) string {
 }
 
 // laterCommands are TypeScript commands this CLI adds later or leaves out.
-var laterCommands = map[string]bool{"setup": true, "install": true, "update": true, "uninstall": true, "doctor": true, "playground": true}
+var laterCommands = map[string]bool{"install": true, "update": true, "uninstall": true, "doctor": true, "playground": true}
 
 // TestHelpMatchesTypeScript compares every command's --help with the
 // TypeScript CLI's.
@@ -551,6 +557,93 @@ func TestHelpMatchesTypeScript(t *testing.T) {
 				t.Errorf("exit: ts=%d go=%d", ts.exit, got.exit)
 			}
 			compareHelp(t, ts, got)
+		})
+	}
+}
+
+// TestParitySetup runs setup through both CLIs against a server that answers
+// as p2 does, so the whole run is compared: every request with its token,
+// the setup values and the errors.
+func TestParitySetup(t *testing.T) {
+	tsCLI := tsCommand()
+	if tsCLI == nil {
+		t.Skip("PARITY_TS_CLI is not set")
+	}
+
+	base := map[string]string{
+		"GET /api/v1/agent/a1":         `{"status":"success","details":{"id":"a1"}}`,
+		"POST /api/v1/agent":           `{"status":"success","details":{"id":"a1"}}`,
+		"GET /api/v1/agent_deployment": `{"status":"success","summaries":[{"environment_id":"env1"}]}`,
+		"POST /api/v1/api_token":       `{"status":"success","details":{"id":"t1","token_scope":"agent_deployment"},"token":"deploy-token"}`,
+		"GET /api/v1/ping":             `{"status":"success","details":{"token_type":"api_session_agent_deployment_scope","agent_id":"a1"}}`,
+	}
+	cases := []struct {
+		name   string
+		args   []string
+		routes map[string]string
+	}{
+		{name: "one deployment", args: []string{"setup", "a1"}},
+		{name: "json", args: []string{"setup", "a1", "--json"}},
+		{name: "create", args: []string{"setup", "--create", "--name", "Bot", "--description", "Does things"}},
+		{name: "current version", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent_deployment": `{"summaries":[{"environment_id":"env1","current_version_id":null},{"environment_id":"env2","current_version_id":"v1"}]}`,
+		}},
+		{name: "ambiguous deployments", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent_deployment": `{"summaries":[{"environment_id":"env1"},{"environment_id":"env2"}]}`,
+		}},
+		{name: "first environment", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent_deployment": `{"summaries":[]}`,
+			"GET /api/v1/account":          `{"summaries":[{"id":"acc1"},{"id":"acc2"}]}`,
+			"GET /api/v1/environment":      `{"details":[{"id":"env3"},{"id":"env4"}]}`,
+		}},
+		{name: "account without id", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent_deployment": `{"summaries":[]}`,
+			"GET /api/v1/account":          `{"summaries":[{"name":"x"}]}`,
+		}},
+		{name: "deployment without environment", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent_deployment": `{"summaries":[{"environment_id":null}]}`,
+		}},
+		{name: "ping status", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/ping": `{"status":"error","details":{}}`,
+		}},
+		{name: "ping token type", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/ping": `{"status":"success","details":{"token_type":"api_session_account_scope","agent_id":"a1"}}`,
+		}},
+		{name: "ping agent", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/ping": `{"status":"success","details":{"token_type":"api_session_agent_deployment_scope"}}`,
+		}},
+		{name: "agent not found", args: []string{"setup", "a1"}, routes: map[string]string{
+			"GET /api/v1/agent/a1": `{"status":"error","code":"not_found"}`,
+		}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			routes := map[string]string{}
+			for route, body := range base {
+				routes[route] = body
+			}
+			for route, body := range tc.routes {
+				routes[route] = body
+			}
+			rec := &recorder{routes: routes}
+			server := httptest.NewServer(http.HandlerFunc(rec.handler))
+			defer server.Close()
+
+			ts := run(t, rec, server.URL, append(append([]string{}, tsCLI...), tc.args...))
+			got := run(t, rec, server.URL, append([]string{goBinary}, tc.args...))
+			if ts.exit != got.exit {
+				t.Errorf("exit: ts=%d go=%d\nts stderr: %s\ngo stderr: %s", ts.exit, got.exit, ts.stderr, got.stderr)
+			}
+			if !reflect.DeepEqual(normalizeGenerated(ts.requests), normalizeGenerated(got.requests)) {
+				t.Errorf("requests differ\nts: %s\ngo: %s", dump(ts.requests), dump(got.requests))
+			}
+			if want := strings.ReplaceAll(ts.stdout, server.URL, "<server>"); want != strings.ReplaceAll(got.stdout, server.URL, "<server>") {
+				t.Errorf("stdout differs\nts:\n%s\ngo:\n%s", ts.stdout, got.stdout)
+			}
+			if ts.stderr != got.stderr {
+				t.Errorf("stderr differs\nts:\n%s\ngo:\n%s", ts.stderr, got.stderr)
+			}
 		})
 	}
 }

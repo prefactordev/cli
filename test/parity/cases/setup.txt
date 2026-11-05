@@ -1,0 +1,12 @@
+# setup
+setup | a1
+setup |
+setup | --create --name Bot
+setup | --create --name Bot --description "  Does things  "
+setup | --create
+setup | --create --name "  "
+setup | a1 --create --name Bot
+setup | a1 --name Bot
+setup | a1 --description Things
+setup | a1 --json
+setup | a1 extra

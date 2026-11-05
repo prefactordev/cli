@@ -10,6 +10,7 @@ Command-line interface for [Prefactor](https://prefactor.tech).
 | `prefactor profiles list` | List configured profiles |
 | `prefactor profiles add <name> [baseUrl] --api-token <token>` | Add or update a profile |
 | `prefactor profiles remove <name>` | Remove a profile |
+| `prefactor setup [agent_id] [--create --name <name> [--description <text>]]` | Mint a deployment token for an agent and print `PREFACTOR_*` setup values, or JSON with `--json` |
 | `prefactor ping [--api-token <token>] [--api-url <url>]` | Verify the selected or supplied API token |
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |
@@ -28,6 +29,12 @@ Each command has an option for every field of its API request, named after the f
 | `--yes` | | Accept the default answer to every prompt |
 
 The CLI is interactive only when stdin and stdout are terminals and no coding agent is detected: none of `CLAUDECODE`, `CURSOR_AGENT`, `GEMINI_CLI`, `CODEX_SANDBOX`, `CODEX_CI`, `AGENT` or `AI_AGENT` is set to a value other than empty, `0`, `false`, `no` or `off`. Otherwise a command that needs missing input fails at once and names the flag to pass, so an agent never waits on a prompt.
+
+### `setup`
+
+`setup <agent_id>` checks the agent exists, chooses an environment, creates a deployment token for the agent there, pings with it to check it, and prints the values an SDK reads: `PREFACTOR_API_URL`, `PREFACTOR_API_TOKEN`, `PREFACTOR_AGENT_ID` and `PREFACTOR_AGENT_IDENTIFIER`. `--create --name <name>` creates the agent first. The environment is that of the agent's only deployment, or of its only deployment with a current version; an agent with no deployment uses the first environment of the first account.
+
+In interactive mode, `setup` with no agent shows a picker of agents with a choice to create one, and asks for the new agent's name and description. It asks which environment to use instead of choosing when the agent has several deployments, or, with no deployment, when there are several accounts or environments. Outside interactive mode it fails or chooses as above, like the TypeScript CLI.
 
 ### Pickers and `@latest`
 
@@ -52,7 +59,8 @@ Commands, flags, output, help and errors match the TypeScript CLI, renamed to ke
 - Errors that come from the runtime are worded by Go rather than Bun, for example invalid JSON in a flag, a missing `@file` and network failures.
 - Pickers, `@latest`, `--json`, `--fields`, `--no-input` and `--yes` are new.
 - Commands and options for API operations and request fields the TypeScript CLI lacks are new: `agent-instances create` and `send-message`, `admin-users update-role`, `admin-user-invites resend`, `api-tokens update`, the `utils`, `agent-knowledgebase-links` and `agent-risk-versions` groups, and options such as `environments create --purpose`. Their values are checked as the TypeScript CLI checks its own, with choices listed in help. Where p2 is stricter than the OpenAPI document, the CLI says so: `--pagination-page-with-id` is refused without `--sort-field`, and the help for `environments create --purpose` says p2 requires it. The option stays optional there so that the command still matches the TypeScript CLI, which has no `--purpose`.
-- The `setup`, `install`, `update`, `uninstall` and `doctor` commands come later, and `playground` is left out.
+- The `install`, `update`, `uninstall` and `doctor` commands come later, and `playground` is left out.
+- `setup` fails with "API token create response is missing token." when the token response has no token, where the TypeScript CLI prints `undefined` as the token and pings with it.
 
 ## Development
 
