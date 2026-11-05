@@ -1,0 +1,55 @@
+name: Smoke test
+
+# Installs the release archives built earlier in the calling workflow on
+# every supported platform, through the real install script, and checks
+# doctor, update and uninstall against a local release server.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The release tag the archives are for, or canary.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x64, os: ubuntu-latest, shell: bash }
+          - { name: linux-arm64, os: ubuntu-24.04-arm, shell: bash }
+          - { name: linux-x64-musl, os: ubuntu-latest, shell: alpine }
+          - { name: linux-arm64-musl, os: ubuntu-24.04-arm, shell: alpine }
+          - { name: darwin-arm64, os: macos-latest, shell: bash }
+          - { name: darwin-x64, os: macos-15-intel, shell: bash }
+          - { name: windows-x64, os: windows-latest, shell: pwsh }
+          - { name: windows-arm64, os: windows-11-arm, shell: pwsh }
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-archives
+          path: dist
+      - name: Smoke test (macOS and glibc Linux)
+        if: matrix.shell == 'bash'
+        run: bash scripts/smoke.sh dist "$TAG"
+      - name: Smoke test (musl Linux in Alpine)
+        if: matrix.shell == 'alpine'
+        run: |
+          docker run --rm -e TAG -v "$PWD:/work" -w /work alpine:3.22 sh -euc '
+            apk add --no-cache bash curl python3 tar
+            bash scripts/smoke.sh dist "$TAG"
+          '
+      - name: Smoke test (Windows)
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: ./scripts/smoke.ps1 dist $env:TAG

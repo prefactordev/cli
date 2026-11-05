@@ -17,8 +17,11 @@
 package parity
 
 import (
+	"archive/tar"
 	"bufio"
 	"bytes"
+	"compress/gzip"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,6 +36,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/prefactordev/cli/internal/lifecycle"
 )
 
 // responseBody includes a float written as 1.0, an escaped non-ASCII
@@ -194,6 +199,12 @@ func tsCommand() []string {
 
 func run(t *testing.T, rec *recorder, serverURL string, argv []string) result {
 	t.Helper()
+	return runWithEnv(t, rec, serverURL, argv, nil)
+}
+
+// runWithEnv is run with extra environment variables.
+func runWithEnv(t *testing.T, rec *recorder, serverURL string, argv, env []string) result {
+	t.Helper()
 
 	work := t.TempDir()
 	if err := os.Mkdir(filepath.Join(work, ".git"), 0o755); err != nil {
@@ -210,7 +221,7 @@ func run(t *testing.T, rec *recorder, serverURL string, argv []string) result {
 
 	cmd := exec.Command(argv[0], argv[1:]...)
 	cmd.Dir = work
-	cmd.Env = append(filteredEnv(), "PREFACTOR_CLI_SELF_PATH="+filepath.Join(work, "bin", "prefactor"))
+	cmd.Env = append(append(filteredEnv(), "PREFACTOR_CLI_SELF_PATH="+filepath.Join(work, "bin", "prefactor")), env...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	cmd.Stdin = strings.NewReader("")
@@ -534,7 +545,7 @@ func withoutGlobalOptions(help string) string {
 }
 
 // laterCommands are TypeScript commands this CLI adds later or leaves out.
-var laterCommands = map[string]bool{"install": true, "update": true, "uninstall": true, "doctor": true, "playground": true}
+var laterCommands = map[string]bool{"playground": true}
 
 // TestHelpMatchesTypeScript compares every command's --help with the
 // TypeScript CLI's.
@@ -646,4 +657,118 @@ func TestParitySetup(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestParityLifecycle runs install, update, uninstall and doctor through
+// both CLIs, each with its own home directory, against a release server
+// whose archive holds this CLI. The TypeScript CLI's update therefore
+// installs this CLI as the TypeScript installs will once they move over.
+func TestParityLifecycle(t *testing.T) {
+	tsCLI := tsCommand()
+	if tsCLI == nil {
+		t.Skip("PARITY_TS_CLI is not set")
+	}
+
+	platform, err := lifecycle.DetectPlatform(os.Getenv)
+	if err != nil {
+		t.Fatal(err)
+	}
+	asset := lifecycle.AssetName(platform)
+	archive := releaseArchive(t, goBinary)
+	sum := sha256.Sum256(archive)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/releases/latest/download/" + asset:
+			http.Redirect(w, r, "/releases/download/v9.9.9/"+asset, http.StatusFound)
+		case "/releases/download/v9.9.9/" + asset:
+			_, _ = w.Write(archive)
+		case "/releases/download/v9.9.9/SHA256SUMS":
+			_, _ = fmt.Fprintf(w, "%x  %s\n", sum, asset)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	source := filepath.Join(t.TempDir(), "prefactor-source")
+	if err := os.WriteFile(source, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	steps := [][]string{
+		{"doctor"},
+		{"update"},
+		{"uninstall"},
+		{"install", "--source-binary", source, "--resolved-tag", "v0.1.0", "--asset-name", "custom.tar.gz", "--channel", "latest"},
+		{"doctor"},
+		{"install", "--source-binary", source, "--wait-for-pid", "abc"},
+		{"install", "--source-binary", source, "--wait-for-pid", "0"},
+		{"install", "--channel", "nightly"},
+		{"install"},
+		{"update", "--channel", "stable"},
+		{"doctor"},
+		{"uninstall"},
+		{"doctor"},
+	}
+
+	tsHome, goHome := t.TempDir(), t.TempDir()
+	env := func(home string) []string {
+		return []string{"HOME=" + home, "PREFACTOR_RELEASE_BASE_URL=" + server.URL + "/releases/download"}
+	}
+	installedAt := regexp.MustCompile(`installedAt: \S+`)
+	normalize := func(s, home string) string {
+		return installedAt.ReplaceAllString(strings.ReplaceAll(s, home, "<home>"), "installedAt: <time>")
+	}
+	rec := &recorder{}
+	for _, step := range steps {
+		ts := runWithEnv(t, rec, server.URL, append(append([]string{}, tsCLI...), step...), env(tsHome))
+		got := runWithEnv(t, rec, server.URL, append([]string{goBinary}, step...), env(goHome))
+		name := strings.Join(step, " ")
+		if ts.exit != got.exit {
+			t.Errorf("%s: exit ts=%d go=%d\nts stderr: %s\ngo stderr: %s", name, ts.exit, got.exit, ts.stderr, got.stderr)
+		}
+		if want, have := normalize(ts.stdout, tsHome), normalize(got.stdout, goHome); want != have {
+			t.Errorf("%s: stdout differs\nts:\n%s\ngo:\n%s", name, want, have)
+		}
+		if want, have := normalize(kebabMessage(ts.stderr), tsHome), normalize(got.stderr, goHome); want != have {
+			t.Errorf("%s: stderr differs\nts:\n%s\ngo:\n%s", name, want, have)
+		}
+	}
+	// A TypeScript installation is one this CLI can read and update.
+	shared := t.TempDir()
+	if r := runWithEnv(t, rec, server.URL, append(append([]string{}, tsCLI...), "install", "--source-binary", source, "--channel", "latest"), env(shared)); r.exit != 0 {
+		t.Fatalf("TypeScript install: %s", r.stderr)
+	}
+	tsDoctor := runWithEnv(t, rec, server.URL, append(append([]string{}, tsCLI...), "doctor"), env(shared))
+	goDoctor := runWithEnv(t, rec, server.URL, []string{goBinary, "doctor"}, env(shared))
+	if tsDoctor.stdout != goDoctor.stdout {
+		t.Errorf("doctor on a TypeScript install differs\nts:\n%s\ngo:\n%s", tsDoctor.stdout, goDoctor.stdout)
+	}
+	if r := runWithEnv(t, rec, server.URL, []string{goBinary, "update", "--channel", "stable"}, env(shared)); r.exit != 0 || !strings.Contains(r.stdout, "Updated Prefactor CLI to v9.9.9.") {
+		t.Errorf("update of a TypeScript install: exit %d\n%s%s", r.exit, r.stdout, r.stderr)
+	}
+}
+
+// releaseArchive packs binary as a release archive for this platform.
+func releaseArchive(t *testing.T, binary string) []byte {
+	t.Helper()
+	contents, err := os.ReadFile(binary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(gz)
+	if err := tw.WriteHeader(&tar.Header{Name: "prefactor", Mode: 0o755, Size: int64(len(contents)), Typeflag: tar.TypeReg}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tw.Write(contents); err != nil {
+		t.Fatal(err)
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
 }

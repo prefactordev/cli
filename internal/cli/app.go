@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/lifecycle"
 	"github.com/prefactordev/cli/internal/profile"
 )
 
@@ -32,6 +34,9 @@ type App struct {
 	Argv []string
 	// Picker asks the user to choose a resource in interactive mode.
 	Picker Picker
+	// Lifecycle, when set, replaces the dependencies of install, update,
+	// uninstall and doctor, which print to stdout and stderr.
+	Lifecycle func(stdout, stderr io.Writer) lifecycle.Deps
 
 	session *session
 	// resolvedArgs are the positional arguments after pickers and @latest.

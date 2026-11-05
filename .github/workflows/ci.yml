@@ -10,13 +10,30 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - run: go test -race ./...
+
+  # The lifecycle commands and install.ps1 behave differently on Windows:
+  # the running binary is locked, and update hands over to a detached
+  # installer.
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - run: go test ./internal/lifecycle/... ./test/installers/...
 
   lint:
     runs-on: ubuntu-latest
@@ -28,6 +45,10 @@ jobs:
       - uses: golangci/golangci-lint-action@v8
         with:
           version: v2.15.0
+      - name: Lint workflows
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.11
+          "$(go env GOPATH)/bin/actionlint"
 
   generated:
     name: generated client is up to date
@@ -40,3 +61,20 @@ jobs:
       - run: go generate ./...
       - name: Fail when generated files differ from the committed ones
         run: git diff --exit-code -- api internal/api
+
+  # Builds the release archives as the release workflow does and installs
+  # them through install.sh, so a broken release config fails here first.
+  release-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: v2.19.0
+          args: release --snapshot --clean
+      - run: bash scripts/smoke.sh dist canary

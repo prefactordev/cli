@@ -1,3 +1,6 @@
 [tools]
 "aqua:golangci/golangci-lint" = "2.15.0"
+"aqua:goreleaser/goreleaser" = "2.19.0"
+"aqua:PowerShell/PowerShell" = "7.5.13"
+"aqua:rhysd/actionlint" = "1.7.11"
 go = "1.27.3"

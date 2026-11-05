@@ -83,6 +83,7 @@ func newRootCommand(app *App) *cobra.Command {
 		newPingCommand(app),
 		newVersionCommand(app),
 	)
+	root.AddCommand(newLifecycleCommands(app)...)
 
 	root.SetHelpFunc(func(cmd *cobra.Command, _ []string) { writeHelp(cmd) })
 	argv := func() []string { return app.Argv }

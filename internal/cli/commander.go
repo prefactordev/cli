@@ -239,6 +239,7 @@ func checkEarly(cmd *cobra.Command, args, argv []string, help bool) error {
 var optionParsers = map[string]func(string) error{
 	"parsePaginationOffset": func(value string) error { _, err := parsePaginationOffset(value); return err },
 	"parsePositiveInt":      func(value string) error { _, err := parsePositiveInt(value); return err },
+	"parseWaitForPid":       func(value string) error { _, err := parseWaitForPid(value); return err },
 }
 
 // checkOptionValues checks each option value in argv as Commander reads it:
@@ -442,11 +443,17 @@ func declaredArguments(cmd *cobra.Command) []declaredArgument {
 // subcommand option that takes a value still counts.
 func versionRequested(cmd *cobra.Command, argv []string) bool {
 	flags := cmd.Root().Flags()
+	// install and update have their own --version, the release to install.
+	ownVersion := cmd.HasParent() && cmd.LocalNonPersistentFlags().Lookup("version") != nil
 	for i := 0; i < len(argv); i++ {
 		token := argv[i]
 		switch {
 		case token == "--":
 			return false
+		case ownVersion && (token == "--version" || strings.HasPrefix(token, "--version=")):
+			if token == "--version" {
+				i++
+			}
 		case token == "--version" || token == "-V":
 			return true
 		case strings.HasPrefix(token, "--"):

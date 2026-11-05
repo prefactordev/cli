@@ -1,0 +1,88 @@
+name: Canary
+
+# Every push to main replaces the canary pre-release, which the latest
+# channel installs, once its archives pass the smoke tests.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canary
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Choose the canary version
+        run: |
+          # The next patch after the newest release, which is v0.6.1, the
+          # TypeScript CLI's last, until this repository has a tag.
+          newest="$(git tag -l 'v*.*.*' --sort=-v:refname | head -1)"
+          newest="$(printf '%s\n' v0.6.1 "${newest:-v0.6.1}" | sort -V | tail -1)"
+          IFS=. read -r major minor patch <<< "${newest#v}"
+          echo "PREFACTOR_CANARY_VERSION=$major.$minor.$((patch + 1))-canary.$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: v2.19.0
+          args: release --snapshot --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-archives
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/SHA256SUMS
+
+  smoke:
+    needs: build
+    uses: ./.github/workflows/smoke.yml
+    with:
+      tag: canary
+
+  publish:
+    needs: smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-archives
+          path: dist
+      - name: Replace the canary release
+        run: |
+          if gh release view canary --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete canary --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          fi
+          gh release create canary dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --latest=false \
+            --title "Canary" \
+            --notes "Rolling build of the Prefactor CLI from \`$GITHUB_SHA\` on main.
+
+          Install with:
+
+          \`\`\`sh
+          curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- latest
+          \`\`\`"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify the canary installs
+        run: gh workflow run verify-install.yml --repo "$GITHUB_REPOSITORY" -f tag=canary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

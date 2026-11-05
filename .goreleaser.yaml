@@ -1,0 +1,69 @@
+# Release archives keep the TypeScript CLI's asset names, which the install
+# scripts and `prefactor update` download, in both CLIs:
+#   prefactor-<darwin|linux|windows>-<x64|arm64>.<tar.gz|zip>
+#   prefactor-linux-<x64|arm64>-musl.tar.gz
+# The binaries are static, so the musl archives hold the same Linux build.
+version: 2
+
+project_name: prefactor
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - &build
+    id: prefactor
+    main: ./cmd/prefactor
+    binary: prefactor
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+  - <<: *build
+    id: prefactor-musl
+    goos: [linux]
+
+archives:
+  - id: prefactor
+    ids: [prefactor]
+    name_template: 'prefactor-{{ .Os }}-{{ if eq .Arch "amd64" }}x64{{ else }}{{ .Arch }}{{ end }}'
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - none*
+  - id: prefactor-musl
+    ids: [prefactor-musl]
+    name_template: 'prefactor-linux-{{ if eq .Arch "amd64" }}x64{{ else }}{{ .Arch }}{{ end }}-musl'
+    formats: [tar.gz]
+    files:
+      - none*
+
+checksum:
+  name_template: SHA256SUMS
+  algorithm: sha256
+
+snapshot:
+  # The canary workflow sets PREFACTOR_CANARY_VERSION to the next patch
+  # version with the commit, so `prefactor version` on the latest channel
+  # stays ahead of the stable release it follows, and continues from the
+  # TypeScript CLI's last release before this repository has a tag.
+  version_template: '{{ if index .Env "PREFACTOR_CANARY_VERSION" }}{{ .Env.PREFACTOR_CANARY_VERSION }}{{ else }}{{ incpatch .Version }}-canary.{{ .ShortCommit }}{{ end }}'
+
+changelog:
+  use: github-native
+
+release:
+  github:
+    owner: prefactordev
+    name: cli
+  # The release workflow publishes the draft once the archives pass the
+  # install smoke tests.
+  draft: true
+  replace_existing_draft: true

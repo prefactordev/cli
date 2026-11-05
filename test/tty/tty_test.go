@@ -365,6 +365,11 @@ func waitForStderr(t *testing.T, stderrText func() string, text string) {
 	if !strings.Contains(stderrText(), text) {
 		t.Fatalf("stderr never showed %q; it showed %q", text, stderrText())
 	}
+	// A prompt draws before it reads keys: it first asks the terminal about
+	// its features, and this terminal never answers, so the prompt waits
+	// for its timeout. Keys sent sooner are lost. Real terminals answer at
+	// once.
+	time.Sleep(2 * time.Second)
 }
 
 // TestSetupCreatesAnAgentFromThePicker runs setup with no agent in a

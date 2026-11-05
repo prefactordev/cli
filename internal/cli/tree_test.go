@@ -37,10 +37,6 @@ type typescriptCommand struct {
 // laterCommands are TypeScript commands that later issues add, or that the
 // CLI leaves out on purpose.
 var laterCommands = map[string]string{
-	"install":    "PRE-712",
-	"update":     "PRE-712",
-	"uninstall":  "PRE-712",
-	"doctor":     "PRE-712",
 	"playground": "excluded: seeds demo data",
 }
 
@@ -109,7 +105,7 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 
 		tsFlags := map[string]bool{}
 		for _, opt := range ts.Options {
-			if opt.Long == "--version" {
+			if opt.Long == "--version" && !cmd.HasParent() {
 				continue
 			}
 			name := strings.TrimPrefix(kebabNames(opt.Long), "--")
@@ -149,11 +145,13 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 		}
 		if cmd.HasParent() {
 			var goOrder, tsOrder []string
-			for _, f := range ownOptions(cmd) {
+			local := cmd.LocalNonPersistentFlags()
+			local.SortFlags = false
+			local.VisitAll(func(f *pflag.Flag) {
 				if tsFlags[f.Name] {
 					goOrder = append(goOrder, f.Name)
 				}
-			}
+			})
 			for _, opt := range ts.Options {
 				tsOrder = append(tsOrder, strings.TrimPrefix(kebabNames(opt.Long), "--"))
 			}

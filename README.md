@@ -2,6 +2,64 @@
 
 Command-line interface for [Prefactor](https://prefactor.tech).
 
+## Install
+
+macOS and Linux:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/prefactordev/cli/main/install.ps1 | iex
+```
+
+The installer downloads the release for your platform, checks it against the release's `SHA256SUMS`, and installs it to `~/.prefactor/bin/prefactor` (`%USERPROFILE%\.prefactor\bin\prefactor.exe` on Windows). It puts that directory on your `PATH`: `install.sh` adds it to your shell profile and links `prefactor` into a directory already on `PATH`, such as `~/.local/bin`, so it works at once; `install.ps1` adds it to your user `PATH`.
+
+Pass `latest` for the newest build from `main`, or a version such as `0.7.0` to pin it:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- latest
+```
+
+Then manage the installation with the CLI:
+
+| Command | Effect |
+|---------|--------|
+| `prefactor update [--channel stable\|latest] [--version <version>]` | Install the newest release of the channel you installed, or the one given. A pinned install stays on its version |
+| `prefactor doctor` | Show where the CLI is installed, which release, and whether its directory is on `PATH` |
+| `prefactor uninstall` | Remove the CLI, keeping your profiles in `~/.prefactor/prefactor.json` |
+
+Both CLIs install to and read the same `~/.prefactor` files, and this CLI's `install` accepts the options the TypeScript CLI's `update` passes to the binary it downloads, so once the TypeScript CLI's last release updates from this repository, `prefactor update` moves a TypeScript installation over.
+
+## First use
+
+```sh
+prefactor login                       # sign in through the browser
+prefactor agents list                 # check access
+prefactor setup <agent_id>            # print PREFACTOR_* values for an agent's SDK
+prefactor setup --create --name "Support bot"   # or create the agent first
+```
+
+In a terminal, commands that are missing an ID let you pick it from a list: `prefactor setup` alone offers your agents, or a new one. Add `--json` to any command for JSON output.
+
+## Skills for coding agents
+
+The `skills/` directory holds skills that teach a coding agent to use the CLI:
+
+- `bootstrap-existing-agent-with-prefactor-cli`: provision an agent's credentials with `prefactor setup` and write them into the project.
+- `inspect-agent-run-with-prefactor-cli`: investigate an agent run from its spans and the agent's code.
+
+Install them with the [skills](https://github.com/vercel-labs/skills) CLI:
+
+```sh
+npx skills add https://github.com/prefactordev/cli
+```
+
+The skills for instrumenting an agent with the SDK are in the [Prefactor TypeScript SDK](https://github.com/prefactordev/typescript-sdk/tree/main/skills).
+
 ## Commands
 
 | Command | Description |
@@ -14,6 +72,7 @@ Command-line interface for [Prefactor](https://prefactor.tech).
 | `prefactor ping [--api-token <token>] [--api-url <url>]` | Verify the selected or supplied API token |
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |
+| `prefactor install`, `update`, `doctor`, `uninstall` | Manage the installed CLI (see [Install](#install)) |
 
 Resource commands cover every operation in the Prefactor API, grouped by resource; `api/coverage.yaml` lists the few left out on purpose. The groups are `accounts`, `environments`, `agents`, `judges`, `agent-versions`, `agent-schema-versions`, `agent-deployments`, `agent-associations`, `agent-instance-associations`, `agent-knowledgebase-links`, `agent-risk-versions`, `agent-instances`, `agent-spans`, `alerts`, `teams`, `people`, `risk-profiles`, `integrations`, `api-tokens`, `admin-users`, `admin-user-invites`, `llm-providers`, `llm-provider-models`, `knowledgebases`, `knowledgebase-documents`, `knowledgebase-document-revisions`, `knowledgebase-revisions`, `bulk` and `utils`. Run `prefactor <group> --help` for the subcommands.
 
@@ -59,7 +118,9 @@ Commands, flags, output, help and errors match the TypeScript CLI, renamed to ke
 - Errors that come from the runtime are worded by Go rather than Bun, for example invalid JSON in a flag, a missing `@file` and network failures.
 - Pickers, `@latest`, `--json`, `--fields`, `--no-input` and `--yes` are new.
 - Commands and options for API operations and request fields the TypeScript CLI lacks are new: `agent-instances create` and `send-message`, `admin-users update-role`, `admin-user-invites resend`, `api-tokens update`, the `utils`, `agent-knowledgebase-links` and `agent-risk-versions` groups, and options such as `environments create --purpose`. Their values are checked as the TypeScript CLI checks its own, with choices listed in help. Where p2 is stricter than the OpenAPI document, the CLI says so: `--pagination-page-with-id` is refused without `--sort-field`, and the help for `environments create --purpose` says p2 requires it. The option stays optional there so that the command still matches the TypeScript CLI, which has no `--purpose`.
-- The `install`, `update`, `uninstall` and `doctor` commands come later, and `playground` is left out.
+- `playground` is left out.
+- `install --version <version>` and `update --version <version>` install that version. The TypeScript CLI prints its own version for them instead, so a pinned install or update there does nothing.
+- `install.ps1` adds the bin directory to the user's `PATH`.
 - `setup` fails with "API token create response is missing token." when the token response has no token, where the TypeScript CLI prints `undefined` as the token and pings with it.
 
 ## Development
@@ -94,6 +155,23 @@ PARITY_TS_CLI="bun ~/code/typescript-sdk/packages/cli/src/bin/cli.ts" go test -t
 ```
 
 Build the TypeScript SDK first (`bun run build` in that repository), because the TypeScript CLI runs against the built `@prefactor/core`.
+
+### Releases
+
+Pushing a tag `vX.Y.Z` releases that version: `.github/workflows/release.yml` builds the archives with [GoReleaser](https://goreleaser.com) (`.goreleaser.yaml`) as a draft release with `SHA256SUMS` and GitHub's generated release notes, smoke tests them on macOS, Linux (glibc and musl) and Windows, on x64 and arm64, then publishes the release, which makes it the one the stable channel installs. Versions continue from the TypeScript CLI's last release, v0.6.1, so the first release here is v0.7.0 or later; the workflow refuses an older tag.
+
+Each push to `main` replaces the `canary` pre-release, which the latest channel installs, after the same smoke tests (`.github/workflows/canary.yml`). Its version is the next patch version with the commit, such as `0.7.1-canary.1a2b3c4`.
+
+After a release or canary is published, `.github/workflows/verify-install.yml` installs it from GitHub with the real install scripts on every platform.
+
+The archive names are the TypeScript CLI's, which both CLIs' `update` download: `prefactor-<darwin|linux|windows>-<x64|arm64>.<tar.gz|zip>`, and `prefactor-linux-<x64|arm64>-musl.tar.gz`, which holds the same static Linux build. To build them locally and run the smoke test:
+
+```sh
+goreleaser release --snapshot --clean
+scripts/smoke.sh dist canary
+```
+
+`go test ./...` runs `install.sh`, and `install.ps1` when `pwsh` is installed, against a local release server (`test/installers`).
 
 ### Command-line checks
 
