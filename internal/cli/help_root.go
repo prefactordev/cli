@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
@@ -28,6 +28,24 @@ func isTerminal(w io.Writer) bool {
 	return ok && term.IsTerminal(int(f.Fd()))
 }
 
+// helpSection is a heading in the root help and the commands under it.
+type helpSection struct {
+	title    string
+	commands []string
+}
+
+// helpSections orders the root help's commands under headings. Every
+// command must be in one; TestEveryCommandIsInAHelpSection checks.
+var helpSections = []helpSection{
+	{"Get started", []string{"login", "setup", "profiles", "ping"}},
+	{"Agents & runs", []string{"agents", "agent-versions", "agent-schema-versions", "agent-deployments", "agent-instances", "agent-spans", "alerts", "agent-risk-versions"}},
+	{"Judges", []string{"judges", "agent-associations", "agent-instance-associations", "llm-providers", "llm-provider-models"}},
+	{"Knowledge", []string{"knowledgebases", "knowledgebase-documents", "knowledgebase-document-revisions", "knowledgebase-revisions", "agent-knowledgebase-links"}},
+	{"Account & access", []string{"accounts", "environments", "teams", "people", "risk-profiles", "integrations", "api-tokens", "admin-users", "admin-user-invites"}},
+	{"Tools", []string{"bulk", "utils", "pfid", "version"}},
+	{"Install", []string{"install", "update", "uninstall", "doctor"}},
+}
+
 // environmentHelp describes the environment variables the CLI reads.
 var environmentHelp = [][2]string{
 	{"PREFACTOR_PROFILE", "Profile to use when --profile is not given."},
@@ -44,59 +62,54 @@ var environmentHelp = [][2]string{
 func formatRootHelp(root *cobra.Command, width int, t human.Theme) string {
 	var b strings.Builder
 	if width >= human.BannerWidth()+4 {
-		b.WriteString("\n" + indentLines(human.Banner(), "  ") + "\n")
+		b.WriteString("\n" + indentLines(human.Banner(), "  ") + "\n\n")
 	}
 	b.WriteString("  " + t.Accent.Render(root.Short) + "\n\n")
 
-	type entry struct {
-		words []string
-		short string
-	}
-	var entries []entry
+	commands := map[string]*cobra.Command{}
 	for _, cmd := range root.Commands() {
-		if cmd.Hidden || cmd.Name() == "help" {
-			continue
+		if !cmd.Hidden && cmd.Name() != "help" {
+			commands[cmd.Name()] = cmd
 		}
-		words := []string{"prefactor", cmd.Name()}
-		if subs := visibleSubcommands(cmd); len(subs) > 0 {
-			for i, sub := range subs {
-				if i > 0 {
-					words = append(words, "|")
-				}
-				words = append(words, sub)
-			}
-		} else if args := argumentTerms(cmd); args != "" {
-			words = append(words, args)
-		}
-		entries = append(entries, entry{words, cmd.Short})
 	}
 
-	// The commands take the left column, up to about half the width;
-	// longer lists of subcommands wrap within it.
+	// Each group's name is on the left; its description and, below it,
+	// its subcommands wrap in the right column, aligned across sections.
+	const margin, gap = "  ", "   "
 	left := 0
-	for _, e := range entries {
-		left = max(left, len(strings.Join(e.words, " ")))
+	for name := range commands {
+		left = max(left, len(name))
 	}
-	left = min(left, max(40, width*55/100))
-	for _, e := range entries {
-		lines := wrapWords(e.words, left)
-		for i, line := range lines {
-			prefix := "    " + t.Muted.Render("$") + " "
-			if i > 0 {
-				prefix = "      " + strings.Repeat(" ", len("prefactor ")+len(e.words[1])+1)
-				line = strings.TrimPrefix(line, " ")
-			}
-			styled := t.Command.Render(line)
-			pad := left - lipgloss.Width(line) - (lipgloss.Width(prefix) - 6)
-			b.WriteString(prefix + styled)
-			if i == 0 {
-				b.WriteString(strings.Repeat(" ", max(pad, 0)+3) + t.Muted.Render(e.short))
-			}
+	right := max(20, width-len(margin)-left-len(gap))
+	for i, section := range helpSections {
+		if i > 0 {
 			b.WriteString("\n")
 		}
+		b.WriteString(t.Title.Render(section.title) + "\n")
+		for _, name := range section.commands {
+			cmd, ok := commands[name]
+			if !ok {
+				continue
+			}
+			details := strings.Split(ansi.Wordwrap(cmd.Short, right, ""), "\n")
+			if subs := visibleSubcommands(cmd); len(subs) > 0 {
+				for _, line := range wrapList(subs, " · ", right) {
+					details = append(details, t.Muted.Render(line))
+				}
+			} else if args := argumentTerms(cmd); args != "" {
+				details = append(details, t.Muted.Render(args))
+			}
+			for j, detail := range details {
+				line := margin + strings.Repeat(" ", left)
+				if j == 0 {
+					line = margin + t.Command.Render(name) + strings.Repeat(" ", left-len(name))
+				}
+				b.WriteString(line + gap + detail + "\n")
+			}
+		}
 	}
 
-	b.WriteString("\n" + t.Heading.Render("Flags:") + "\n")
+	b.WriteString("\n" + t.Title.Render("Flags") + "\n")
 	// Long options line up after the short ones, as "-V, " is wide.
 	flags := []helpItem{}
 	alignFlag := func(term string) string {
@@ -117,7 +130,7 @@ func formatRootHelp(root *cobra.Command, width int, t human.Theme) string {
 		b.WriteString(formatItem(item, termWidth, width, &t) + "\n")
 	}
 
-	b.WriteString("\n" + t.Heading.Render("Environment Variables:") + "\n")
+	b.WriteString("\n" + t.Title.Render("Environment variables") + "\n")
 	nameWidth := 0
 	for _, v := range environmentHelp {
 		nameWidth = max(nameWidth, len(v[0]))
@@ -142,23 +155,23 @@ func visibleSubcommands(cmd *cobra.Command) []string {
 	return names
 }
 
-// wrapWords joins words into lines no wider than width, breaking after a
-// "|" so each line after the first starts with a subcommand.
-func wrapWords(words []string, width int) []string {
+// wrapList joins items with sep into lines no wider than width, breaking
+// only between items and leaving the separator at the end of a line.
+func wrapList(items []string, sep string, width int) []string {
 	var lines []string
-	line := strings.Join(words[:2], " ")
-	for _, w := range words[2:] {
-		if len(line)+1+len(w) > width && w != "|" && strings.HasSuffix(line, "|") {
-			lines = append(lines, line)
+	line := ""
+	for i, item := range items {
+		piece := item
+		if i < len(items)-1 {
+			piece += sep
+		}
+		if line != "" && len(strings.TrimRight(line+piece, " ")) > width {
+			lines = append(lines, strings.TrimRight(line, " "))
 			line = ""
 		}
-		if line == "" {
-			line = w
-		} else {
-			line += " " + w
-		}
+		line += piece
 	}
-	return append(lines, line)
+	return append(lines, strings.TrimRight(line, " "))
 }
 
 func indentLines(s, prefix string) string {

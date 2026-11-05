@@ -52,7 +52,7 @@ func TestStyledRootHelpListsEveryGroup(t *testing.T) {
 		t.Fatal(err)
 	}
 	plain := ansi.Strip(out)
-	for _, want := range []string{"██████╗", "$ prefactor agents list | retrieve | show", "$ prefactor setup [agent_id]", "Environment Variables:", "PREFACTOR_API_TOKEN", "try: prefactor setup"} {
+	for _, want := range []string{"██████╗", "Agents & runs", "list · retrieve · show · create", "[agent_id]", "Environment variables", "PREFACTOR_API_TOKEN", "try: prefactor setup"} {
 		if !strings.Contains(plain, want) {
 			t.Errorf("root help is missing %q:\n%s", want, plain)
 		}
@@ -64,5 +64,27 @@ func TestStyledSubcommandHelpKeepsItsText(t *testing.T) {
 	styled, _ := styledApp(t).run(t, "agents", "create", "--help")
 	if styled == plain || ansi.Strip(styled) != plain {
 		t.Fatalf("styled help differs from the plain text:\n%s\n---\n%s", ansi.Strip(styled), plain)
+	}
+}
+
+func TestEveryCommandIsInAHelpSection(t *testing.T) {
+	placed := map[string]int{}
+	for _, section := range helpSections {
+		for _, name := range section.commands {
+			placed[name]++
+		}
+	}
+	root := newRootCommand(&App{Version: "test"})
+	for _, cmd := range root.Commands() {
+		if cmd.Hidden || cmd.Name() == "help" {
+			continue
+		}
+		if placed[cmd.Name()] != 1 {
+			t.Errorf("%s is in %d root help sections, want 1", cmd.Name(), placed[cmd.Name()])
+		}
+		delete(placed, cmd.Name())
+	}
+	for name := range placed {
+		t.Errorf("root help section lists %s, which is not a command", name)
 	}
 }
