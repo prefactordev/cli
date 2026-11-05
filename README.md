@@ -95,6 +95,16 @@ The CLI is interactive only when stdin and stdout are terminals and no coding ag
 
 In interactive mode, `setup` with no agent shows a picker of agents with a choice to create one, and asks for the new agent's name and description. It asks which environment to use instead of choosing when the agent has several deployments, or, with no deployment, when there are several accounts or environments. Outside interactive mode it fails or chooses as above, like the TypeScript CLI.
 
+### Output
+
+At a terminal, results are drawn for reading:
+- Lists are tables, with the name, status, a time and the ID first. They drop the least useful columns to fit the width, and say where the page sits in the list.
+- Single resources are cards, with counts such as `instance_counts` drawn as bars.
+- Spans, instances and alerts get a duration and a timeline of when each ran.
+- Statuses are coloured, times are relative, and `prefactor --help` lists every command group.
+
+Output that goes to a pipe or a file, `--json`, `--fields`, `PREFACTOR_OUTPUT_FORMAT=json` and a detected coding agent all get JSON and plain help, exactly as the TypeScript CLI prints them. `NO_COLOR` keeps the layout without colour.
+
 ### Pickers and `@latest`
 
 In interactive mode, a command missing a required resource ID shows a list to choose from (type `/` to search), for example the agents for `prefactor agent-instances list`. Every other check runs first, so the CLI never asks you to pick for a command that would fail anyway. Resources that belong to another, such as an agent's instances, ask for the parent first unless the command already has it. A list with one entry is used without asking, except on commands that delete, revoke, terminate, archive, retire, suspend or discard data. Pickers draw on stderr, so stdout keeps the command's output; they show at most 1000 entries, the newest first except for revisions, which the API cannot sort. `agent-instance-associations` pickers ask for a judge, then one of its runs.

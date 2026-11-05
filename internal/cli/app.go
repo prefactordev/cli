@@ -36,6 +36,9 @@ type App struct {
 	Argv []string
 	// Picker asks the user to choose a resource in interactive mode.
 	Picker Picker
+	// Terminal, when set, reports whether a writer is a terminal, which
+	// decides whether output to it is styled for a person; see styled.
+	Terminal func(w io.Writer) bool
 	// Lifecycle, when set, replaces the dependencies of install, update,
 	// uninstall and doctor, which print to stdout and stderr.
 	Lifecycle func(stdout, stderr io.Writer) lifecycle.Deps

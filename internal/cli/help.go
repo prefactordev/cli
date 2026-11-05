@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"golang.org/x/term"
+
+	"github.com/prefactordev/cli/internal/human"
 )
 
 // Help is laid out as Commander lays it out, so it reads like the
@@ -32,10 +34,21 @@ type helpItem struct {
 	term, description string
 }
 
-// writeHelp writes cmd's help to its output.
-func writeHelp(cmd *cobra.Command) {
+// writeHelp writes cmd's help to its output, styled when a person reads it
+// at a terminal.
+func (a *App) writeHelp(cmd *cobra.Command) {
 	out := cmd.OutOrStdout()
-	_, _ = io.WriteString(out, formatHelp(cmd, helpWidth(out)))
+	width := helpWidth(out)
+	if !a.styled(out) {
+		_, _ = io.WriteString(out, formatHelp(cmd, width, nil))
+		return
+	}
+	theme := human.DefaultTheme()
+	text := formatHelp(cmd, width, &theme)
+	if !cmd.HasParent() {
+		text = formatRootHelp(cmd, width, theme)
+	}
+	_, _ = io.WriteString(human.Writer(out, os.Environ()), text)
 }
 
 // helpWidth is the width of the terminal out writes to, or 80, as
@@ -49,7 +62,9 @@ func helpWidth(out io.Writer) int {
 	return defaultHelpWidth
 }
 
-func formatHelp(cmd *cobra.Command, width int) string {
+// formatHelp lays out cmd's help. theme, when set, colours it without
+// changing its text.
+func formatHelp(cmd *cobra.Command, width int, theme *human.Theme) string {
 	options := helpOptions(cmd)
 	commands := helpCommands(cmd)
 	termWidth := 0
@@ -57,12 +72,16 @@ func formatHelp(cmd *cobra.Command, width int) string {
 		termWidth = max(termWidth, utf8.RuneCountInString(item.term))
 	}
 
-	lines := []string{"Usage: " + commandUsage(cmd), ""}
+	usage := "Usage: " + commandUsage(cmd)
+	if theme != nil {
+		usage = theme.Heading.Render("Usage:") + " " + theme.Command.Render(commandUsage(cmd))
+	}
+	lines := []string{usage, ""}
 	if cmd.Short != "" {
 		lines = append(lines, boxWrap(cmd.Short, width), "")
 	}
-	lines = append(lines, formatItemList("Options:", options, termWidth, width)...)
-	lines = append(lines, formatItemList("Commands:", commands, termWidth, width)...)
+	lines = append(lines, formatItemList("Options:", options, termWidth, width, theme)...)
+	lines = append(lines, formatItemList("Commands:", commands, termWidth, width, theme)...)
 
 	if cmd.HasParent() {
 		globals := globalOptions(cmd)
@@ -70,12 +89,16 @@ func formatHelp(cmd *cobra.Command, width int) string {
 		for _, item := range globals {
 			globalWidth = max(globalWidth, utf8.RuneCountInString(item.term))
 		}
-		lines = append(lines, formatItemList("Global Options:", globals, globalWidth, width)...)
+		lines = append(lines, formatItemList("Global Options:", globals, globalWidth, width, theme)...)
 	}
 
 	help := strings.Join(lines, "\n")
 	if cmd.Example != "" {
-		help += "\nExamples:\n" + cmd.Example + "\n"
+		heading := "Examples:"
+		if theme != nil {
+			heading = theme.Heading.Render(heading)
+		}
+		help += "\n" + heading + "\n" + cmd.Example + "\n"
 	}
 	return help
 }
@@ -205,26 +228,52 @@ func globalOptions(cmd *cobra.Command) []helpItem {
 	return items
 }
 
-func formatItemList(heading string, items []helpItem, termWidth, width int) []string {
+func formatItemList(heading string, items []helpItem, termWidth, width int, theme *human.Theme) []string {
 	if len(items) == 0 {
 		return nil
 	}
+	if theme != nil {
+		heading = theme.Heading.Render(heading)
+	}
 	lines := []string{heading}
 	for _, item := range items {
-		lines = append(lines, formatItem(item, termWidth, width))
+		lines = append(lines, formatItem(item, termWidth, width, theme))
 	}
 	return append(lines, "")
 }
 
+var helpPlaceholder = regexp.MustCompile(`[<\[][^>\]]*[>\]](\.\.\.)?`)
+
+// styleTerm colours an option's flags or a command's name, and dims their
+// placeholders.
+func styleTerm(term string, theme *human.Theme) string {
+	if theme == nil {
+		return term
+	}
+	name := theme.Option
+	if !strings.HasPrefix(strings.TrimLeft(term, " "), "-") {
+		name = theme.Command
+	}
+	var b strings.Builder
+	last := 0
+	for _, loc := range helpPlaceholder.FindAllStringIndex(term, -1) {
+		b.WriteString(name.Render(term[last:loc[0]]))
+		b.WriteString(theme.Muted.Render(term[loc[0]:loc[1]]))
+		last = loc[1]
+	}
+	b.WriteString(name.Render(term[last:]))
+	return b.String()
+}
+
 var preformatted = regexp.MustCompile(`\n[^\S\r\n]`)
 
-func formatItem(item helpItem, termWidth, width int) string {
+func formatItem(item helpItem, termWidth, width int, theme *human.Theme) string {
 	indent := strings.Repeat(" ", helpItemIndent)
 	if item.description == "" {
-		return indent + item.term
+		return indent + styleTerm(item.term, theme)
 	}
 
-	padded := item.term + strings.Repeat(" ", termWidth-utf8.RuneCountInString(item.term))
+	padded := styleTerm(item.term, theme) + strings.Repeat(" ", termWidth-utf8.RuneCountInString(item.term))
 	description := item.description
 	remaining := width - termWidth - helpSpacerWidth - helpItemIndent
 	if remaining >= helpMinWrapWidth && !preformatted.MatchString(description) {

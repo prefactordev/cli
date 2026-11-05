@@ -85,7 +85,7 @@ func newRootCommand(app *App) *cobra.Command {
 	)
 	root.AddCommand(newLifecycleCommands(app)...)
 
-	root.SetHelpFunc(func(cmd *cobra.Command, _ []string) { writeHelp(cmd) })
+	root.SetHelpFunc(func(cmd *cobra.Command, _ []string) { app.writeHelp(cmd) })
 	argv := func() []string { return app.Argv }
 	prepareCommandLine(root, &help, argv)
 	useResolvedArgs(root, app)

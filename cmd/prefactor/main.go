@@ -7,6 +7,7 @@ import (
 
 	"github.com/prefactordev/cli/internal/cli"
 	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/human"
 	"github.com/prefactordev/cli/internal/jsjson"
 	"github.com/prefactordev/cli/internal/output"
 )
@@ -29,11 +30,23 @@ func main() {
 // printError writes the error message and, for an API error, the response
 // body, as the TypeScript CLI does.
 func printError(err error) {
-	fmt.Fprintln(os.Stderr, err)
+	// A person at a terminal gets the message in red and the hint dimmed;
+	// the text is the same.
+	stderr, styled := cli.ErrorWriter(os.Stderr)
+	theme := human.DefaultTheme()
+	if styled {
+		fmt.Fprintln(stderr, theme.Danger.Render("✗ "+err.Error()))
+	} else {
+		fmt.Fprintln(os.Stderr, err)
+	}
 
 	var usageErr *cli.UsageError
 	if errors.As(err, &usageErr) {
-		fmt.Fprintln(os.Stderr, "(run with --help for usage)")
+		if styled {
+			fmt.Fprintln(stderr, theme.Muted.Render("(run with --help for usage)"))
+		} else {
+			fmt.Fprintln(os.Stderr, "(run with --help for usage)")
+		}
 		return
 	}
 

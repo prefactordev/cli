@@ -2,10 +2,12 @@ package cli
 
 import (
 	"errors"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/prefactordev/cli/internal/human"
 	"github.com/prefactordev/cli/internal/output"
 )
 
@@ -97,12 +99,30 @@ func (a *App) jsonOutput() bool {
 	return a.session != nil && a.session.json
 }
 
-// printResult prints a raw JSON response, limited to --fields when set.
+// printResult prints a raw JSON response, limited to --fields when set. A
+// person at a terminal gets it as a table or card instead.
 func (a *App) printResult(cmd *cobra.Command, raw []byte) error {
+	out := cmd.OutOrStdout()
 	if a.session != nil && len(a.session.fields) > 0 {
-		return output.JSONFields(cmd.OutOrStdout(), raw, a.session.fields)
+		return output.JSONFields(out, raw, a.session.fields)
 	}
-	return output.JSON(cmd.OutOrStdout(), raw)
+	if a.styled(out) {
+		return human.Render(human.Writer(out, os.Environ()), raw, human.Options{
+			Width: helpWidth(out),
+			Noun:  resourceNoun(cmd),
+			Theme: human.DefaultTheme(),
+		})
+	}
+	return output.JSON(out, raw)
+}
+
+// resourceNoun names what a command lists, such as "agent instances", for
+// an empty list.
+func resourceNoun(cmd *cobra.Command) string {
+	if cmd.HasParent() && cmd.Parent().HasParent() {
+		return strings.ReplaceAll(cmd.Parent().Name(), "-", " ")
+	}
+	return ""
 }
 
 // printJSONValue prints a value the CLI builds itself, limited to --fields

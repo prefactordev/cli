@@ -131,7 +131,7 @@ func newLifecycleCommands(app *App) []*cobra.Command {
 			if err != nil {
 				return err
 			}
-			if app.jsonOutput() {
+			if app.jsonOutput() || app.styled(cmd.OutOrStdout()) {
 				o := jsjson.NewObject()
 				for _, line := range report.Lines {
 					o.Set(line[0], line[1])

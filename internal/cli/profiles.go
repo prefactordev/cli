@@ -64,6 +64,19 @@ func newProfilesListCommand(app *App) *cobra.Command {
 				_, err := fmt.Fprintln(out, "No profiles configured. Use 'prefactor profiles add <name> [baseUrl] --api-token <apiToken>'.")
 				return err
 			}
+			if app.styled(out) {
+				list := make([]profileSummary, 0, len(entries))
+				for _, entry := range entries {
+					list = append(list, profileSummary{Name: entry.Name, BaseURL: entry.Profile.BaseURL, Current: entry.Name == current})
+				}
+				raw, err := marshalValue(struct {
+					Summaries []profileSummary `json:"summaries"`
+				}{list})
+				if err != nil {
+					return err
+				}
+				return app.printResult(cmd, raw)
+			}
 
 			for _, entry := range entries {
 				marker := ""

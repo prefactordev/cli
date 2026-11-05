@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -197,6 +198,11 @@ func jsonServer(t *testing.T, routes map[string]string) *httptest.Server {
 	return server
 }
 
+// terminalQuery matches the escape sequences that ask a terminal a question
+// and wait for its answer: mode and keyboard reports, device attributes,
+// cursor position and colour queries.
+var terminalQuery = regexp.MustCompile(`\x1b\[\?[0-9;]*\$p|\x1b\[\?u|\x1b\[>?[0-9]*c|\x1b\[[0-9]*n|\x1b\][0-9]+;\?`)
+
 // TestCommandsDoNotQueryTheTerminal fails if the CLI writes escape sequences
 // or waits for terminal replies on a run that shows no picker. Terminals that
 // do not answer queries would otherwise stall every command.
@@ -213,8 +219,9 @@ func TestCommandsDoNotQueryTheTerminal(t *testing.T) {
 			if took := time.Since(began); took > 2*time.Second {
 				t.Fatalf("took %v", took)
 			}
-			if strings.ContainsRune(s.output(), '\x1b') {
-				t.Fatalf("wrote escape sequences: %q", s.output())
+			// Colour is fine; a question to the terminal is not.
+			if query := terminalQuery.FindString(s.output()); query != "" {
+				t.Fatalf("queried the terminal with %q: %q", query, s.output())
 			}
 		})
 	}
@@ -329,11 +336,14 @@ func TestThePickerDrawsOnStderr(t *testing.T) {
 		t.Fatalf("exit %d: stdout %q stderr %q", code, s.output(), stderrText())
 	}
 
+	// stdout, a terminal too, gets the agent as a card in colour, and none
+	// of the picker's text or its cursor and screen modes.
 	stdout := strings.TrimSpace(strings.ReplaceAll(s.output(), "\r", ""))
-	if strings.Contains(stdout, "Choose") || strings.ContainsRune(stdout, '\x1b') {
+	if strings.Contains(stdout, "Choose") || strings.Contains(stdout, "\x1b[?") {
 		t.Fatalf("the picker drew on stdout: %q", stdout)
 	}
-	if !strings.HasPrefix(stdout, "{") || !strings.Contains(stdout, `"name": "Billing bot"`) {
+	plain := regexp.MustCompile(`\x1b\[[0-9;]*m`).ReplaceAllString(stdout, "")
+	if !strings.HasPrefix(plain, "Billing bot") || !strings.Contains(plain, "01m6bbbbbbbbbbbbbbbbbbbbbbbbbbbb") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -421,4 +431,18 @@ func (b *lockedBuffer) String() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.buf.String()
+}
+
+// TestAPersonAtATerminalGetsATable runs agents list in a terminal, as a
+// person would, and checks the list comes as a table.
+func TestAPersonAtATerminalGetsATable(t *testing.T) {
+	server := jsonServer(t, map[string]string{"GET /api/v1/agent": `{"status":"success","summaries":[{"id":"01m6aaaaaaaaaaaaaaaaaaaaaaaaaaaa","name":"Support bot","status":"active"}],"pagination":{"item_count":1,"item_start":1,"item_end":1}}`})
+	s := start(t, server.URL, nil, "agents", "list")
+	if code := s.wait(5 * time.Second); code != 0 {
+		t.Fatalf("exit %d: %q", code, s.output())
+	}
+	plain := regexp.MustCompile(`\x1b\[[0-9;]*m`).ReplaceAllString(s.output(), "")
+	if !strings.Contains(plain, "NAME") || !strings.Contains(plain, "Support bot") || strings.Contains(plain, `"summaries"`) {
+		t.Fatalf("output: %q", plain)
+	}
 }
