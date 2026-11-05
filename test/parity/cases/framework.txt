@@ -19,6 +19,8 @@ agents show | --include_counts=yes
 pfid generate | --count
 profiles add |
 profiles add | x --api-token
+profiles add | p http://x.com:99999 --api-token t
+profiles add | p http://x.com:65535 --api-token t
 knowledgebase_documents update |
 knowledgebase_documents update | doc
 agent_associations create | --trigger on_demand

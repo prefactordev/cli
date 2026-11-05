@@ -126,6 +126,7 @@ llm_providers retrieve | lp1
 llm_providers create | --name P --provider anthropic --api_key " sk-1 "
 llm_providers create | --name P --provider custom_openai --api_key @fixtures/api-key.txt --api_base_url https://llm.example.com/v1 --account_id acc1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
 llm_providers create | --name P --provider openai --api_key k --api_base_url "" --account_id "" --id ""
+llm_providers create | --name P --provider anthropic --api_key @fixtures/bom-key.txt
 llm_providers create | --name P --provider ollama_cloud --api_key k
 llm_providers create | --name P --provider together --api_key k
 llm_providers create | --name P --provider gemini --api_key k

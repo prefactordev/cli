@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/prefactordev/cli/internal/js"
 	"github.com/prefactordev/cli/internal/jsjson"
 )
 
@@ -55,12 +56,15 @@ type Locator struct {
 
 // DefaultLocator returns a Locator for the current process. PREFACTOR_CLI_SELF_PATH
 // overrides the executable path, as in the TypeScript CLI, and is used as
-// given; the running binary's path has its symlinks resolved.
+// given; the running binary's path has its symlinks resolved. So does the
+// working directory, which Node reports without the symlinks a shell's $PWD
+// keeps.
 func DefaultLocator() (Locator, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return Locator{}, err
 	}
+	wd = realPath(wd)
 
 	exe := os.Getenv("PREFACTOR_CLI_SELF_PATH")
 	if exe == "" {
@@ -68,16 +72,17 @@ func DefaultLocator() (Locator, error) {
 		if err != nil {
 			return Locator{}, err
 		}
-		exe = resolveExecutable(exe)
+		exe = realPath(exe)
 	}
 
 	return Locator{WorkingDir: wd, ExecutablePath: exe}, nil
 }
 
-// resolveExecutable follows symlinks to the real binary, as Node's
-// process.execPath does, so a symlinked install finds the same prefactor.json
-// as the TypeScript CLI. A path that cannot be resolved is used as given.
-func resolveExecutable(path string) string {
+// realPath follows symlinks to the real path, as Node's
+// process.execPath and process.cwd() report it, so the CLI finds the same
+// prefactor.json as the TypeScript CLI. A path that cannot be resolved is
+// used as given.
+func realPath(path string) string {
 	if resolved, err := filepath.EvalSymlinks(path); err == nil {
 		return resolved
 	}
@@ -251,7 +256,7 @@ func ensureGitignoreEntry(configPath string) error {
 	}
 
 	for _, line := range strings.Split(string(contents), "\n") {
-		trimmed := strings.TrimSpace(line)
+		trimmed := js.Trim(line)
 		if trimmed == configFilename || trimmed == "/"+configFilename {
 			return nil
 		}

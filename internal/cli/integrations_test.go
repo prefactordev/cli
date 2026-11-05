@@ -64,3 +64,20 @@ func TestIntegrationsUpdateReplacesConfiguredIntegration(t *testing.T) {
 		t.Fatalf("request = %s %s %s", got.method, got.path, body)
 	}
 }
+
+func TestIntegrationsMatchTheTypeExactly(t *testing.T) {
+	for body, want := range map[string]string{
+		// Keys match exactly, as in JavaScript.
+		`{"summaries":[{"Integration_Type":"slack","id":"i1"}]}`: "Integration 'slack' is not configured.",
+		// A summary whose type is not a string is not a match.
+		`{"summaries":[{"integration_type":5,"id":"i1"}]}`: "Integration 'slack' is not configured.",
+		`{"summaries":{}}`: "Response is missing integration summaries.",
+	} {
+		ta := newTestApp(t)
+		server := newRecordingServer(t, body)
+		ta.addProfile(t, "default", "tok", server.URL)
+		if _, err := ta.run(t, "integrations", "retrieve", "slack"); err == nil || err.Error() != want {
+			t.Errorf("%s: err = %v, want %q", body, err, want)
+		}
+	}
+}

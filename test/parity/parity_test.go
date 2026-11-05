@@ -106,7 +106,7 @@ func (r *recorder) handler(w http.ResponseWriter, req *http.Request) {
 	r.mu.Lock()
 	r.requests = append(r.requests, recordedRequest{
 		Method: req.Method,
-		Path:   req.URL.Path,
+		Path:   req.URL.EscapedPath(),
 		Query:  req.URL.Query(),
 		Body:   body,
 		Auth:   req.Header.Get("Authorization"),
@@ -196,14 +196,23 @@ func run(t *testing.T, rec *recorder, serverURL string, argv []string) result {
 // runWithEnv is run with extra environment variables.
 func runWithEnv(t *testing.T, rec *recorder, serverURL string, argv, env []string) result {
 	t.Helper()
+	return runIn(t, rec, serverURL, argv, env, true)
+}
+
+// runIn runs argv in a new working directory, with the default profile
+// pointing at serverURL when withProfile is set.
+func runIn(t *testing.T, rec *recorder, serverURL string, argv, env []string, withProfile bool) result {
+	t.Helper()
 
 	work := t.TempDir()
 	if err := os.Mkdir(filepath.Join(work, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	profile := fmt.Sprintf(`{"default":{"api_key":"tok","base_url":%q}}`, serverURL)
-	if err := os.WriteFile(filepath.Join(work, "prefactor.json"), []byte(profile), 0o600); err != nil {
-		t.Fatal(err)
+	if withProfile {
+		profile := fmt.Sprintf(`{"default":{"api_key":"tok","base_url":%q}}`, serverURL)
+		if err := os.WriteFile(filepath.Join(work, "prefactor.json"), []byte(profile), 0o600); err != nil {
+			t.Fatal(err)
+		}
 	}
 	fixtures, _ := filepath.Abs("fixtures")
 	if err := os.Symlink(fixtures, filepath.Join(work, "fixtures")); err != nil {
@@ -622,6 +631,27 @@ func TestParityLifecycle(t *testing.T) {
 			t.Errorf("%s: stderr differs\nts:\n%s\ngo:\n%s", name, want, have)
 		}
 	}
+	// Unusual install.json files read the same in both.
+	for _, state := range []string{
+		"null",
+		`{"schemaVersion":1,"channel":"stable","requestedVersion":null,"resolvedTag":"v1.0.0","assetName":"a","platform":"linux","arch":"x64","libc":"","installRoot":"r","binPath":"b","installedAt":"t"}`,
+		`{"schemaVersion":1,"channel":"pinned","requestedVersion":"","resolvedTag":"v1.0.0","assetName":"a","platform":"linux","arch":"x64","libc":null,"installRoot":"r","binPath":"b","installedAt":"t"}`,
+	} {
+		for _, home := range []string{tsHome, goHome} {
+			if err := os.MkdirAll(filepath.Join(home, ".prefactor"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(home, ".prefactor", "install.json"), []byte(state), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+		ts := runWithEnv(t, rec, server.URL, append(append([]string{}, tsCLI...), "doctor"), env(tsHome))
+		got := runWithEnv(t, rec, server.URL, []string{goBinary, "doctor"}, env(goHome))
+		if want, have := normalize(ts.stdout, tsHome), normalize(got.stdout, goHome); want != have {
+			t.Errorf("doctor with install.json %s differs\nts:\n%s\ngo:\n%s", state, want, have)
+		}
+	}
+
 	// A TypeScript installation is one this CLI can read and update.
 	shared := t.TempDir()
 	if r := runWithEnv(t, rec, server.URL, append(append([]string{}, tsCLI...), "install", "--source-binary", source, "--channel", "latest"), env(shared)); r.exit != 0 {
@@ -660,4 +690,76 @@ func releaseArchive(t *testing.T, binary string) []byte {
 		t.Fatal(err)
 	}
 	return buf.Bytes()
+}
+
+// TestParityWithoutAProfile runs every case with no profile configured, so
+// each command reports a missing profile, or a bad option, in the same
+// order as the TypeScript CLI.
+func TestParityWithoutAProfile(t *testing.T) {
+	tsCommand := tsCommand()
+	if tsCommand == nil {
+		t.Skip("PARITY_TS_CLI is not set")
+	}
+	rec := &recorder{}
+	server := httptest.NewServer(http.HandlerFunc(rec.handler))
+	defer server.Close()
+	home := []string{"HOME=" + t.TempDir()}
+
+	for _, tc := range loadCases(t) {
+		if tc.help {
+			continue
+		}
+		name := fmt.Sprintf("%s:%d %s %s", tc.file, tc.line, strings.Join(tc.words, " "), strings.Join(tc.args, " "))
+		t.Run(name, func(t *testing.T) {
+			ts := runIn(t, rec, server.URL, append(append(append([]string{}, tsCommand...), tc.words...), tc.args...), home, false)
+			got := runIn(t, rec, server.URL, append(append([]string{goBinary}, kebabWords(tc.words)...), kebabFlags(tc.args)...), home, false)
+			if ts.exit != got.exit {
+				t.Errorf("exit: ts=%d go=%d\nts stderr: %s\ngo stderr: %s", ts.exit, got.exit, ts.stderr, got.stderr)
+			}
+			if want := kebabMessage(ts.stderr); want != got.stderr {
+				t.Errorf("stderr differs\nts (kebab):\n%s\ngo:\n%s", want, got.stderr)
+			}
+		})
+	}
+}
+
+// TestParityResponses compares how both CLIs print unusual responses: error
+// bodies that are strings, null, whitespace or not JSON, and successful
+// responses that are empty or only whitespace.
+func TestParityResponses(t *testing.T) {
+	tsCLI := tsCommand()
+	if tsCLI == nil {
+		t.Skip("PARITY_TS_CLI is not set")
+	}
+	cases := []struct {
+		name   string
+		status int
+		body   string
+	}{
+		{"error string", 400, `"oops"`},
+		{"error null", 400, `null`},
+		{"error whitespace", 400, "  "},
+		{"error empty", 404, ""},
+		{"error object", 422, `{"status":"error","errors":[{"field":"name"}]}`},
+		{"error not JSON", 400, "<html>bad</html>"},
+		{"empty", 200, ""},
+		{"whitespace", 200, "  "},
+		{"string", 200, `"done"`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tc.status)
+				_, _ = io.WriteString(w, tc.body)
+			}))
+			defer server.Close()
+			rec := &recorder{}
+			ts := run(t, rec, server.URL, append(append([]string{}, tsCLI...), "accounts", "list"))
+			got := run(t, rec, server.URL, []string{goBinary, "accounts", "list"})
+			if ts.exit != got.exit || ts.stdout != got.stdout || ts.stderr != got.stderr {
+				t.Errorf("ts: exit %d\nstdout %q\nstderr %q\ngo: exit %d\nstdout %q\nstderr %q", ts.exit, ts.stdout, ts.stderr, got.exit, got.stdout, got.stderr)
+			}
+		})
+	}
 }

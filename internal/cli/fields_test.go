@@ -230,6 +230,7 @@ func TestCommandsSendTheRequestFieldsTheirOptionsName(t *testing.T) {
 
 func TestNewOptionsCheckTheirValues(t *testing.T) {
 	ta := newTestApp(t)
+	ta.addProfile(t, "default", "tok", "http://127.0.0.1:1")
 	cases := map[string][]string{
 		"error: option '--role <role>' argument 'admin' is invalid. Allowed choices are read_only, full_access.": {"api-tokens", "update", "t1", "--role", "admin"},
 		"error: option '--sort-field <field>' argument 'name' is invalid. Allowed choices are id.":               {"agent-risk-versions", "list", "--agent-id", "a1", "--sort-field", "name"},

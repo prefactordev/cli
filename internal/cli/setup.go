@@ -12,6 +12,7 @@ import (
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/js"
 	"github.com/prefactordev/cli/internal/jsjson"
 )
 
@@ -107,7 +108,7 @@ func (s *setupRun) call(send func(ctx context.Context) (*http.Response, error)) 
 func (s *setupRun) resolveAgent(agentArg string) (string, error) {
 	cmd := s.cmd
 	if boolFlag(cmd, "create") {
-		name := strings.TrimSpace(stringFlag(cmd, "name"))
+		name := js.Trim(stringFlag(cmd, "name"))
 		if name == "" && s.app.canPick() {
 			var err error
 			if name, err = s.app.Picker.Input("Agent name", true); err != nil {
@@ -120,7 +121,7 @@ func (s *setupRun) resolveAgent(agentArg string) (string, error) {
 		if agentArg != "" {
 			return "", errors.New("prefactor setup --create does not accept an agent_id argument.")
 		}
-		return s.createAgent(name, strings.TrimSpace(stringFlag(cmd, "description")))
+		return s.createAgent(name, js.Trim(stringFlag(cmd, "description")))
 	}
 
 	if agentArg == "" && s.app.canPick() && stringFlag(cmd, "name") == "" && stringFlag(cmd, "description") == "" {
@@ -408,6 +409,32 @@ func parseJSON(raw []byte) any {
 func stringProperty(value any, key string) (string, bool) {
 	s, ok := property(value, key).(string)
 	return s, ok && s != ""
+}
+
+// templateString is value in a JavaScript template string, as `${value}`.
+func templateString(value any) string {
+	switch v := value.(type) {
+	case undefined:
+		return "undefined"
+	case nil:
+		return "null"
+	case string:
+		return v
+	case bool:
+		return fmt.Sprint(v)
+	case jsjson.Number:
+		return jsjson.FormatNumber(float64(v))
+	case []any:
+		parts := make([]string, len(v))
+		for i, item := range v {
+			if item != nil {
+				parts[i] = templateString(item)
+			}
+		}
+		return strings.Join(parts, ",")
+	default:
+		return "[object Object]"
+	}
 }
 
 // jsValue is JSON.stringify(value) in a template string.

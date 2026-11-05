@@ -5,11 +5,11 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // clearCurrentVersionSentinel is the --current-version-id value that clears
@@ -56,8 +56,8 @@ func newAgentDeploymentsCommand(app *App) *cobra.Command {
 		Short: "Create agent deployment",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			deploymentID := strings.TrimSpace(stringFlag(cmd, "id"))
-			currentVersionID := strings.TrimSpace(stringFlag(cmd, "current-version-id"))
+			deploymentID := js.Trim(stringFlag(cmd, "id"))
+			currentVersionID := js.Trim(stringFlag(cmd, "current-version-id"))
 			if err := validateOptionalPfid(deploymentID, "--id"); err != nil {
 				return err
 			}
@@ -93,11 +93,7 @@ func newAgentDeploymentsCommand(app *App) *cobra.Command {
 		Short: "Update agent deployment",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			currentVersionID := strings.TrimSpace(stringFlag(cmd, "current-version-id"))
-			if currentVersionID == "" {
-				return errors.New("No update fields provided; pass --current-version-id.")
-			}
-
+			currentVersionID := js.Trim(stringFlag(cmd, "current-version-id"))
 			var pinned any = currentVersionID
 			if currentVersionID == clearCurrentVersionSentinel {
 				pinned = nil
@@ -111,6 +107,12 @@ func newAgentDeploymentsCommand(app *App) *cobra.Command {
 		},
 	}
 	update.Flags().String("current-version-id", "", "Current agent version ID ("+clearCurrentVersionSentinel+" clears the pin)")
+	app.checkBeforeProfile(update, func(cmd *cobra.Command, _ []string) error {
+		if js.Trim(stringFlag(cmd, "current-version-id")) == "" {
+			return errors.New("No update fields provided; pass --current-version-id.")
+		}
+		return nil
+	})
 	deployments.AddCommand(update)
 
 	deployments.AddCommand(&cobra.Command{

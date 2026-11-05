@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/prefactordev/cli/internal/lifecycle"
 	"github.com/prefactordev/cli/internal/profile"
 )
 
@@ -324,17 +326,18 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
 
 func TestClientPlatformMatchesTheTypeScriptNames(t *testing.T) {
-	cases := map[[2]string]string{
-		{"darwin", "arm64"}:  "darwin-arm64",
-		{"linux", "amd64"}:   "linux-x64",
-		{"windows", "amd64"}: "windows-x64",
-		{"freebsd", "amd64"}: "",
-		{"linux", "386"}:     "",
+	detected := func(p lifecycle.Platform, err error) func() (lifecycle.Platform, error) {
+		return func() (lifecycle.Platform, error) { return p, err }
 	}
-	for in, want := range cases {
-		if got := clientPlatform(in[0], in[1]); got != want {
-			t.Errorf("clientPlatform(%s, %s) = %q, want %q", in[0], in[1], got, want)
-		}
+	if got := clientPlatform(detected(lifecycle.Platform{OS: "linux", Arch: "x64", Libc: "musl"}, nil)); got != "linux-x64" {
+		t.Errorf("linux = %q", got)
+	}
+	// An x64 build under Rosetta reports the native architecture.
+	if got := clientPlatform(detected(lifecycle.Platform{OS: "darwin", Arch: "arm64", Rosetta: true}, nil)); got != "darwin-arm64" {
+		t.Errorf("rosetta = %q", got)
+	}
+	if got := clientPlatform(detected(lifecycle.Platform{}, errors.New("Unsupported platform: freebsd"))); got != "" {
+		t.Errorf("unsupported = %q", got)
 	}
 }
 
@@ -360,5 +363,40 @@ func TestBrowserOpenCommand(t *testing.T) {
 	}
 	if got := browserOpenCommand("darwin", "file:///etc/passwd"); got != nil {
 		t.Errorf("file URL = %v, want nil", got)
+	}
+}
+
+func TestRetryAfterReadsTheHeaderAsTheTypeScriptCLIDoes(t *testing.T) {
+	now := time.Date(2026, 11, 5, 0, 0, 0, 0, time.UTC)
+	fallback := 2 * time.Second
+	for header, want := range map[string]time.Duration{
+		"":                              fallback,
+		" 5 ":                           5 * time.Second,
+		"0x10":                          16 * time.Second,
+		"1":                             fallback,
+		"soon":                          fallback,
+		"2026-11-05T00:00:30Z":          30 * time.Second,
+		"Thu, 05 Nov 2026 00:01:00 GMT": time.Minute,
+	} {
+		if got := retryAfter(header, fallback, now); got != want {
+			t.Errorf("retryAfter(%q) = %v, want %v", header, got, want)
+		}
+	}
+}
+
+func TestLoginStartKeysMatchExactly(t *testing.T) {
+	valid := `{"login_token":"l","device_code":"d","user_code":"U","verification_uri_complete":"https://x/cli/connect","verification_qr_code":"","expires_in":600,"interval":5}`
+	if _, ok := readDeviceLoginStart([]byte(valid)); !ok {
+		t.Fatal("valid start rejected")
+	}
+	for _, body := range []string{
+		strings.Replace(valid, `"login_token"`, `"LOGIN_TOKEN"`, 1),
+		strings.Replace(valid, `"interval":5`, `"interval":"5"`, 1),
+		strings.Replace(valid, `"verification_qr_code":""`, `"verification_qr_code":null`, 1),
+		`[]`,
+	} {
+		if _, ok := readDeviceLoginStart([]byte(body)); ok {
+			t.Errorf("accepted %s", body)
+		}
 	}
 }

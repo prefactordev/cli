@@ -98,6 +98,29 @@ func newRootCommand(app *App) *cobra.Command {
 // groups, session settings, every other Commander check (allowing only the
 // missing IDs a picker will supply), pickers, then @latest. When pickers may
 // not run, a missing resource ID fails with the argument or flag to pass.
+// profileFreeCommands are the top-level commands that do not call the API
+// with the selected profile.
+var profileFreeCommands = map[string]bool{
+	"login": true, "profiles": true, "version": true, "help": true,
+	"install": true, "update": true, "uninstall": true, "doctor": true,
+}
+
+// needsProfile reports whether cmd calls the API with the selected profile.
+// ping with --api-token uses that token instead.
+func needsProfile(cmd *cobra.Command) bool {
+	if !cmd.Runnable() || !cmd.HasParent() {
+		return false
+	}
+	top := cmd
+	for top.Parent().HasParent() {
+		top = top.Parent()
+	}
+	if profileFreeCommands[top.Name()] || cmd.Name() == "help" {
+		return false
+	}
+	return top.Name() != "ping" || stringFlag(cmd, "api-token") == ""
+}
+
 func (a *App) prepareRun(cmd *cobra.Command, args []string, help bool) error {
 	a.resolvedArgs = args
 
@@ -116,6 +139,18 @@ func (a *App) prepareRun(cmd *cobra.Command, args []string, help bool) error {
 	}
 	if err := checkLate(cmd, args, a.Argv, pickable); err != nil {
 		return err
+	}
+	// The TypeScript CLI loads the profile before a command's own checks,
+	// except for the few it makes first.
+	if check := a.checksBeforeProfile[cmd]; check != nil {
+		if err := check(cmd, args); err != nil {
+			return err
+		}
+	}
+	if needsProfile(cmd) {
+		if _, _, err := a.credentials(cmd); err != nil {
+			return err
+		}
 	}
 
 	if pickable.any() {

@@ -19,9 +19,11 @@ type App struct {
 	Version string
 	// ConfigPath returns the prefactor.json file to read and write.
 	ConfigPath func() (string, error)
-	// Getenv reads an environment variable.
-	Getenv func(string) string
-	Login  LoginDeps
+	// Getenv reads an environment variable. LookupEnv also says whether it
+	// is set, for the few places the TypeScript CLI keeps an empty value.
+	Getenv    func(string) string
+	LookupEnv func(string) (string, bool)
+	Login     LoginDeps
 	// StdinIsTerminal and StdoutIsTerminal report whether the streams are
 	// terminals, which decides whether the CLI may prompt.
 	StdinIsTerminal  func() bool
@@ -44,6 +46,19 @@ type App struct {
 	// dryRun stops commands at their first API call; see
 	// checkCommandOptions.
 	dryRun bool
+	// checksBeforeProfile are the checks a command makes before the
+	// profile is loaded, as the TypeScript CLI makes them; other checks
+	// come after.
+	checksBeforeProfile map[*cobra.Command]func(cmd *cobra.Command, args []string) error
+}
+
+// checkBeforeProfile registers a check cmd makes before the profile is
+// loaded.
+func (a *App) checkBeforeProfile(cmd *cobra.Command, check func(cmd *cobra.Command, args []string) error) {
+	if a.checksBeforeProfile == nil {
+		a.checksBeforeProfile = map[*cobra.Command]func(*cobra.Command, []string) error{}
+	}
+	a.checksBeforeProfile[cmd] = check
 }
 
 // DefaultApp returns an App for the running process.
@@ -58,6 +73,7 @@ func DefaultApp(version string) *App {
 			return locator.ConfigPath(), nil
 		},
 		Getenv:           os.Getenv,
+		LookupEnv:        os.LookupEnv,
 		Login:            defaultLoginDeps(),
 		StdinIsTerminal:  func() bool { return term.IsTerminal(int(os.Stdin.Fd())) },
 		StdoutIsTerminal: func() bool { return term.IsTerminal(int(os.Stdout.Fd())) },

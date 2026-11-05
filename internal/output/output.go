@@ -2,7 +2,6 @@
 package output
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,8 +36,10 @@ func Format(raw []byte) ([]byte, error) {
 	return []byte(jsjson.Stringify(value, "  ")), nil
 }
 
+// parse reads a response body as the TypeScript CLI does: only an empty
+// body is null, so one of only whitespace is not JSON.
 func parse(raw []byte) (any, error) {
-	if len(bytes.TrimSpace(raw)) == 0 {
+	if len(raw) == 0 {
 		return nil, nil
 	}
 	return jsjson.Parse(raw)

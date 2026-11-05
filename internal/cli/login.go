@@ -8,13 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -23,6 +23,9 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/prefactordev/cli/internal/js"
+	"github.com/prefactordev/cli/internal/jsjson"
+	"github.com/prefactordev/cli/internal/lifecycle"
 	"github.com/prefactordev/cli/internal/profile"
 )
 
@@ -53,7 +56,9 @@ func defaultLoginDeps() LoginDeps {
 		Now:             time.Now,
 		TerminalColumns: terminalColumns,
 		Hostname:        os.Hostname,
-		Platform:        clientPlatform(runtime.GOOS, runtime.GOARCH),
+		Platform: clientPlatform(func() (lifecycle.Platform, error) {
+			return lifecycle.DetectPlatform(os.Getenv)
+		}),
 	}
 }
 
@@ -162,7 +167,7 @@ func loginByPastingToken(out io.Writer, baseURL string, deps LoginDeps) (deviceL
 	if err != nil {
 		return deviceLoginGrant{}, err
 	}
-	if strings.TrimSpace(token) == "" {
+	if js.Trim(token) == "" {
 		return deviceLoginGrant{}, errors.New("No API token provided. Please paste a valid token.")
 	}
 
@@ -222,12 +227,46 @@ func startDeviceLogin(ctx context.Context, baseURL string, deps LoginDeps, versi
 		return nil, errors.New(startFailureMessage(errorCode(body), resp.StatusCode))
 	}
 
-	var started deviceLoginStart
-	if err := json.Unmarshal(body, &started); err != nil || !validDeviceLoginStart(started) {
+	started, ok := readDeviceLoginStart(body)
+	if !ok {
 		return nil, errors.New("Login start returned an unexpected response.")
 	}
 
 	return &started, nil
+}
+
+// readDeviceLoginStart reads a login start response as the TypeScript
+// CLI's isDeviceLoginStart checks it: exact keys, non-empty strings, a
+// string QR code and finite numbers.
+func readDeviceLoginStart(body []byte) (deviceLoginStart, bool) {
+	parsed := parseJSON(body)
+	if _, isObject := parsed.(*jsjson.Object); !isObject {
+		return deviceLoginStart{}, false
+	}
+	text := func(key string) string {
+		s, _ := property(parsed, key).(string)
+		return s
+	}
+	number := func(key string) *float64 {
+		n, ok := property(parsed, key).(jsjson.Number)
+		if !ok || math.IsInf(float64(n), 0) || math.IsNaN(float64(n)) {
+			return nil
+		}
+		f := float64(n)
+		return &f
+	}
+	started := deviceLoginStart{
+		LoginToken:              text("login_token"),
+		DeviceCode:              text("device_code"),
+		UserCode:                text("user_code"),
+		VerificationURIComplete: text("verification_uri_complete"),
+		ExpiresIn:               number("expires_in"),
+		Interval:                number("interval"),
+	}
+	if qr, ok := property(parsed, "verification_qr_code").(string); ok {
+		started.VerificationQRCode = &qr
+	}
+	return started, validDeviceLoginStart(started)
 }
 
 func pollForDeviceGrant(ctx context.Context, baseURL string, started deviceLoginStart, deps LoginDeps) (deviceLoginGrant, error) {
@@ -319,8 +358,8 @@ func resolveClientInfo(deps LoginDeps, version string) loginClientInfo {
 	if deps.Platform != "" {
 		info.Platform = truncateClientInfo(deps.Platform)
 	}
-	if host, err := deps.Hostname(); err == nil && strings.TrimSpace(host) != "" {
-		info.Hostname = truncateClientInfo(strings.TrimSpace(host))
+	if host, err := deps.Hostname(); err == nil && js.Trim(host) != "" {
+		info.Hostname = truncateClientInfo(js.Trim(host))
 	}
 	return info
 }
@@ -342,27 +381,16 @@ func truncateClientInfo(value string) string {
 	return value
 }
 
-// clientPlatform names the platform the way the TypeScript CLI does, for
-// example darwin-arm64 or linux-x64.
-func clientPlatform(goos, goarch string) string {
-	platform := goos
-	arch := goarch
-	if goarch == "amd64" {
-		arch = "x64"
-	}
-
-	switch platform {
-	case "darwin", "linux", "windows":
-	default:
+// clientPlatform names the platform as the TypeScript CLI does, from the
+// same detection the installer uses, so an x64 build under Rosetta reports
+// darwin-arm64. It is empty when the platform is not one Prefactor builds
+// for.
+func clientPlatform(detect func() (lifecycle.Platform, error)) string {
+	p, err := detect()
+	if err != nil {
 		return ""
 	}
-	switch arch {
-	case "x64", "arm64":
-	default:
-		return ""
-	}
-
-	return platform + "-" + arch
+	return p.OS + "-" + p.Arch
 }
 
 // qrCodeFits reports whether every line of the QR code fits in the terminal.
@@ -408,15 +436,40 @@ func retryAfter(header string, fallback time.Duration, now time.Time) time.Durat
 		return fallback
 	}
 
-	if seconds, err := strconv.ParseFloat(header, 64); err == nil && seconds >= 0 {
+	// As Number() and Date.parse read it in the TypeScript CLI.
+	if seconds := js.Number(header); !math.IsInf(seconds, 0) && seconds >= 0 {
 		return max(fallback, time.Duration(seconds*float64(time.Second)))
 	}
 
-	if date, err := http.ParseTime(header); err == nil {
+	if date, ok := parseDate(header); ok {
 		return max(fallback, date.Sub(now))
 	}
 
 	return fallback
+}
+
+// parseDate reads the date forms Date.parse accepts that a Retry-After
+// header may hold: HTTP dates and ISO 8601 dates, which without a time zone
+// are UTC for a date alone and local time otherwise.
+func parseDate(value string) (time.Time, bool) {
+	value = js.Trim(value)
+	if date, err := http.ParseTime(value); err == nil {
+		return date, true
+	}
+	for _, layout := range []string{time.RFC3339Nano, "2006-01-02T15:04Z07:00"} {
+		if date, err := time.Parse(layout, value); err == nil {
+			return date, true
+		}
+	}
+	if date, err := time.Parse("2006-01-02", value); err == nil {
+		return date, true
+	}
+	for _, layout := range []string{"2006-01-02T15:04:05.999999999", "2006-01-02T15:04"} {
+		if date, err := time.ParseInLocation(layout, value, time.Local); err == nil {
+			return date, true
+		}
+	}
+	return time.Time{}, false
 }
 
 func postJSON(ctx context.Context, httpClient *http.Client, target string, payload []byte) (*http.Response, error) {
@@ -482,7 +535,7 @@ func promptForToken(out io.Writer, prompt string) (string, error) {
 		if err != nil && !errors.Is(err, io.EOF) {
 			return "", err
 		}
-		return strings.TrimSpace(line), nil
+		return js.Trim(line), nil
 	}
 
 	state, err := term.MakeRaw(fd)
@@ -510,7 +563,7 @@ func promptForToken(out io.Writer, prompt string) (string, error) {
 			restore()
 			fmt.Fprintln(out)
 			if errors.Is(err, io.EOF) {
-				return strings.TrimSpace(string(input)), nil
+				return js.Trim(string(input)), nil
 			}
 			return "", err
 		}
@@ -519,7 +572,7 @@ func promptForToken(out io.Writer, prompt string) (string, error) {
 		case '\r', '\n':
 			restore()
 			fmt.Fprintln(out)
-			return strings.TrimSpace(string(input)), nil
+			return js.Trim(string(input)), nil
 		case 3: // Ctrl+C
 			restore()
 			fmt.Fprintln(out)

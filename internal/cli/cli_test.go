@@ -34,7 +34,11 @@ func newTestApp(t *testing.T) *testApp {
 		Version:    "1.2.3",
 		ConfigPath: func() (string, error) { return ta.configPath, nil },
 		Getenv:     func(key string) string { return ta.env[key] },
-		Login:      LoginDeps{},
+		LookupEnv: func(key string) (string, bool) {
+			value, ok := ta.env[key]
+			return value, ok
+		},
+		Login: LoginDeps{},
 	}
 	ta.StdinIsTerminal = func() bool { return ta.terminal }
 	ta.StdoutIsTerminal = func() bool { return ta.terminal }
@@ -163,6 +167,19 @@ func TestPingPrintsTheResponseInServerKeyOrder(t *testing.T) {
 	}
 	if server.method != http.MethodGet || server.path != "/api/v1/ping" || server.auth != "Bearer tok" {
 		t.Fatalf("request = %s %s auth=%q", server.method, server.path, server.auth)
+	}
+}
+
+func TestPingKeepsAnEmptyAPIURL(t *testing.T) {
+	for name, setup := range map[string]func(ta *testApp) []string{
+		"--api-url":         func(*testApp) []string { return []string{"--api-url", ""} },
+		"PREFACTOR_API_URL": func(ta *testApp) []string { ta.env["PREFACTOR_API_URL"] = ""; return nil },
+	} {
+		ta := newTestApp(t)
+		args := append([]string{"ping", "--api-token", "tok"}, setup(ta)...)
+		if _, err := ta.run(t, args...); err == nil || !strings.Contains(err.Error(), "invalid base URL") {
+			t.Errorf("%s: err = %v", name, err)
+		}
 	}
 }
 

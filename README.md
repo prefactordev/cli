@@ -122,6 +122,14 @@ Commands, flags, output, help and errors match the TypeScript CLI, renamed to ke
 - `install --version <version>` and `update --version <version>` install that version. The TypeScript CLI prints its own version for them instead, so a pinned install or update there does nothing.
 - `install.ps1` adds the bin directory to the user's `PATH`.
 - `setup` fails with "API token create response is missing token." when the token response has no token, where the TypeScript CLI prints `undefined` as the token and pings with it.
+- IDs in a request path are escaped, as the OpenAPI document's single path segment requires: `teams retrieve a/b` requests `/api/v1/team/a%2Fb`. Many TypeScript commands put the ID in the path as given, so `a/b`, `?` and `#` change the request there.
+- Integer options such as `--pagination-page-size`, `--pagination-offset` and `pfid generate --count` refuse values beyond the 64-bit integer range, which the API declares them as. The TypeScript CLI rounds them and sends values such as `1e+22`.
+- JSON options are sent as written, so duplicate keys, number spelling such as `1.50`, and large integers reach the API unchanged; a number too large for JSON, such as `1e400`, is an error. The TypeScript CLI parses and re-serializes them, which keeps the last duplicate, writes `1.5`, rounds large integers and turns `1e400` into `null`.
+- Base URLs must be well formed: `profiles add` and requests refuse an empty URL, surrounding spaces, `http:/host` and backslashes, which the TypeScript CLI's URL parser accepts. Both refuse a port above 65535.
+- `uninstall` also removes the empty `~/.prefactor/bin` and `~/.prefactor` directories, which the TypeScript CLI means to remove but leaves behind.
+- Request bodies list their fields in alphabetical order, and requests without a body still send `Content-Type: application/json`.
+- `login` gives up on a request that takes more than 30 seconds, and `update` on a download that takes more than 5 minutes. The TypeScript CLI waits indefinitely.
+- `update` and the install scripts download releases from `prefactordev/cli` rather than `prefactordev/typescript-sdk`.
 
 ## Development
 

@@ -64,12 +64,14 @@ func newPingCommand(app *App) *cobra.Command {
 			var err error
 
 			if token, _ := cmd.Flags().GetString("api-token"); token != "" {
+				// An empty --api-url or PREFACTOR_API_URL is kept, and
+				// fails, as in the TypeScript CLI.
 				apiURL, _ := cmd.Flags().GetString("api-url")
-				if apiURL == "" {
-					apiURL = app.Getenv("PREFACTOR_API_URL")
-				}
-				if apiURL == "" {
-					apiURL = profile.DefaultBaseURL
+				if !flagSet(cmd, "api-url") {
+					var set bool
+					if apiURL, set = app.LookupEnv("PREFACTOR_API_URL"); !set {
+						apiURL = profile.DefaultBaseURL
+					}
 				}
 				apiClient, err = client.New(apiURL, token, app.Version)
 			} else {

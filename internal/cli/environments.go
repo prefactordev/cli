@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // addEnvironmentFlags registers the environment fields other than its name.
@@ -128,7 +128,7 @@ func newEnvironmentsCommand(app *App) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			details := map[string]any{}
-			if name := stringFlag(cmd, "name"); strings.TrimSpace(name) != "" {
+			if name := stringFlag(cmd, "name"); js.Trim(name) != "" {
 				details["name"] = name
 			}
 			if err := fieldsBody(cmd, details, "purpose", "description", "external_identifier"); err != nil {

@@ -29,8 +29,12 @@ func TestFormatMatchesJSONStringify(t *testing.T) {
 }
 
 func TestFormatEmptyAndInvalidBodies(t *testing.T) {
-	if got, _ := Format([]byte("  ")); string(got) != "null" {
+	if got, _ := Format(nil); string(got) != "null" {
 		t.Errorf("empty body = %q, want null", got)
+	}
+	// Only an empty body is null; whitespace is a body that is not JSON.
+	if got, _ := Format([]byte("  ")); string(got) != `"  "` {
+		t.Errorf("whitespace body = %q", got)
 	}
 	if got, _ := Format([]byte("not json")); string(got) != `"not json"` {
 		t.Errorf("invalid body = %q", got)

@@ -17,8 +17,8 @@ const stateFilename = "install.json"
 // key order are the TypeScript CLI's, so either CLI reads the other's.
 type State struct {
 	Channel string
-	// RequestedVersion is the pinned version, or "" (null in the file).
-	RequestedVersion string
+	// RequestedVersion is the pinned version, or nil (null in the file).
+	RequestedVersion *string
 	ResolvedTag      string
 	AssetName        string
 	Platform         string
@@ -30,11 +30,12 @@ type State struct {
 	InstalledAt string
 }
 
-func nullable(s string) any {
+// nullable is a pointer to s, or nil when s is empty.
+func nullable(s string) *string {
 	if s == "" {
 		return nil
 	}
-	return s
+	return &s
 }
 
 // Object is the state in the file's key order.
@@ -42,12 +43,20 @@ func (s State) Object() *jsjson.Object {
 	o := jsjson.NewObject()
 	o.Set("schemaVersion", jsjson.Number(1))
 	o.Set("channel", s.Channel)
-	o.Set("requestedVersion", nullable(s.RequestedVersion))
+	if s.RequestedVersion != nil {
+		o.Set("requestedVersion", *s.RequestedVersion)
+	} else {
+		o.Set("requestedVersion", nil)
+	}
 	o.Set("resolvedTag", s.ResolvedTag)
 	o.Set("assetName", s.AssetName)
 	o.Set("platform", s.Platform)
 	o.Set("arch", s.Arch)
-	o.Set("libc", nullable(s.Libc))
+	if s.Libc != "" {
+		o.Set("libc", s.Libc)
+	} else {
+		o.Set("libc", nil)
+	}
 	o.Set("installRoot", s.InstallRoot)
 	o.Set("binPath", s.BinPath)
 	o.Set("installedAt", s.InstalledAt)
@@ -85,7 +94,9 @@ func ReadState(root string) (State, error) {
 		return State{}, fmt.Errorf("Unable to read install state at %s.", path)
 	}
 	parsed, err := jsjson.Parse(raw)
-	if err != nil {
+	// The TypeScript CLI fails to read a null state's fields, and reports
+	// that as unreadable.
+	if err != nil || parsed == nil {
 		return State{}, fmt.Errorf("Unable to read install state at %s.", path)
 	}
 
@@ -107,7 +118,7 @@ func ReadState(root string) (State, error) {
 
 	s := State{
 		Channel:          field("channel", false),
-		RequestedVersion: field("requestedVersion", true),
+		RequestedVersion: nil,
 		ResolvedTag:      field("resolvedTag", false),
 		AssetName:        field("assetName", false),
 		Platform:         field("platform", false),
@@ -118,6 +129,19 @@ func ReadState(root string) (State, error) {
 		InstalledAt:      field("installedAt", false),
 	}
 	if o != nil {
+		if requested, ok := o.Get("requestedVersion"); ok && requested != nil {
+			if text, isText := requested.(string); isText {
+				s.RequestedVersion = &text
+			} else {
+				valid = false
+			}
+		} else if !ok {
+			valid = false
+		}
+		// libc is glibc, musl or null; an empty string is invalid.
+		if libc, _ := o.Get("libc"); libc == "" {
+			valid = false
+		}
 		version, _ := o.Get("schemaVersion")
 		if n, ok := version.(jsjson.Number); !ok || n != 1 {
 			valid = false

@@ -5,8 +5,10 @@ package lifecycle
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 // Platform is the system a release is chosen for, named as the TypeScript
@@ -61,8 +63,13 @@ func DetectPlatform(getenv func(string) string) (Platform, error) {
 }
 
 // usesMusl reports whether the system's C library is musl, as on Alpine.
-// The CLI itself is static, but the asset name records the libc.
+// The CLI itself is static, but the asset name records the libc. It asks
+// ldd, as install.sh does, so the script and the CLI agree; without ldd it
+// looks for the musl loader.
 var usesMusl = func() bool {
+	if out, err := exec.Command("ldd", "--version").CombinedOutput(); err == nil || len(out) > 0 {
+		return strings.Contains(strings.ToLower(string(out)), "musl")
+	}
 	matches, _ := filepath.Glob("/lib/ld-musl-*.so.1")
 	return len(matches) > 0
 }

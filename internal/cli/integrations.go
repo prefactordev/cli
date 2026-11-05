@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // findIntegration lists the account's integrations and returns the ID of the
@@ -24,19 +25,15 @@ func (a *App) findIntegration(cmd *cobra.Command, integrationType string) (strin
 		return "", err
 	}
 
-	var list struct {
-		Summaries []struct {
-			ID              string `json:"id"`
-			IntegrationType string `json:"integration_type"`
-		} `json:"summaries"`
-	}
-	if err := json.Unmarshal(raw, &list); err != nil || list.Summaries == nil {
+	// summaries.find(summary => summary.integration_type === type), with
+	// the id used as the TypeScript CLI interpolates it into the path.
+	summaries, ok := property(parseJSON(raw), "summaries").([]any)
+	if !ok {
 		return "", errors.New("Response is missing integration summaries.")
 	}
-
-	for _, summary := range list.Summaries {
-		if summary.IntegrationType == integrationType {
-			return summary.ID, nil
+	for _, summary := range summaries {
+		if found, ok := property(summary, "integration_type").(string); ok && found == integrationType {
+			return templateString(property(summary, "id")), nil
 		}
 	}
 
@@ -127,14 +124,11 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			integrationType := args[0]
-			if integrationType != "slack" {
-				return errors.New("Only Slack configuration is supported.")
-			}
 
 			enabledEvents := []string{}
-			if events := stringFlag(cmd, "enabled-events"); strings.TrimSpace(events) != "" {
+			if events := stringFlag(cmd, "enabled-events"); js.Trim(events) != "" {
 				for _, event := range strings.Split(events, ",") {
-					enabledEvents = append(enabledEvents, strings.TrimSpace(event))
+					enabledEvents = append(enabledEvents, js.Trim(event))
 				}
 			}
 			config := map[string]any{
@@ -174,6 +168,12 @@ func newIntegrationsCommand(app *App) *cobra.Command {
 	update.Flags().String("webhook-url", "", "Slack incoming webhook URL (replaces the saved URL)")
 	update.Flags().String("enabled-events", "", `Comma-separated event names; use "" for no events`)
 	addChoiceFlag(update, "status", "Integration status (a new integration is active unless this is set)", "active", "paused")
+	app.checkBeforeProfile(update, func(_ *cobra.Command, args []string) error {
+		if len(args) > 0 && args[0] != "slack" {
+			return errors.New("Only Slack configuration is supported.")
+		}
+		return nil
+	})
 	_ = update.MarkFlagRequired("webhook-url")
 	_ = update.MarkFlagRequired("enabled-events")
 	integrations.AddCommand(update)

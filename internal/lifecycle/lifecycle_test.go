@@ -35,7 +35,11 @@ func newFakeEnv(t *testing.T) *fakeEnv {
 
 func (e *fakeEnv) deps(platform Platform, executable string) Deps {
 	return Deps{
-		Getenv:     func(k string) string { return e.vars[k] },
+		Getenv: func(k string) string { return e.vars[k] },
+		LookupEnv: func(k string) (string, bool) {
+			v, ok := e.vars[k]
+			return v, ok
+		},
 		Stdout:     &e.stdout,
 		Stderr:     &e.stderr,
 		HTTPClient: http.DefaultClient,
@@ -100,7 +104,7 @@ func TestAssetNamesMatchTheTypeScriptReleases(t *testing.T) {
 }
 
 func TestBuildSpecReturnsStableLatestAndPinnedURLs(t *testing.T) {
-	base, latest := ReleaseURLs(func(string) string { return "" })
+	base, latest := ReleaseURLs(func(string) (string, bool) { return "", false })
 	if base != "https://github.com/prefactordev/cli/releases/download" || latest != "https://github.com/prefactordev/cli/releases/latest/download" {
 		t.Fatalf("urls = %s, %s", base, latest)
 	}
@@ -121,8 +125,15 @@ func TestBuildSpecReturnsStableLatestAndPinnedURLs(t *testing.T) {
 	}
 
 	env := map[string]string{"PREFACTOR_RELEASE_BASE_URL": "http://127.0.0.1:9/releases/download"}
-	if _, latest := ReleaseURLs(func(k string) string { return env[k] }); latest != "http://127.0.0.1:9/releases/latest/download" {
+	lookup := func(k string) (string, bool) { v, ok := env[k]; return v, ok }
+	if _, latest := ReleaseURLs(lookup); latest != "http://127.0.0.1:9/releases/latest/download" {
 		t.Fatalf("latest = %s", latest)
+	}
+	// An empty value is kept, so the download fails rather than going to
+	// the default release repository.
+	env = map[string]string{"PREFACTOR_RELEASE_BASE_URL": ""}
+	if base, latest := ReleaseURLs(lookup); base != "" || latest != "/latest/download" {
+		t.Fatalf("urls = %q, %q", base, latest)
 	}
 }
 
@@ -186,7 +197,7 @@ func TestInstallWritesStateAndPrintsPathGuidance(t *testing.T) {
 		t.Fatalf("stdout = %q", e.stdout.String())
 	}
 	state, err = ReadState(root)
-	if err != nil || state.Channel != "pinned" || state.RequestedVersion != "v0.7.1" || state.AssetName != "custom.tar.gz" {
+	if err != nil || state.Channel != "pinned" || state.RequestedVersion == nil || *state.RequestedVersion != "v0.7.1" || state.AssetName != "custom.tar.gz" {
 		t.Fatalf("state = %+v, %v", state, err)
 	}
 }
@@ -286,6 +297,7 @@ func TestReadStateRejectsInvalidState(t *testing.T) {
 		`{"schemaVersion":2,"channel":"stable","requestedVersion":null,"resolvedTag":"x","assetName":"a","platform":"linux","arch":"x64","libc":"glibc","installRoot":"r","binPath":"b","installedAt":"t"}`,
 		`{"schemaVersion":1,"channel":"stable","resolvedTag":"x","assetName":"a","platform":"linux","arch":"x64","libc":"glibc","installRoot":"r","binPath":"b","installedAt":"t"}`,
 		`[]`,
+		`{"schemaVersion":1,"channel":"stable","requestedVersion":null,"resolvedTag":"x","assetName":"a","platform":"linux","arch":"x64","libc":"","installRoot":"r","binPath":"b","installedAt":"t"}`,
 	} {
 		if err := os.WriteFile(filepath.Join(root, "install.json"), []byte(raw), 0o644); err != nil {
 			t.Fatal(err)
@@ -294,11 +306,21 @@ func TestReadStateRejectsInvalidState(t *testing.T) {
 			t.Errorf("%s: err = %v", raw, err)
 		}
 	}
-	if err := os.WriteFile(filepath.Join(root, "install.json"), []byte("{"), 0o644); err != nil {
+	for _, unreadable := range []string{"{", "null"} {
+		if err := os.WriteFile(filepath.Join(root, "install.json"), []byte(unreadable), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := ReadState(root); err == nil || !strings.HasPrefix(err.Error(), "Unable to read install state") {
+			t.Fatalf("%s: err = %v", unreadable, err)
+		}
+	}
+
+	// An empty requested version is kept, unlike null.
+	if err := os.WriteFile(filepath.Join(root, "install.json"), []byte(`{"schemaVersion":1,"channel":"stable","requestedVersion":"","resolvedTag":"x","assetName":"a","platform":"linux","arch":"x64","libc":null,"installRoot":"r","binPath":"b","installedAt":"t"}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ReadState(root); err == nil || !strings.HasPrefix(err.Error(), "Unable to read install state") {
-		t.Fatalf("err = %v", err)
+	if state, err := ReadState(root); err != nil || state.RequestedVersion == nil || *state.RequestedVersion != "" {
+		t.Fatalf("state = %+v, %v", state, err)
 	}
 }
 

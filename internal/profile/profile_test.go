@@ -205,10 +205,40 @@ func TestSymlinkedBinaryUsesTheRealInstallRoot(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resolved := resolveExecutable(link)
+	resolved := realPath(link)
 	got := Locator{WorkingDir: t.TempDir(), ExecutablePath: resolved}.ConfigPath()
 	want, _ := filepath.EvalSymlinks(filepath.Join(dir, "real"))
 	if got != filepath.Join(want, "prefactor.json") {
 		t.Fatalf("ConfigPath = %q, want the real install root %q", got, want)
+	}
+}
+
+func TestASymlinkedWorkingDirectoryFindsTheRealRepository(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(repo, "sub"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(repo, "prefactor.json"), []byte("{}"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "link")
+	if err := os.Symlink(filepath.Join(repo, "sub"), link); err != nil {
+		t.Fatal(err)
+	}
+	// The shell's $PWD keeps the symlink, which os.Getwd reports.
+	t.Chdir(link)
+	t.Setenv("PWD", link)
+
+	l, err := DefaultLocator()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, _ := filepath.EvalSymlinks(filepath.Join(repo, "prefactor.json"))
+	if got := l.ConfigPath(); got != want {
+		t.Fatalf("ConfigPath = %s, want %s", got, want)
 	}
 }

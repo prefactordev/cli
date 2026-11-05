@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -39,16 +38,23 @@ func printError(err error) {
 	}
 
 	var httpErr *client.HTTPError
-	if !errors.As(err, &httpErr) || len(bytes.TrimSpace(httpErr.Body)) == 0 {
+	if !errors.As(err, &httpErr) || len(httpErr.Body) == 0 {
 		return
 	}
 
-	// The TypeScript CLI prints a body that is not JSON as text, and a JSON
-	// body as JSON.stringify(body, null, 2).
-	if _, err := jsjson.Parse(httpErr.Body); err != nil {
+	// The TypeScript CLI prints a body that is not JSON, or is a JSON
+	// string, as text, prints nothing for a JSON null, and prints other JSON
+	// as JSON.stringify(body, null, 2).
+	parsed, err := jsjson.Parse(httpErr.Body)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, string(httpErr.Body))
 		return
 	}
-
-	_ = output.JSON(os.Stderr, httpErr.Body)
+	switch body := parsed.(type) {
+	case nil:
+	case string:
+		fmt.Fprintln(os.Stderr, body)
+	default:
+		_ = output.JSON(os.Stderr, httpErr.Body)
+	}
 }

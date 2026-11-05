@@ -18,6 +18,7 @@ import (
 
 	"github.com/prefactordev/cli/internal/api"
 	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/js"
 )
 
 const maxJSONOptionFileSize = 1024 * 1024
@@ -284,7 +285,7 @@ func parsePaginationOffset(value string) (int, error) {
 // parsePositiveInt matches the TypeScript CLI's parsePositiveInt, which uses
 // parseInt and so accepts a leading integer such as "3abc".
 func parsePositiveInt(value string) (int, error) {
-	trimmed := strings.TrimLeft(value, " \t\n\r")
+	trimmed := js.TrimStart(value)
 	end := 0
 	for end < len(trimmed) && (trimmed[end] >= '0' && trimmed[end] <= '9' || (end == 0 && (trimmed[end] == '-' || trimmed[end] == '+'))) {
 		end++
@@ -332,7 +333,7 @@ func optionalPfid(cmd *cobra.Command, body map[string]any, flag, field string) e
 func parseIDList(value, optionName string) ([]string, error) {
 	var ids []string
 	for _, part := range strings.Split(value, ",") {
-		if id := strings.TrimSpace(part); id != "" {
+		if id := js.Trim(part); id != "" {
 			ids = append(ids, id)
 		}
 	}
@@ -360,8 +361,8 @@ func validateTokenScope(scope string) error {
 // validateTokenCreateOptions checks the agent and environment flags match the
 // token scope.
 func validateTokenCreateOptions(tokenScope, agentID, environmentID string) error {
-	hasAgentID := strings.TrimSpace(agentID) != ""
-	hasEnvironmentID := strings.TrimSpace(environmentID) != ""
+	hasAgentID := js.Trim(agentID) != ""
+	hasEnvironmentID := js.Trim(environmentID) != ""
 
 	switch tokenScope {
 	case "account":
@@ -439,16 +440,7 @@ func payloadSchemaOptions(cmd *cobra.Command) (map[string]json.RawMessage, error
 // printDocumentContent prints a retrieve response's details.content without
 // the JSON envelope.
 func printDocumentContent(cmd *cobra.Command, raw []byte) error {
-	var result struct {
-		Details struct {
-			Content any `json:"content"`
-		} `json:"details"`
-	}
-	if err := json.Unmarshal(raw, &result); err != nil {
-		return errors.New("Response is missing document content.")
-	}
-
-	content, ok := result.Details.Content.(string)
+	content, ok := property(property(parseJSON(raw), "details"), "content").(string)
 	if !ok {
 		return errors.New("Response is missing document content.")
 	}

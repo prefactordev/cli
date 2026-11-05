@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // DefaultReleaseBaseURL is where release assets are downloaded from:
@@ -36,7 +38,7 @@ var semver = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
 
 // NormalizePinnedVersion accepts 1.2.3 or v1.2.3 and returns v1.2.3.
 func NormalizePinnedVersion(version string) (string, error) {
-	trimmed := strings.TrimSpace(version)
+	trimmed := js.Trim(version)
 	if trimmed == "" {
 		return "", errors.New("Version must not be empty.")
 	}
@@ -64,14 +66,13 @@ func AssetName(p Platform) string {
 
 // ReleaseURLs returns the base URL for tagged downloads and the one for the
 // newest stable release, from PREFACTOR_RELEASE_BASE_URL and
-// PREFACTOR_RELEASE_LATEST_BASE_URL when set.
-func ReleaseURLs(getenv func(string) string) (base, latest string) {
-	base = getenv("PREFACTOR_RELEASE_BASE_URL")
-	if base == "" {
+// PREFACTOR_RELEASE_LATEST_BASE_URL when set, even to "".
+func ReleaseURLs(lookupEnv func(string) (string, bool)) (base, latest string) {
+	base, set := lookupEnv("PREFACTOR_RELEASE_BASE_URL")
+	if !set {
 		base = DefaultReleaseBaseURL
 	}
-	latest = getenv("PREFACTOR_RELEASE_LATEST_BASE_URL")
-	if latest == "" {
+	if latest, set = lookupEnv("PREFACTOR_RELEASE_LATEST_BASE_URL"); !set {
 		latest = strings.TrimSuffix(base, "/download") + "/latest/download"
 	}
 	return base, latest

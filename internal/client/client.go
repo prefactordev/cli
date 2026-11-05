@@ -12,6 +12,7 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/prefactordev/cli/internal/api"
@@ -96,11 +97,21 @@ func ReadJSON(resp *http.Response, err error) ([]byte, error) {
 
 func originOf(baseURL string) (string, error) {
 	parsed, err := url.Parse(baseURL)
-	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" || !ValidPort(parsed.Port()) {
 		return "", fmt.Errorf("invalid base URL %q", baseURL)
 	}
 
 	return parsed.Scheme + "://" + parsed.Host, nil
+}
+
+// ValidPort reports whether port, which may be empty, is one a URL can
+// have, as the WHATWG URL parser the TypeScript CLI uses checks it.
+func ValidPort(port string) bool {
+	if port == "" {
+		return true
+	}
+	n, err := strconv.Atoi(port)
+	return err == nil && n >= 0 && n <= 65535
 }
 
 // retryingDoer retries 429 and 5xx responses and network errors with

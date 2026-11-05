@@ -4,12 +4,12 @@ import (
 	"context"
 	"net/http"
 	"strconv"
-	"strings"
 	"unicode/utf16"
 
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/js"
 	"github.com/prefactordev/cli/internal/jsjson"
 )
 
@@ -55,8 +55,8 @@ func newAPITokensCommand(app *App) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			tokenScope := stringFlag(cmd, "token-scope")
-			agentID := strings.TrimSpace(stringFlag(cmd, "agent-id"))
-			environmentID := strings.TrimSpace(stringFlag(cmd, "environment-id"))
+			agentID := js.Trim(stringFlag(cmd, "agent-id"))
+			environmentID := js.Trim(stringFlag(cmd, "environment-id"))
 
 			if err := validateTokenScope(tokenScope); err != nil {
 				return err

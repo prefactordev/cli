@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/prefactordev/cli/internal/client"
+	"github.com/prefactordev/cli/internal/js"
 	"github.com/prefactordev/cli/internal/profile"
 )
 
@@ -86,7 +87,7 @@ func newProfilesAddCommand(app *App) *cobra.Command {
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			apiToken, _ := cmd.Flags().GetString("api-token")
-			if strings.TrimSpace(apiToken) == "" {
+			if js.Trim(apiToken) == "" {
 				return errors.New("Missing API token. Specify --api-token <apiToken>.")
 			}
 
@@ -162,7 +163,7 @@ func newProfilesRemoveCommand(app *App) *cobra.Command {
 // accepts for a base URL: an absolute URL with a scheme.
 func validateBaseURL(baseURL string) error {
 	parsed, err := url.Parse(baseURL)
-	if err != nil || parsed.Scheme == "" || (parsed.Host == "" && parsed.Opaque == "") {
+	if err != nil || parsed.Scheme == "" || (parsed.Host == "" && parsed.Opaque == "") || !client.ValidPort(parsed.Port()) {
 		return errors.New("--baseUrl must be a valid URL.")
 	}
 

@@ -5,11 +5,11 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/prefactordev/cli/internal/api"
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // newLlmProvidersCommand registers commands for the language model providers
@@ -71,7 +71,7 @@ func newLlmProvidersCommand(app *App) *cobra.Command {
 			details := map[string]any{
 				"name":     stringFlag(cmd, "name"),
 				"provider": provider,
-				"api_key":  strings.TrimSpace(apiKey),
+				"api_key":  js.Trim(apiKey),
 			}
 			if baseURL := stringFlag(cmd, "api-base-url"); baseURL != "" {
 				details["api_base_url"] = baseURL
@@ -119,7 +119,7 @@ func newLlmProvidersCommand(app *App) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				details["api_key"] = strings.TrimSpace(apiKey)
+				details["api_key"] = js.Trim(apiKey)
 			}
 			if flagSet(cmd, "api-base-url") {
 				details["api_base_url"] = stringFlag(cmd, "api-base-url")

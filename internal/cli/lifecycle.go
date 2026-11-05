@@ -31,6 +31,7 @@ func (a *App) lifecycleDeps(cmd *cobra.Command) lifecycle.Deps {
 	}
 	d := lifecycle.DefaultDeps(out, cmd.ErrOrStderr())
 	d.Getenv = a.Getenv
+	d.LookupEnv = a.LookupEnv
 	return d
 }
 

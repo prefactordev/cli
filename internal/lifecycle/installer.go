@@ -16,12 +16,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prefactordev/cli/internal/js"
 )
 
 // Deps are what the lifecycle commands use from the process, so tests can
 // replace them.
 type Deps struct {
 	Getenv func(string) string
+	// LookupEnv also says whether a variable is set: an empty release URL
+	// is kept, and fails, as in the TypeScript CLI.
+	LookupEnv func(string) (string, bool)
 	// Stdout receives the messages the TypeScript CLI prints with
 	// console.log. Stderr receives the child installer's errors.
 	Stdout, Stderr io.Writer
@@ -44,6 +49,7 @@ type Deps struct {
 func DefaultDeps(stdout, stderr io.Writer) Deps {
 	return Deps{
 		Getenv:         os.Getenv,
+		LookupEnv:      os.LookupEnv,
 		Stdout:         stdout,
 		Stderr:         stderr,
 		HTTPClient:     &http.Client{Timeout: 5 * time.Minute},
@@ -144,7 +150,7 @@ func Install(opts InstallOptions, version string, d Deps) (State, error) {
 	if err != nil {
 		return State{}, err
 	}
-	base, latest := ReleaseURLs(d.Getenv)
+	base, latest := ReleaseURLs(d.LookupEnv)
 	spec, err := BuildSpec(platform, opts.Channel, opts.Version, base, latest)
 	if err != nil {
 		return State{}, err
@@ -190,7 +196,7 @@ func Install(opts InstallOptions, version string, d Deps) (State, error) {
 	}
 	state := State{
 		Channel:          spec.Channel,
-		RequestedVersion: spec.RequestedVersion,
+		RequestedVersion: nullable(spec.RequestedVersion),
 		ResolvedTag:      resolvedTag,
 		AssetName:        assetName,
 		Platform:         platform.OS,
@@ -292,12 +298,14 @@ func Update(opts UpdateOptions, d Deps) (string, error) {
 	channel, version := opts.Channel, opts.Version
 	if channel == "" && version == "" {
 		if state.Channel == ChannelPinned {
-			version = state.RequestedVersion
+			if state.RequestedVersion != nil {
+				version = *state.RequestedVersion
+			}
 		} else {
 			channel = state.Channel
 		}
 	}
-	base, latest := ReleaseURLs(d.Getenv)
+	base, latest := ReleaseURLs(d.LookupEnv)
 	spec, err := BuildSpec(platform, channel, version, base, latest)
 	if err != nil {
 		return "", err
@@ -411,7 +419,7 @@ func verifyChecksum(client *http.Client, path, assetName, url string) (string, e
 
 	expected := ""
 	for _, line := range regexp.MustCompile(`\r?\n`).Split(string(manifest), -1) {
-		if m := checksumLine.FindStringSubmatch(strings.TrimSpace(line)); m != nil && m[2] == assetName {
+		if m := checksumLine.FindStringSubmatch(js.Trim(line)); m != nil && m[2] == assetName {
 			expected = strings.ToLower(m[1])
 			break
 		}
@@ -604,9 +612,9 @@ func Doctor(d Deps) (Report, error) {
 	if _, err := os.Stat(state.BinPath); err == nil {
 		exists = "yes"
 	}
-	requested := state.RequestedVersion
-	if requested == "" {
-		requested = "null"
+	requested := "null"
+	if state.RequestedVersion != nil {
+		requested = *state.RequestedVersion
 	}
 	r.add("installState", "present")
 	r.add("channel", state.Channel)

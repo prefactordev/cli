@@ -12,9 +12,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/prefactordev/cli/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/prefactordev/cli/internal/client"
 )
 
 // fakePicker records each prompt and answers with the choice whose label
