@@ -144,6 +144,8 @@ go generate ./...
 
 Generation first runs `tools/specnormalize`, which writes `api/openapi.normalized.json`. The p2 document describes most request bodies as `"in": "body"` parameters, which OpenAPI 3.0 does not allow, so the normaliser moves them into a JSON `requestBody` before `oapi-codegen` runs. CI fails when the committed generated files differ from a fresh `go generate`.
 
+`test/parity/contract_test.go` checks the requests this CLI sends against the document: `test/parity/contract-cases/` has a valid invocation of every operation, and each request's operation, parameters, body fields and types must match it. It runs with `go test ./...`.
+
 `api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it, and when a command has no option for a field of its operation's request (`internal/cli/request_fields_test.go` lists the few exceptions).
 
 ### Parity with the TypeScript CLI

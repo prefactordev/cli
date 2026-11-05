@@ -1,0 +1,296 @@
+# One valid invocation per operation in api/coverage.yaml, in this CLI's names.
+
+# Action.Account.Update
+accounts update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --onboarding-agent-created-at 2026-01-01T00:00:00Z --onboarding-cli-connected-at 2026-01-01T00:00:00Z --organisation-name x --purpose business --website x
+# Action.AccountIntegration.Create
+empty: integrations update | slack --webhook-url https://hooks.example/x --enabled-events agent_alert_raised --status paused
+# Action.AccountIntegration.Delete
+integrations delete | slack
+# Action.AccountIntegration.Test
+integrations test | slack
+# Action.AccountIntegration.Update
+integrations update | slack --webhook-url https://hooks.example/x --enabled-events '' --status active
+# Action.AdminUser.Update
+admin-users update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --eval-familiarity new --job-title x --name x --profile-completed-at 2026-01-01T00:00:00Z
+# Action.AdminUser.UpdateRole
+admin-users update-role | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --role read_only
+# Action.AdminUserInvite.Create
+admin-user-invites create | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --email x --role read_only
+# Action.AdminUserInvite.Resend
+admin-user-invites resend | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AdminUserInvite.Revoke
+admin-user-invites revoke | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Agent.Create
+agents create | --description x --execution-mode hosted --external-identifier x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --owner-person-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --risk-profile-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --role standard --team-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Agent.Delete
+agents delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Agent.Reinstate
+agents reinstate | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Agent.Retire
+agents retire | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Agent.Update
+agents update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --name x --owner-person-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --risk-profile-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --team-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentAssociation.Create
+agent-associations create | --association-type judge --from-agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --to-agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --trigger on_demand
+# Action.AgentAssociation.Delete
+agent-associations delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentAssociation.Update
+agent-associations update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --trigger on_demand
+# Action.AgentDeployment.Create
+agent-deployments create | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --current-version-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentDeployment.Delete
+agent-deployments delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentDeployment.Promote
+agent-deployments promote | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentDeployment.Update
+agent-deployments update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --current-version-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentInstance.Create
+agent-instances create | --agent-version-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier run-1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --params-payload '{"q":1}' --purpose live --status pending --no-update-current-version
+# Action.AgentInstance.DiscardSensitive
+agent-instances discard-sensitive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentInstance.Finish
+agent-instances finish | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --result-payload '{}' --status complete --timestamp 2026-01-01T00:00:00Z
+# Action.AgentInstance.Judge
+judges score | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --judge-agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentInstance.Prepare
+agent-instances prepare | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --params-payload '{}'
+# Action.AgentInstance.RecordQuality
+agent-instances record-quality | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --payload '{}'
+# Action.AgentInstance.Register
+agent-instances register | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --agent-version-external-identifier v1 --agent-version-name V1 --agent-version-description First --agent-version-runtime-environment '{"os":"linux"}' --agent-schema-version-external-identifier s1 --span-schemas '{"agent:step":{"type":"object"}}' --span-result-schemas '{"agent:step":{"type":"object"}}' --instance-params-payload-schema '{"schema":{"type":"object"}}' --instance-result-payload-schema '{"schema":{"type":"object"}}' --instance-metadata-schema '{"schema":{"type":"object"}}' --alert-schemas '[]' --quality-schemas '[]' --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier run-1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --metadata '{}' --params-payload '{}' --purpose live --update-current-version
+# Action.AgentInstance.SendMessage
+agent-instances send-message | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --message x
+# Action.AgentInstance.Start
+agent-instances start | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --timestamp 2026-01-01T00:00:00Z
+# Action.AgentInstance.Terminate
+agent-instances terminate | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --reason x --timestamp 2026-01-01T00:00:00Z
+# Action.AgentKnowledgebaseLink.Create
+agent-knowledgebase-links create | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --knowledgebase-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentKnowledgebaseLink.Delete
+agent-knowledgebase-links delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentSchemaVersion.Create
+agent-schema-versions create | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier s1 --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --span-schemas '{"agent:step":{"type":"object"}}' --span-result-schemas '{"agent:step":{"type":"object"}}' --instance-metadata-schema '{"schema":{"type":"object"}}' --instance-params-payload-schema '{"schema":{"type":"object"}}' --instance-result-payload-schema '{"schema":{"type":"object"}}' --alert-schemas '[]' --quality-schemas '[]'
+agent-schema-versions create | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier s2 --span-type-schemas '[{"name":"agent:step","params_schema":{"type":"object"}}]'
+# Action.AgentSpan.Create
+agent-spans create | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --finished-at 2026-01-01T00:00:00Z --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --parent-span-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --payload '{}' --result-payload '{}' --schema-name x --sensitive-encoding --started-at 2026-01-01T00:00:00Z --status active
+# Action.AgentSpan.DiscardSensitive
+agent-spans discard-sensitive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.AgentSpan.Finish
+agent-spans finish | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --result-payload '{}' --sensitive-encoding --status complete --timestamp 2026-01-01T00:00:00Z
+# Action.AgentVersion.Create
+agent-versions create | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --agent-schema-version-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --execution-mode hosted --external-identifier x --hosted-configuration '{"llm_provider_model_id": "x", "mode": "single_turn", "system_prompt": "x"}' --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --runtime-environment '{}'
+# Action.AgentVersion.CreateHostedJudge
+judges create-version | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --criterion x --external-identifier x --hosted-llm-provider-model-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --system-prompt-template x
+# Action.Alert.Clear
+alerts clear | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --cleared-at 2026-01-01T00:00:00Z --name x --payload '{}' --payload-sensitive-encoding --severity critical
+# Action.Alert.Raise
+alerts raise | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --payload '{}' --payload-sensitive-encoding --raised-at 2026-01-01T00:00:00Z --severity critical
+# Action.ApiToken.Activate
+api-tokens activate | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.ApiToken.Create
+api-tokens create | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --expires-at 2026-01-01T00:00:00Z --role read_only --token-scope account
+api-tokens create | --token-scope agent_deployment --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.ApiToken.Delete
+api-tokens delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.ApiToken.Revoke
+api-tokens revoke | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.ApiToken.Suspend
+api-tokens suspend | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.ApiToken.Update
+api-tokens update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --role read_only
+# Action.Environment.Create
+environments create | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --external-identifier x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --purpose development
+# Action.Environment.Delete
+environments delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Environment.Update
+environments update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --external-identifier x --name x --purpose development
+# Action.Knowledgebase.Archive
+knowledgebases archive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Knowledgebase.Create
+knowledgebases create | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x
+# Action.Knowledgebase.Delete
+knowledgebases delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Knowledgebase.Unarchive
+knowledgebases unarchive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Knowledgebase.Update
+knowledgebases update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --name x
+# Action.KnowledgebaseDocument.Archive
+knowledgebase-documents archive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --base-revision-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.KnowledgebaseDocument.Create
+knowledgebase-documents create | --content x --content-type text/markdown --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --knowledgebase-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --path x
+# Action.KnowledgebaseDocument.Delete
+knowledgebase-documents delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.KnowledgebaseDocument.Rename
+knowledgebase-documents rename | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --base-revision-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --path x
+# Action.KnowledgebaseDocument.Unarchive
+knowledgebase-documents unarchive | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --base-revision-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --path x
+# Action.KnowledgebaseDocument.Update
+knowledgebase-documents update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --base-revision-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --content x --content-type text/markdown
+# Action.LlmProvider.Create
+llm-providers create | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --api-base-url x --api-key x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --provider anthropic
+# Action.LlmProvider.Delete
+llm-providers delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.LlmProvider.Update
+llm-providers update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --api-base-url x --api-key x --name x
+# Action.LlmProviderModel.Create
+llm-provider-models create | --api-name x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --llm-provider-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --models-dev-model-name x --models-dev-provider x --name x
+# Action.LlmProviderModel.Delete
+llm-provider-models delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.LlmProviderModel.Update
+llm-provider-models update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --api-name x --models-dev-model-name x --models-dev-provider x --name x
+# Action.Person.Create
+people create | --email x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --team-ids '[]' --title x
+# Action.Person.Delete
+people delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Person.Update
+people update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --email x --name x --team-ids '[]' --title x
+# Action.Pfid.Generate
+pfid generate | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --count 1
+# Action.RiskProfile.Create
+risk-profiles create | --description x --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x --ruleset '{"action_multipliers": {"create_data": 1, "destroy_data": 1, "external_communication": 1, "financial_transactions": 1, "read_data": 1, "update_data": 1}, "category_weights": {"authentication_and_secrets": 1, "behavioural_and_inferred": 1, "contact_information": 1, "criminal_justice": 1, "financial_information": 1, "gdpr_biometric_for_identification": 1, "gdpr_genetic_data": 1, "gdpr_political_opinions": 1, "gdpr_racial_or_ethnic_origin": 1, "gdpr_religious_or_philosophical_beliefs": 1, "gdpr_sex_life_or_sexual_orientation": 1, "gdpr_trade_union_membership": 1, "health_and_medical": 1, "location_and_tracking": 1, "minors_data": 1, "organisational_confidential": 1, "personal_identifiers": 1}, "thresholds": {"critical": 1, "high": 1, "medium": 1}}'
+# Action.RiskProfile.Delete
+risk-profiles delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.RiskProfile.Update
+risk-profiles update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --description x --name x --ruleset '{"action_multipliers": {"create_data": 1, "destroy_data": 1, "external_communication": 1, "financial_transactions": 1, "read_data": 1, "update_data": 1}, "category_weights": {"authentication_and_secrets": 1, "behavioural_and_inferred": 1, "contact_information": 1, "criminal_justice": 1, "financial_information": 1, "gdpr_biometric_for_identification": 1, "gdpr_genetic_data": 1, "gdpr_political_opinions": 1, "gdpr_racial_or_ethnic_origin": 1, "gdpr_religious_or_philosophical_beliefs": 1, "gdpr_sex_life_or_sexual_orientation": 1, "gdpr_trade_union_membership": 1, "health_and_medical": 1, "location_and_tracking": 1, "minors_data": 1, "organisational_confidential": 1, "personal_identifiers": 1}, "thresholds": {"critical": 1, "high": 1, "medium": 1}}'
+# Action.Team.Create
+teams create | --id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x
+# Action.Team.Delete
+teams delete | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Action.Team.Update
+teams update | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --name x
+# Action.Utils.ProcessSensitivePayload
+utils process-sensitive-payload | --payload '{}' --schema '{}'
+# Action.Utils.RenderLiquidTemplate
+utils render-liquid-template | --samples '[{"payload": {}}]' --template x
+# Action.Utils.ValidateSchema
+utils validate-schema | --payload '{}' --schema '{}'
+# Bulk.Execute
+bulk execute | --items '[{"_type": "x", "idempotency_key": "xxxxxxxx"}]'
+# Query.Account.GetDetails
+accounts retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Account.List
+accounts list | --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AccountIntegration.GetDetails
+integrations retrieve | slack
+# Query.AccountIntegration.List
+integrations list | 
+# Query.AdminUser.GetDetails
+admin-users retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AdminUser.List
+admin-users list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AdminUserInvite.GetDetails
+admin-user-invites retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AdminUserInvite.List
+admin-user-invites list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.Agent.GetDetailsById
+agents retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --include-counts --include-risk-rollup --instances-active-during-start-at 2026-01-01T00:00:00Z --instances-active-during-finish-at 2026-01-01T00:00:00Z
+# Query.Agent.GetDetailsByLookup
+agents show | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier x --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --include-counts --include-risk-rollup --instances-active-during-start-at 2026-01-01T00:00:00Z --instances-active-during-finish-at 2026-01-01T00:00:00Z
+# Query.Agent.List
+agents list | --risk-profile-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --team-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --owner-person-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --role standard --agent-ids 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --instances-active-during-start-at 2026-01-01T00:00:00Z --instances-active-during-finish-at 2026-01-01T00:00:00Z --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentAssociation.GetDetails
+agent-associations retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentAssociation.ListFrom
+agent-associations list-from | --agent-ids 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentAssociation.ListTo
+agent-associations list-to | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentDeployment.GetDetails
+agent-deployments retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentDeployment.List
+agent-deployments list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentDeployment.ListPromotions
+agent-deployments list-promotions | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentInstance.GetAgentContext
+agent-instances agent-context | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --include-risk-level
+# Query.AgentInstance.GetDetailsById
+agent-instances retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --include-counts --include-costs --include-risk-score --include-alert-count --include-judges --time-range-start-at 2026-01-01T00:00:00Z --time-range-finish-at 2026-01-01T00:00:00Z
+# Query.AgentInstance.GetDetailsByLookup
+agent-instances show | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier x --include-counts --include-costs --include-risk-score --include-alert-count --include-judges --time-range-start-at 2026-01-01T00:00:00Z --time-range-finish-at 2026-01-01T00:00:00Z
+# Query.AgentInstance.List
+agent-instances list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --agent-version-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --active-during-start-at 2026-01-01T00:00:00Z --active-during-finish-at 2026-01-01T00:00:00Z --sort-field id --sort-direction desc --pagination-page-size 1 --pagination-page-with-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --include-risk-score --include-alert-count --statuses active,complete
+# Query.AgentInstanceAssociation.GetDetails
+agent-instance-associations retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentInstanceAssociation.ListFrom
+agent-instance-associations list-from | --agent-instance-ids 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentInstanceAssociation.ListTo
+agent-instance-associations list-to | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentKnowledgebaseLink.GetDetails
+agent-knowledgebase-links retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentKnowledgebaseLink.List
+agent-knowledgebase-links list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --knowledgebase-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentRiskVersion.GetDetails
+agent-risk-versions retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentRiskVersion.List
+agent-risk-versions list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentSchemaVersion.GetDetails
+agent-schema-versions retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentSchemaVersion.List
+agent-schema-versions list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentSpan.GetDetails
+agent-spans retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --redacted
+# Query.AgentSpan.List
+agent-spans list | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --start-time x --end-time x --purpose activity --alert-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1 --include-summaries --include-risk-level --redacted
+# Query.AgentVersion.GetDetails
+agent-versions retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.AgentVersion.List
+agent-versions list | --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.AgentVersion.ListJudgeTemplates
+judges templates | 
+# Query.Alert.Count
+alerts count | --status raised --severity critical --active-during-start-at 2026-01-01T00:00:00Z --active-during-finish-at 2026-01-01T00:00:00Z
+# Query.Alert.GetDetails
+alerts retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Alert.List
+alerts list | --agent-instance-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --agent-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --status raised --severity critical --name x --active-during-start-at 2026-01-01T00:00:00Z --active-during-finish-at 2026-01-01T00:00:00Z --sorting -id --pagination-offset 1 --pagination-page-size 1
+# Query.ApiToken.GetDetails
+api-tokens retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.ApiToken.List
+api-tokens list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.Environment.GetDetailsById
+environments retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Environment.GetDetailsByLookup
+environments show | --environment-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --external-identifier x
+# Query.Environment.List
+environments list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.Knowledgebase.GetDetails
+knowledgebases retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Knowledgebase.List
+knowledgebases list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --status active --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.KnowledgebaseDocument.GetDetails
+knowledgebase-documents retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.KnowledgebaseDocument.List
+knowledgebase-documents list | --knowledgebase-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --path-prefix x --status active --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.KnowledgebaseDocumentRevision.GetDetails
+knowledgebase-document-revisions retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.KnowledgebaseDocumentRevision.List
+knowledgebase-document-revisions list | --knowledgebase-document-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --pagination-offset 1 --pagination-page-size 1
+# Query.KnowledgebaseRevision.GetDetails
+knowledgebase-revisions retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.KnowledgebaseRevision.List
+knowledgebase-revisions list | --knowledgebase-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --pagination-offset 1 --pagination-page-size 1
+# Query.KnowledgebaseRevision.ListDocuments
+knowledgebase-revisions list-documents | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --path-prefix x --pagination-offset 1 --pagination-page-size 1
+# Query.LlmProvider.GetDetails
+llm-providers retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.LlmProvider.List
+llm-providers list | --account-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.LlmProviderModel.GetDetails
+llm-provider-models retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.LlmProviderModel.List
+llm-provider-models list | --llm-provider-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sort-field id --sort-direction desc --pagination-offset 1 --pagination-page-size 1
+# Query.Person.GetDetails
+people retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Person.List
+people list | --team-id 01m6jcdypz3tq23qmke2ckg5jpt7k0fg --sorting -id --pagination-offset 1 --pagination-page-size 1
+# Query.Ping.Get
+ping | 
+# Query.RiskProfile.GetDetails
+risk-profiles retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.RiskProfile.GetTemplateRuleset
+risk-profiles template | --template-name x
+# Query.RiskProfile.List
+risk-profiles list | --sorting -id --pagination-offset 1 --pagination-page-size 1
+# Query.Team.GetDetails
+teams retrieve | 01m6jcdypz3tq23qmke2ckg5jpt7k0fg
+# Query.Team.List
+teams list | --sorting -id --pagination-offset 1 --pagination-page-size 1
