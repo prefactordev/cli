@@ -52,7 +52,13 @@ The `skills/` directory holds skills that teach a coding agent to use the CLI:
 - `bootstrap-existing-agent-with-prefactor-cli`: provision an agent's credentials with `prefactor setup` and write them into the project.
 - `inspect-agent-run-with-prefactor-cli`: investigate an agent run from its spans and the agent's code.
 
-Install them with the [skills](https://github.com/vercel-labs/skills) CLI:
+The CLI carries them, matching its version. Install them into the current project for the coding agents found in your home directory:
+
+```sh
+prefactor skills install
+```
+
+`--global` installs into your home directory instead, and `--agent` (repeatable) picks the agents: `claude-code`, `codex`, `cursor`, `opencode`, `github-copilot`, `gemini-cli`, `windsurf`, `amp`, or `universal` for any agent that reads `.agents/skills`. The directories match the [skills](https://github.com/vercel-labs/skills) CLI's, so this works too:
 
 ```sh
 npx skills add https://github.com/prefactordev/cli

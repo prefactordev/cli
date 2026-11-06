@@ -43,6 +43,9 @@ func TestMain(m *testing.M) {
 			os.Exit(1)
 		}
 	}
+	// The first run of a new binary is slow while the system checks it,
+	// which the timing checks below would count against the CLI.
+	_ = exec.Command(binary, "version").Run()
 	code := m.Run()
 	_ = os.RemoveAll(dir)
 	os.Exit(code)

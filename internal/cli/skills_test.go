@@ -1,11 +1,16 @@
 package cli
 
 import (
+	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/prefactordev/cli/skills"
 )
 
 // skillCommand matches a command line and the lines it continues onto.
@@ -53,5 +58,95 @@ func TestSkillsUseCommandsThatExist(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// TestSkillsInstallForTheAgentsFound installs into the project for the
+// agents found in the home directory, replacing an earlier copy.
+func TestSkillsInstallForTheAgentsFound(t *testing.T) {
+	home, project := t.TempDir(), t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Chdir(project)
+	for _, dir := range []string{".claude", ".cursor"} {
+		if err := os.Mkdir(filepath.Join(home, dir), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	stale := filepath.Join(project, ".claude", "skills", "inspect-agent-run-with-prefactor-cli", "old.md")
+	if err := os.MkdirAll(filepath.Dir(stale), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(stale, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := newTestApp(t).run(t, "skills", "install")
+	if err != nil {
+		t.Fatal(err)
+	}
+	names := "bootstrap-existing-agent-with-prefactor-cli, inspect-agent-run-with-prefactor-cli"
+	want := "Installed " + names + " for Claude Code in " + filepath.Join(project, ".claude", "skills") + "\n" +
+		"Installed " + names + " for Cursor in " + filepath.Join(project, ".agents", "skills") + "\n"
+	if out != want {
+		t.Fatalf("output:\n%s\nwant:\n%s", out, want)
+	}
+	for _, dir := range []string{".claude", ".agents"} {
+		got, err := os.ReadFile(filepath.Join(project, dir, "skills", "bootstrap-existing-agent-with-prefactor-cli", "SKILL.md"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		bundled, _ := fs.ReadFile(skills.FS, "bootstrap-existing-agent-with-prefactor-cli/SKILL.md")
+		if string(got) != string(bundled) {
+			t.Fatalf("%s: SKILL.md differs from the bundled skill", dir)
+		}
+	}
+	if _, err := os.Stat(stale); !os.IsNotExist(err) {
+		t.Fatalf("the earlier copy was kept: %v", err)
+	}
+}
+
+// TestSkillsInstallGlobalForChosenAgents installs into the home directory
+// for the agents given, once per directory they share.
+func TestSkillsInstallGlobalForChosenAgents(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Chdir(t.TempDir())
+
+	out, err := newTestApp(t).run(t, "skills", "install", "--global", "--agent", "amp", "--agent", "universal,codex", "--json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got struct {
+		Skills   []string       `json:"skills"`
+		Installs []skillInstall `json:"installs"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("%v: %s", err, out)
+	}
+	want := []skillInstall{
+		{Path: filepath.Join(home, ".config", "agents", "skills"), Agents: []string{"Amp", "Other agents"}},
+		{Path: filepath.Join(home, ".agents", "skills"), Agents: []string{"Codex"}},
+	}
+	if !reflect.DeepEqual(got.Installs, want) || len(got.Skills) != 2 {
+		t.Fatalf("got %+v, want installs %+v", got, want)
+	}
+	if _, err := os.Stat(filepath.Join(home, ".agents", "skills", "inspect-agent-run-with-prefactor-cli", "SKILL.md")); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSkillsInstallNeedsAnAgent(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Chdir(t.TempDir())
+
+	if _, err := newTestApp(t).run(t, "skills", "install"); err == nil || !strings.Contains(err.Error(), "No coding agent found") {
+		t.Fatalf("err = %v", err)
+	}
+	if _, err := newTestApp(t).run(t, "skills", "install", "--agent", "emacs"); err == nil || !strings.Contains(err.Error(), "--agent must be one of: claude-code,") {
+		t.Fatalf("err = %v", err)
 	}
 }

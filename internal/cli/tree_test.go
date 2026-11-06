@@ -40,6 +40,12 @@ var laterCommands = map[string]string{
 	"playground": "excluded: seeds demo data",
 }
 
+// goOnlyCommands are commands the TypeScript CLI lacks that call no API
+// operation.
+var goOnlyCommands = map[string]string{
+	"prefactor skills": "installs the skills built into the CLI",
+}
+
 // goOnlyFlags are the session flags this CLI adds to every command.
 var goOnlyFlags = map[string]bool{"json": true, "fields": true, "no-input": true, "yes": true, "help": true}
 
@@ -169,6 +175,9 @@ func TestCommandTreeMatchesTypeScript(t *testing.T) {
 
 	var walk func(cmd *cobra.Command) bool
 	walk = func(cmd *cobra.Command) bool {
+		if _, ok := goOnlyCommands[cmd.CommandPath()]; ok {
+			return true
+		}
 		known := seen[cmd.CommandPath()]
 		if _, ok := fromSpec[cmd.CommandPath()]; ok && !known {
 			known = true
