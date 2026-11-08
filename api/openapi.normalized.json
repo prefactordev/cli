@@ -20246,7 +20246,7 @@
       "post": {
         "callbacks": {},
         "deprecated": false,
-        "description": "Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.",
+        "description": "Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.",
         "operationId": "Action.AgentVersion.CreateHostedJudge",
         "parameters": [],
         "requestBody": {

@@ -41804,7 +41804,7 @@ type ClientInterface interface {
 
 	// ActionAgentVersionCreateHostedJudgeWithBody Find or create a hosted judge version
 	//
-	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -41813,7 +41813,7 @@ type ClientInterface interface {
 
 	// ActionAgentVersionCreateHostedJudge Find or create a hosted judge version
 	//
-	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -44859,7 +44859,7 @@ func (c *Client) ActionAgentVersionCreate(ctx context.Context, body ActionAgentV
 
 // ActionAgentVersionCreateHostedJudgeWithBody Find or create a hosted judge version
 //
-// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 //
 // Takes any type of body and a specified content type.
 //
@@ -44878,7 +44878,7 @@ func (c *Client) ActionAgentVersionCreateHostedJudgeWithBody(ctx context.Context
 
 // ActionAgentVersionCreateHostedJudge Find or create a hosted judge version
 //
-// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -58600,7 +58600,7 @@ type ClientWithResponsesInterface interface {
 
 	// ActionAgentVersionCreateHostedJudgeWithBodyWithResponse Find or create a hosted judge version
 	//
-	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -58609,7 +58609,7 @@ type ClientWithResponsesInterface interface {
 
 	// ActionAgentVersionCreateHostedJudgeWithResponse Find or create a hosted judge version
 	//
-	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+	// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -71503,7 +71503,7 @@ func (c *ClientWithResponses) ActionAgentVersionCreateWithResponse(ctx context.C
 
 // ActionAgentVersionCreateHostedJudgeWithBodyWithResponse Find or create a hosted judge version
 //
-// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -71518,7 +71518,7 @@ func (c *ClientWithResponses) ActionAgentVersionCreateHostedJudgeWithBodyWithRes
 
 // ActionAgentVersionCreateHostedJudgeWithResponse Find or create a hosted judge version
 //
-// Returns the matching hosted judge version if one already exists for this judge with the same external identifier, system prompt template, criterion, and model. Otherwise creates a new version. The version is hosted and single-turn, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
+// Returns the matching hosted judge version if one already exists for this judge with the same external identifier. Matching compares the whole hosted configuration, so a version stored without the knowledgebases tool is not reused. Otherwise this action creates a new version. The version is hosted and single-turn, always enables the knowledgebases tool, uses the canonical judge schema, and records Prefactor's runtime environment. hosted_configuration.system_prompt stores the template and hosted_configuration.judge_criterion stores the rubric. The runtime renders them when a run starts. The returned version is deployed to the lowest environment.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
