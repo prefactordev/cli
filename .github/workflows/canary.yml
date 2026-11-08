@@ -24,10 +24,10 @@ jobs:
           fetch-depth: 0
       - name: Choose the canary version
         run: |
-          # The next patch after the newest release, which is v0.6.1, the
+          # The next patch after the newest release, which is v0.6.2, the
           # TypeScript CLI's last, until this repository has a tag.
           newest="$(git tag -l 'v*.*.*' --sort=-v:refname | head -1)"
-          newest="$(printf '%s\n' v0.6.1 "${newest:-v0.6.1}" | sort -V | tail -1)"
+          newest="$(printf '%s\n' v0.6.2 "${newest:-v0.6.2}" | sort -V | tail -1)"
           IFS=. read -r major minor patch <<< "${newest#v}"
           echo "PREFACTOR_CANARY_VERSION=$major.$minor.$((patch + 1))-canary.$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-go@v6

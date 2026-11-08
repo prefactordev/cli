@@ -1,0 +1,95 @@
+name: Spec sync
+
+# Each day, compares api/openapi.json with openapi.json on p2 main. When they
+# differ, regenerates the client and opens (or updates) a pull request from
+# the spec-sync branch. The pull request's CI shows what the change breaks:
+# the coverage check fails for a new or removed operation, the request field
+# check for a new request field, and the build for a renamed or removed
+# field. Run the api-drift skill on the branch to plan the fix.
+#
+# p2 deploys on merge, so main is close to production. Release a CLI version
+# that depends on a p2 change only after that change is live.
+#
+# P2_SPEC_TOKEN is a fine-grained token with read access to the contents of
+# prefactordev/p2, and write access to the contents and pull requests of this
+# repository. Pull requests opened with GITHUB_TOKEN do not run CI, so the
+# pull request is opened with this token too.
+
+on:
+  schedule:
+    - cron: "17 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spec-sync
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.P2_SPEC_TOKEN }}
+      - name: Fetch openapi.json from p2 main
+        id: fetch
+        env:
+          GH_TOKEN: ${{ secrets.P2_SPEC_TOKEN }}
+        run: |
+          sha="$(gh api repos/prefactordev/p2/commits/main --jq .sha)"
+          gh api -H 'Accept: application/vnd.github.raw' "repos/prefactordev/p2/contents/openapi.json?ref=$sha" > "$RUNNER_TEMP/openapi.json"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          if cmp -s "$RUNNER_TEMP/openapi.json" api/openapi.json; then
+            echo "api/openapi.json matches p2 main ($sha)."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-go@v6
+        if: steps.fetch.outputs.changed == 'true'
+        with:
+          go-version-file: go.mod
+      - name: Update the document and regenerate the client
+        id: update
+        if: steps.fetch.outputs.changed == 'true'
+        run: |
+          go run ./tools/specdigest api/openapi.json > "$RUNNER_TEMP/before.txt"
+          cp "$RUNNER_TEMP/openapi.json" api/openapi.json
+          go run ./tools/specdigest api/openapi.json > "$RUNNER_TEMP/after.txt"
+          if go generate ./... 2> "$RUNNER_TEMP/generate.txt"; then
+            generated=yes
+          else
+            generated=no
+          fi
+          {
+            echo "Updates \`api/openapi.json\` to p2 main (prefactordev/p2@${{ steps.fetch.outputs.sha }})."
+            echo
+            if [ "$generated" = no ]; then
+              echo "**\`go generate\` failed**, so the client is not regenerated:"
+              echo
+              echo '```'
+              tail -n 40 "$RUNNER_TEMP/generate.txt"
+              echo '```'
+              echo
+            fi
+            echo "CI on this pull request shows which commands need to change. Run the api-drift skill on this branch to plan the fix."
+            echo
+            echo "<details><summary>Operation digest diff</summary>"
+            echo
+            echo '```diff'
+            diff -u "$RUNNER_TEMP/before.txt" "$RUNNER_TEMP/after.txt" | tail -n +3 | head -n 400 || true
+            echo '```'
+            echo
+            echo "</details>"
+          } > "$RUNNER_TEMP/body.md"
+      - uses: peter-evans/create-pull-request@v7
+        if: steps.fetch.outputs.changed == 'true'
+        with:
+          token: ${{ secrets.P2_SPEC_TOKEN }}
+          branch: spec-sync
+          delete-branch: true
+          commit-message: Update the OpenAPI document to p2 main (${{ steps.fetch.outputs.sha }})
+          title: Update the OpenAPI document to p2 main
+          body-path: ${{ runner.temp }}/body.md
