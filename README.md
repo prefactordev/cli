@@ -172,6 +172,8 @@ Generation first runs `tools/specnormalize`, which writes `api/openapi.normalize
 
 `api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it, and when a command has no option for a field of its operation's request (`internal/cli/request_fields_test.go` lists the few exceptions).
 
+`.github/workflows/spec-sync.yml` checks `openapi.json` on p2 `main` each day and, when it differs, opens a pull request from the `spec-sync` branch with the new document and regenerated client. That pull request's CI shows what has to change. It needs the `P2_SPEC_TOKEN` secret: a fine-grained token that can read p2's contents and write this repository's contents and pull requests.
+
 ### Parity with the TypeScript CLI
 
 `test/parity` runs the cases in `test/parity/cases/` through the TypeScript CLI and this CLI against a recording server, and compares requests, output and exit codes. It also compares every command's `--help`, except the root's, which lists options and commands only one CLI has. Options and commands this CLI adds from the API are left out of the comparison:
@@ -184,7 +186,7 @@ Build the TypeScript SDK first (`bun run build` in that repository), because the
 
 ### Releases
 
-Pushing a tag `vX.Y.Z` releases that version: `.github/workflows/release.yml` builds the archives with [GoReleaser](https://goreleaser.com) (`.goreleaser.yaml`) as a draft release with `SHA256SUMS` and GitHub's generated release notes, smoke tests them on macOS, Linux (glibc and musl) and Windows, on x64 and arm64, then publishes the release, which makes it the one the stable channel installs. Versions continue from the TypeScript CLI's last release, v0.6.1, so the first release here is v0.7.0 or later; the workflow refuses an older tag.
+Pushing a tag `vX.Y.Z` releases that version: `.github/workflows/release.yml` builds the archives with [GoReleaser](https://goreleaser.com) (`.goreleaser.yaml`) as a draft release with `SHA256SUMS` and GitHub's generated release notes, smoke tests them on macOS, Linux (glibc and musl) and Windows, on x64 and arm64, then publishes the release, which makes it the one the stable channel installs. Versions continue from the TypeScript CLI's last release, v0.6.2, so the first release here is v0.7.0 or later; the workflow refuses an older tag.
 
 Each push to `main` replaces the `canary` pre-release, which the latest channel installs, after the same smoke tests (`.github/workflows/canary.yml`). Its version is the next patch version with the commit, such as `0.7.1-canary.1a2b3c4`.
 

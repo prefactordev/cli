@@ -32,10 +32,10 @@ jobs:
             echo "Release tags are vX.Y.Z, got $tag." >&2
             exit 1
           fi
-          # v0.6.1 was the TypeScript CLI's last release. Versions must keep
+          # v0.6.2 was the TypeScript CLI's last release. Versions must keep
           # increasing for the people who update from it.
-          if [ "$(printf '%s\n' v0.6.1 "$tag" | sort -V | tail -1)" != "$tag" ] || [ "$tag" = v0.6.1 ]; then
-            echo "$tag must be newer than v0.6.1, the TypeScript CLI's last release." >&2
+          if [ "$(printf '%s\n' v0.6.2 "$tag" | sort -V | tail -1)" != "$tag" ] || [ "$tag" = v0.6.2 ]; then
+            echo "$tag must be newer than v0.6.2, the TypeScript CLI's last release." >&2
             exit 1
           fi
       - uses: actions/setup-go@v6
