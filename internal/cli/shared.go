@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
@@ -154,7 +155,7 @@ func readTextOption(value, optionName string) (string, error) {
 func readOptionFile(path, optionName string) (string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return "", fmt.Errorf("Unable to read file for %s: %w", optionName, err)
+		return "", fmt.Errorf("Unable to read file for %s: %w", optionName, nodeStatError(err, path))
 	}
 
 	if info.Size() > maxJSONOptionFileSize {
@@ -170,6 +171,18 @@ func readOptionFile(path, optionName string) (string, error) {
 	}
 
 	return string(contents), nil
+}
+
+// nodeStatError words a missing or unreadable file as Node's fs.stat does,
+// as the TypeScript CLI reports it.
+func nodeStatError(err error, path string) error {
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return fmt.Errorf("ENOENT: no such file or directory, stat '%s'", path)
+	case errors.Is(err, fs.ErrPermission):
+		return fmt.Errorf("EACCES: permission denied, stat '%s'", path)
+	}
+	return err
 }
 
 // addListFlags registers the sorting and pagination flags of list commands

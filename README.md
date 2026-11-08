@@ -18,7 +18,7 @@ irm https://raw.githubusercontent.com/prefactordev/cli/main/install.ps1 | iex
 
 The installer downloads the release for your platform, checks it against the release's `SHA256SUMS`, and installs it to `~/.prefactor/bin/prefactor` (`%USERPROFILE%\.prefactor\bin\prefactor.exe` on Windows). It puts that directory on your `PATH`: `install.sh` adds it to your shell profile and links `prefactor` into a directory already on `PATH`, such as `~/.local/bin`, so it works at once; `install.ps1` adds it to your user `PATH`.
 
-Pass `latest` for the newest build from `main`, or a version such as `0.7.0` to pin it:
+Pass `latest` for the newest build from `main`, or a version such as `0.8.0` to pin it:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- latest
@@ -186,7 +186,7 @@ Build the TypeScript SDK first (`bun run build` in that repository), because the
 
 ### Releases
 
-Pushing a tag `vX.Y.Z` releases that version: `.github/workflows/release.yml` builds the archives with [GoReleaser](https://goreleaser.com) (`.goreleaser.yaml`) as a draft release with `SHA256SUMS` and GitHub's generated release notes, smoke tests them on macOS, Linux (glibc and musl) and Windows, on x64 and arm64, then publishes the release, which makes it the one the stable channel installs. Versions continue from the TypeScript CLI's last release, v0.6.2, so the first release here is v0.7.0 or later; the workflow refuses an older tag.
+Pushing a tag `vX.Y.Z` releases that version: `.github/workflows/release.yml` builds the archives with [GoReleaser](https://goreleaser.com) (`.goreleaser.yaml`) as a draft release with `SHA256SUMS` and GitHub's generated release notes, smoke tests them on macOS, Linux (glibc and musl) and Windows, on x64 and arm64, then publishes the release, which makes it the one the stable channel installs. Versions continue from the TypeScript CLI's last release, which is v0.7.0 or v0.7.1, so the first release here is v0.8.0 or later; the workflow refuses an older tag.
 
 Each push to `main` replaces the `canary` pre-release, which the latest channel installs, after the same smoke tests (`.github/workflows/canary.yml`). Its version is the next patch version with the commit, such as `0.7.1-canary.1a2b3c4`.
 
