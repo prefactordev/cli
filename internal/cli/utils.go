@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/spf13/cobra"
@@ -10,7 +12,7 @@ import (
 )
 
 func newUtilsCommand(app *App) *cobra.Command {
-	utils := &cobra.Command{Use: "utils", Short: "Check templates, schemas and payloads"}
+	utils := &cobra.Command{Use: "utils", Short: "Check templates, schemas, and payloads"}
 
 	renderTemplate := &cobra.Command{
 		Use:   "render-liquid-template",
@@ -25,6 +27,9 @@ func newUtilsCommand(app *App) *cobra.Command {
 			if err := fieldsBody(cmd, body, "samples"); err != nil {
 				return err
 			}
+			if err := checkTemplateSamples(body["samples"]); err != nil {
+				return err
+			}
 			return app.runAPI(cmd, func(ctx context.Context, c *api.Client) (*http.Response, error) {
 				reader, err := jsonBody(body)
 				if err != nil {
@@ -34,15 +39,15 @@ func newUtilsCommand(app *App) *cobra.Command {
 			})
 		},
 	}
-	renderTemplate.Flags().String("template", "", "Liquid template, or @file")
-	addJSONFlag(renderTemplate, "samples", `Samples to render: [{"payload":{...},"result_payload"?:{...}}] or @file`, "array")
+	renderTemplate.Flags().String("template", "", "Liquid template string, or @path to a file")
+	addJSONFlag(renderTemplate, "samples", "JSON array of { payload, result_payload? } objects, or @path to a JSON file", "array")
 	_ = renderTemplate.MarkFlagRequired("template")
 	_ = renderTemplate.MarkFlagRequired("samples")
 	utils.AddCommand(renderTemplate)
 
 	validateSchema := &cobra.Command{
 		Use:   "validate-schema",
-		Short: "Validate a JSON schema, and a payload against it",
+		Short: "Validate a JSON Schema and an optional payload",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			body := map[string]any{}
@@ -58,14 +63,14 @@ func newUtilsCommand(app *App) *cobra.Command {
 			})
 		},
 	}
-	addJSONFlag(validateSchema, "schema", "JSON Schema: JSON object or @file", "object")
-	addJSONFlag(validateSchema, "payload", "Payload to check against the schema: JSON object, null or @file", "object or null")
+	addJSONFlag(validateSchema, "schema", "JSON Schema object, or @path to a JSON file", "object")
+	addJSONFlag(validateSchema, "payload", "JSON object, null to validate the schema alone, or @path to a JSON file", "object or null")
 	_ = validateSchema.MarkFlagRequired("schema")
 	utils.AddCommand(validateSchema)
 
 	processSensitive := &cobra.Command{
 		Use:   "process-sensitive-payload",
-		Short: "Process a payload with $sensitive markers and check it",
+		Short: "Process a $sensitive payload and check its input and output",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			body := map[string]any{}
@@ -81,10 +86,36 @@ func newUtilsCommand(app *App) *cobra.Command {
 			})
 		},
 	}
-	addJSONFlag(processSensitive, "payload", "Payload with $sensitive markers: JSON object or @file", "object")
-	addJSONFlag(processSensitive, "schema", "JSON Schema to check the payload against: JSON object or @file", "object")
+	addJSONFlag(processSensitive, "payload", "JSON object in $sensitive wire form, or @path to a JSON file", "object")
+	addJSONFlag(processSensitive, "schema", "JSON Schema object, null to skip the schema check, or @path to a JSON file", "object or null")
 	_ = processSensitive.MarkFlagRequired("payload")
 	utils.AddCommand(processSensitive)
 
 	return utils
+}
+
+// checkTemplateSamples checks each sample as the TypeScript CLI does: an
+// object whose payload is an object and whose result_payload, if present, is
+// an object or null.
+func checkTemplateSamples(samples any) error {
+	raw, _ := samples.(json.RawMessage)
+	var list []any
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return err
+	}
+	for i, item := range list {
+		sample, ok := item.(map[string]any)
+		if !ok {
+			return fmt.Errorf("--samples[%d] must be a JSON object.", i)
+		}
+		if _, ok := sample["payload"].(map[string]any); !ok {
+			return fmt.Errorf("--samples[%d].payload must be a JSON object.", i)
+		}
+		if result, present := sample["result_payload"]; present && result != nil {
+			if _, ok := result.(map[string]any); !ok {
+				return fmt.Errorf("--samples[%d].result_payload must be a JSON object or null.", i)
+			}
+		}
+	}
+	return nil
 }

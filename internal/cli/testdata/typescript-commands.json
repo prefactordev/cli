@@ -6585,6 +6585,125 @@
     "hasAction": true
   },
   {
+    "path": "utils",
+    "description": "Check templates, schemas, and payloads",
+    "arguments": [],
+    "options": [],
+    "hasSubcommands": true,
+    "hasAction": false
+  },
+  {
+    "path": "utils render_liquid_template",
+    "description": "Render a Liquid template against sample payloads",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--template <template>",
+        "long": "--template",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "Liquid template string, or @path to a file",
+        "defaultValue": null
+      },
+      {
+        "flags": "--samples <samples>",
+        "long": "--samples",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "JSON array of { payload, result_payload? } objects, or @path to a JSON file",
+        "defaultValue": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "utils validate_schema",
+    "description": "Validate a JSON Schema and an optional payload",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--schema <schema>",
+        "long": "--schema",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "JSON Schema object, or @path to a JSON file",
+        "defaultValue": null
+      },
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "JSON object, null to validate the schema alone, or @path to a JSON file",
+        "defaultValue": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
+    "path": "utils process_sensitive_payload",
+    "description": "Process a $sensitive payload and check its input and output",
+    "arguments": [],
+    "options": [
+      {
+        "flags": "--payload <payload>",
+        "long": "--payload",
+        "short": null,
+        "mandatory": true,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "JSON object in $sensitive wire form, or @path to a JSON file",
+        "defaultValue": null
+      },
+      {
+        "flags": "--schema <schema>",
+        "long": "--schema",
+        "short": null,
+        "mandatory": false,
+        "takesValue": true,
+        "optionalValue": false,
+        "negate": false,
+        "hidden": false,
+        "choices": null,
+        "parser": null,
+        "description": "JSON Schema object, null to skip the schema check, or @path to a JSON file",
+        "defaultValue": null
+      }
+    ],
+    "hasSubcommands": false,
+    "hasAction": true
+  },
+  {
     "path": "ping",
     "description": "Verify the selected or supplied API token",
     "arguments": [],

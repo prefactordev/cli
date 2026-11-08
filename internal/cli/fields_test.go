@@ -234,12 +234,17 @@ func TestNewOptionsCheckTheirValues(t *testing.T) {
 	cases := map[string][]string{
 		"error: option '--role <role>' argument 'admin' is invalid. Allowed choices are read_only, full_access.": {"api-tokens", "update", "t1", "--role", "admin"},
 		"error: option '--sort-field <field>' argument 'name' is invalid. Allowed choices are id.":               {"agent-risk-versions", "list", "--agent-id", "a1", "--sort-field", "name"},
-		"--samples must be a JSON array.":                                   {"utils", "render-liquid-template", "--template", "x", "--samples", "{}"},
-		"--payload must be a JSON object or null.":                          {"utils", "validate-schema", "--schema", "{}", "--payload", "[]"},
-		"Specify --agent-id or --knowledgebase-id.":                         {"agent-knowledgebase-links", "list"},
-		"--pagination-page-with-id requires --sort-field.":                  {"agent-instances", "list", "--agent-id", "a1", "--pagination-page-with-id", "i1"},
-		"Use only one of --pagination-offset or --pagination-page-with-id.": {"agent-instances", "list", "--agent-id", "a1", "--pagination-offset", "0", "--pagination-page-with-id", "i1"},
-		"--id must be a valid Prefactor ID.":                                {"knowledgebases", "create", "--name", "Docs", "--id", "bad"},
+		"--samples must be a JSON array.":                                                           {"utils", "render-liquid-template", "--template", "x", "--samples", "{}"},
+		"--samples[0] must be a JSON object.":                                                       {"utils", "render-liquid-template", "--template", "x", "--samples", "[1]"},
+		"--samples[1].payload must be a JSON object.":                                               {"utils", "render-liquid-template", "--template", "x", "--samples", `[{"payload":{}},{"payload":[]}]`},
+		"--samples[0].result_payload must be a JSON object or null.":                                {"utils", "render-liquid-template", "--template", "x", "--samples", `[{"payload":{},"result_payload":3}]`},
+		"--schema must be a JSON object or null.":                                                   {"utils", "process-sensitive-payload", "--payload", "{}", "--schema", "[]"},
+		"Unable to read file for --template: ENOENT: no such file or directory, stat 'missing.txt'": {"utils", "render-liquid-template", "--template", "@missing.txt", "--samples", "[]"},
+		"--payload must be a JSON object or null.":                                                  {"utils", "validate-schema", "--schema", "{}", "--payload", "[]"},
+		"Specify --agent-id or --knowledgebase-id.":                                                 {"agent-knowledgebase-links", "list"},
+		"--pagination-page-with-id requires --sort-field.":                                          {"agent-instances", "list", "--agent-id", "a1", "--pagination-page-with-id", "i1"},
+		"Use only one of --pagination-offset or --pagination-page-with-id.":                         {"agent-instances", "list", "--agent-id", "a1", "--pagination-offset", "0", "--pagination-page-with-id", "i1"},
+		"--id must be a valid Prefactor ID.":                                                        {"knowledgebases", "create", "--name", "Docs", "--id", "bad"},
 	}
 	for want, args := range cases {
 		if _, err := ta.run(t, args...); err == nil || err.Error() != want {

@@ -12,7 +12,7 @@ Usage:
 Examples:
   curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash
   curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- latest
-  curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- 0.7.0
+  curl -fsSL https://raw.githubusercontent.com/prefactordev/cli/main/install.sh | bash -s -- 0.8.0
 EOF
 }
 
