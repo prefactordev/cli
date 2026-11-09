@@ -160,7 +160,7 @@ golangci-lint run ./...
 
 ### API client
 
-`api/openapi.json` is a copy of the p2 OpenAPI document. `internal/api/client.gen.go` is generated from it and committed:
+`api/openapi.json` is the OpenAPI document the live API serves at `https://app.prefactorai.com/api/v1/openapi`, with its keys sorted (`jq -S .`). `internal/api/client.gen.go` is generated from it and committed:
 
 ```sh
 go generate ./...
@@ -172,7 +172,7 @@ Generation first runs `tools/specnormalize`, which writes `api/openapi.normalize
 
 `api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it, and when a command has no option for a field of its operation's request (`internal/cli/request_fields_test.go` lists the few exceptions).
 
-`.github/workflows/spec-sync.yml` checks `openapi.json` on p2 `main` each day and, when it differs, opens a pull request from the `spec-sync` branch with the new document and regenerated client. That pull request's CI shows what has to change. It needs the `P2_SPEC_TOKEN` secret: a fine-grained token that can read p2's contents and write this repository's contents and pull requests.
+`.github/workflows/spec-sync.yml` fetches that document each day and, when it differs, opens a pull request from the `spec-sync` branch with the new document and regenerated client. That pull request's CI shows what has to change. It needs the `SPEC_SYNC_PR_TOKEN` secret: a fine-grained token for this repository with read and write access to contents and pull requests, because pull requests opened with `GITHUB_TOKEN` do not run CI.
 
 ### Parity with the TypeScript CLI
 
