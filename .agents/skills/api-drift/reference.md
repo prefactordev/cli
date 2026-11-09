@@ -2,7 +2,7 @@
 
 ## How the document is used
 
-- `api/openapi.json` is a byte-for-byte copy of p2's `openapi.json`. Never edit it by hand.
+- `api/openapi.json` is the document served at `https://app.prefactorai.com/api/v1/openapi`, with its keys sorted (`jq -S .`). Never edit it by hand. `.github/workflows/spec-sync.yml` fetches it daily and opens a `spec-sync` pull request when it changes.
 - `go generate ./...` runs `tools/specnormalize` (which moves `"in": "body"` parameters into a JSON `requestBody`, as OpenAPI 3.0 requires) to write `api/openapi.normalized.json`, then `oapi-codegen` to write `internal/api/client.gen.go`. Both are committed; CI fails when they differ from a fresh `go generate`.
 - `api/coverage.yaml` maps every `operationId` to the command that calls it, or marks it `excluded` (with the reason) or `pending` (with the issue that adds it).
 

@@ -1,19 +1,19 @@
 name: Spec sync
 
-# Each day, compares api/openapi.json with openapi.json on p2 main. When they
-# differ, regenerates the client and opens (or updates) a pull request from
-# the spec-sync branch. The pull request's CI shows what the change breaks:
-# the coverage check fails for a new or removed operation, the request field
-# check for a new request field, and the build for a renamed or removed
-# field. Run the api-drift skill on the branch to plan the fix.
+# Each day, fetches the OpenAPI document the live Prefactor API serves and
+# compares it with api/openapi.json. When they differ, regenerates the client
+# and opens (or updates) a pull request from the spec-sync branch. The pull
+# request's CI shows what the change breaks: the coverage check fails for a
+# new or removed operation, the request field check for a new request field,
+# and the build for a renamed or removed field. Run the api-drift skill on the
+# branch to plan the fix.
 #
-# p2 deploys on merge, so main is close to production. Release a CLI version
-# that depends on a p2 change only after that change is live.
+# api/openapi.json holds the document with its keys sorted (jq -S), so a
+# change in the order the API writes keys is not a change.
 #
-# P2_SPEC_TOKEN is a fine-grained token with read access to the contents of
-# prefactordev/p2, and write access to the contents and pull requests of this
-# repository. Pull requests opened with GITHUB_TOKEN do not run CI, so the
-# pull request is opened with this token too.
+# SPEC_SYNC_PR_TOKEN is a fine-grained token for this repository only, with
+# read and write access to contents and pull requests. Pull requests opened
+# with GITHUB_TOKEN do not run CI.
 
 on:
   schedule:
@@ -26,23 +26,22 @@ permissions:
 concurrency:
   group: spec-sync
 
+env:
+  SPEC_URL: https://app.prefactorai.com/api/v1/openapi
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          token: ${{ secrets.P2_SPEC_TOKEN }}
-      - name: Fetch openapi.json from p2 main
+      - name: Fetch the live OpenAPI document
         id: fetch
-        env:
-          GH_TOKEN: ${{ secrets.P2_SPEC_TOKEN }}
         run: |
-          sha="$(gh api repos/prefactordev/p2/commits/main --jq .sha)"
-          gh api -H 'Accept: application/vnd.github.raw' "repos/prefactordev/p2/contents/openapi.json?ref=$sha" > "$RUNNER_TEMP/openapi.json"
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          curl -fsSL --retry 3 "$SPEC_URL" | jq -S . > "$RUNNER_TEMP/openapi.json"
+          jq -e '.paths | length > 0' "$RUNNER_TEMP/openapi.json" > /dev/null
+          echo "fetched_at=$(date -u +%Y-%m-%dT%H:%MZ)" >> "$GITHUB_OUTPUT"
           if cmp -s "$RUNNER_TEMP/openapi.json" api/openapi.json; then
-            echo "api/openapi.json matches p2 main ($sha)."
+            echo "api/openapi.json matches $SPEC_URL."
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -52,8 +51,9 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Update the document and regenerate the client
-        id: update
         if: steps.fetch.outputs.changed == 'true'
+        env:
+          FETCHED_AT: ${{ steps.fetch.outputs.fetched_at }}
         run: |
           go run ./tools/specdigest api/openapi.json > "$RUNNER_TEMP/before.txt"
           cp "$RUNNER_TEMP/openapi.json" api/openapi.json
@@ -64,7 +64,7 @@ jobs:
             generated=no
           fi
           {
-            echo "Updates \`api/openapi.json\` to p2 main (prefactordev/p2@${{ steps.fetch.outputs.sha }})."
+            echo "Updates \`api/openapi.json\` to the document served at $SPEC_URL on $FETCHED_AT."
             echo
             if [ "$generated" = no ]; then
               echo "**\`go generate\` failed**, so the client is not regenerated:"
@@ -87,9 +87,9 @@ jobs:
       - uses: peter-evans/create-pull-request@v7
         if: steps.fetch.outputs.changed == 'true'
         with:
-          token: ${{ secrets.P2_SPEC_TOKEN }}
+          token: ${{ secrets.SPEC_SYNC_PR_TOKEN }}
           branch: spec-sync
           delete-branch: true
-          commit-message: Update the OpenAPI document to p2 main (${{ steps.fetch.outputs.sha }})
-          title: Update the OpenAPI document to p2 main
+          commit-message: Update the OpenAPI document to the live API (${{ steps.fetch.outputs.fetched_at }})
+          title: Update the OpenAPI document to the live API
           body-path: ${{ runner.temp }}/body.md
