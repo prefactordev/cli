@@ -172,7 +172,7 @@ Generation first runs `tools/specnormalize`, which writes `api/openapi.normalize
 
 `api/coverage.yaml` maps every operation in the OpenAPI document to the command that calls it, or marks it excluded or pending. `go test ./...` fails when an operation is missing from it, and when a command has no option for a field of its operation's request (`internal/cli/request_fields_test.go` lists the few exceptions).
 
-`.github/workflows/spec-sync.yml` fetches that document each day and, when it differs, opens a pull request from the `spec-sync` branch with the new document and regenerated client. That pull request's CI shows what has to change. It needs the `SPEC_SYNC_PR_TOKEN` secret: a fine-grained token for this repository with read and write access to contents and pull requests, because pull requests opened with `GITHUB_TOKEN` do not run CI.
+`.github/workflows/spec-sync.yml` fetches that document each day and, when it differs, opens a pull request from the `spec-sync` branch with the new document and regenerated client. That pull request's CI shows what has to change. It uses no secrets: the document is public, and the workflow opens the pull request with `GITHUB_TOKEN`. Pull requests opened that way do not trigger CI, so the workflow dispatches `ci.yml` on the `spec-sync` branch and its checks show on the pull request. This needs "Allow GitHub Actions to create and approve pull requests" in the repository's Actions settings.
 
 ### Parity with the TypeScript CLI
 
