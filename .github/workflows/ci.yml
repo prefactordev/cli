@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # spec-sync dispatches CI on its branch, because pull requests opened with
+  # GITHUB_TOKEN do not trigger pull_request runs.
+  workflow_dispatch:
 
 permissions:
   contents: read

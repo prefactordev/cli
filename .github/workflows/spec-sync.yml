@@ -11,9 +11,10 @@ name: Spec sync
 # api/openapi.json holds the document with its keys sorted (jq -S), so a
 # change in the order the API writes keys is not a change.
 #
-# SPEC_SYNC_PR_TOKEN is a fine-grained token for this repository only, with
-# read and write access to contents and pull requests. Pull requests opened
-# with GITHUB_TOKEN do not run CI.
+# The job uses only GITHUB_TOKEN. Pull requests opened with it do not trigger
+# pull_request runs, so the job dispatches CI on the spec-sync branch, whose
+# checks then show on the pull request. This needs "Allow GitHub Actions to
+# create and approve pull requests" in the repository's Actions settings.
 
 on:
   schedule:
@@ -21,7 +22,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  actions: write
 
 concurrency:
   group: spec-sync
@@ -85,11 +88,16 @@ jobs:
             echo "</details>"
           } > "$RUNNER_TEMP/body.md"
       - uses: peter-evans/create-pull-request@v7
+        id: pr
         if: steps.fetch.outputs.changed == 'true'
         with:
-          token: ${{ secrets.SPEC_SYNC_PR_TOKEN }}
           branch: spec-sync
           delete-branch: true
           commit-message: Update the OpenAPI document to the live API (${{ steps.fetch.outputs.fetched_at }})
           title: Update the OpenAPI document to the live API
           body-path: ${{ runner.temp }}/body.md
+      - name: Run CI on the pull request
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref spec-sync
