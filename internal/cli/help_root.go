@@ -42,7 +42,7 @@ var helpSections = []helpSection{
 	{"Judges", []string{"judges", "agent-associations", "agent-instance-associations", "llm-providers", "llm-provider-models"}},
 	{"Knowledge", []string{"knowledgebases", "knowledgebase-documents", "knowledgebase-document-revisions", "knowledgebase-revisions", "agent-knowledgebase-links"}},
 	{"Account & access", []string{"accounts", "environments", "teams", "people", "risk-profiles", "integrations", "api-tokens", "admin-users", "admin-user-invites"}},
-	{"Tools", []string{"bulk", "utils", "pfid", "version"}},
+	{"Tools", []string{"import", "bulk", "utils", "pfid", "version"}},
 	{"Install", []string{"install", "update", "uninstall", "doctor", "skills"}},
 }
 

@@ -25,6 +25,8 @@ type fakePicker struct {
 	prompts []string
 	notes   []string
 	offered [][]Choice
+	// ticked are the choices each MultiPick started with ticked.
+	ticked [][]string
 }
 
 func (p *fakePicker) Pick(title, note string, choices []Choice) (string, error) {
@@ -53,6 +55,39 @@ func (p *fakePicker) Input(title string, _ bool) (string, error) {
 	answer := p.answers[0]
 	p.answers = p.answers[1:]
 	return answer, nil
+}
+
+// MultiPick records the ticked choices and answers with the next scripted
+// text: "*" keeps them, and otherwise it ticks each choice whose label
+// contains one of its comma-separated parts.
+func (p *fakePicker) MultiPick(title, note string, choices []Choice, selected []string) ([]string, error) {
+	p.prompts = append(p.prompts, title)
+	p.notes = append(p.notes, note)
+	p.offered = append(p.offered, choices)
+	p.ticked = append(p.ticked, selected)
+	if len(p.answers) == 0 {
+		return nil, errPickCancelled
+	}
+	want := p.answers[0]
+	p.answers = p.answers[1:]
+	if want == "*" {
+		return selected, nil
+	}
+	var values []string
+	for _, part := range strings.Split(want, ",") {
+		for _, c := range choices {
+			if strings.Contains(c.Label, part) {
+				values = append(values, c.Value)
+				break
+			}
+		}
+	}
+	return values, nil
+}
+
+// Secret answers with the next scripted text.
+func (p *fakePicker) Secret(title string) (string, error) {
+	return p.Input(title, true)
 }
 
 // listServer answers list requests by path and records every request.

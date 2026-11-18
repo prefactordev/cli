@@ -83,6 +83,7 @@ func newRootCommand(app *App) *cobra.Command {
 		newPingCommand(app),
 		newVersionCommand(app),
 		newSkillsCommand(app),
+		newImportCommand(app),
 	)
 	root.AddCommand(newLifecycleCommands(app)...)
 
@@ -104,7 +105,7 @@ func newRootCommand(app *App) *cobra.Command {
 var profileFreeCommands = map[string]bool{
 	"login": true, "profiles": true, "version": true, "help": true,
 	"install": true, "update": true, "uninstall": true, "doctor": true,
-	"skills": true,
+	"skills": true, "import": true,
 }
 
 // needsProfile reports whether cmd calls the API with the selected profile.
