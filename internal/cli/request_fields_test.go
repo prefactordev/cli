@@ -134,6 +134,10 @@ var fieldsWithoutOptions = map[string]string{
 	"Action.AccountIntegration.Create config":           "built from --webhook-url and --enabled-events",
 	"Action.AccountIntegration.Create integration_type": "the <type> argument",
 	"Action.AccountIntegration.Update config":           "built from --webhook-url and --enabled-events",
+	"Action.Import.AddTraces traces":                    "read from Langfuse",
+	"Action.Import.Create id":                           "the server generates the import ID",
+	"Action.Import.Create source":                       "always langfuse, the tool import langfuse reads",
+	"Action.Import.Finish status":                       "finished, or failed when the upload stops early",
 }
 
 var supportedSortFields = regexp.MustCompile("`([a-z_]+)`")

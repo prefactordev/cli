@@ -46,11 +46,13 @@ func newImportCommand(app *App) *cobra.Command {
 	}
 	importLangfuse := &cobra.Command{
 		Use:   "langfuse",
-		Short: "Import agents and runs from Langfuse (only --dry-run works so far)",
+		Short: "Import agents and their past runs from Langfuse",
 		Args:  cobra.NoArgs,
 		Example: strings.Join([]string{
 			"  prefactor import langfuse --dry-run",
-			"  prefactor import langfuse --dry-run --env .env.langfuse --days 7",
+			"  prefactor import langfuse",
+			"  prefactor import langfuse --yes --days 7",
+			"  prefactor import langfuse --env .env.langfuse --account-id <account_id>",
 		}, "\n"),
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return app.importLangfuse(cmd)
@@ -61,6 +63,8 @@ func newImportCommand(app *App) *cobra.Command {
 	setPlaceholder(importLangfuse, "env", "file")
 	importLangfuse.Flags().String("days", langfuseDefaultDays, "Look for runs from this many days back")
 	setPlaceholder(importLangfuse, "days", "n")
+	importLangfuse.Flags().String("account-id", "", "Import into this Prefactor account; needed when you can reach several and cannot choose in a terminal")
+	setPlaceholder(importLangfuse, "account-id", "id")
 	group.AddCommand(importLangfuse)
 	return group
 }
@@ -70,8 +74,20 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 	if err != nil {
 		return errors.New("--days must be a positive integer.")
 	}
-	if !boolFlag(cmd, "dry-run") {
-		return errors.New("Uploading Langfuse runs to Prefactor is not available yet. Run 'prefactor import langfuse --dry-run' to see what an import would bring in.")
+	dryRun := boolFlag(cmd, "dry-run")
+	yes := a.session != nil && a.session.yes
+	if !dryRun && !yes && !a.canPick() {
+		return fmt.Errorf("Importing sends runs to Prefactor, so it needs a choice of agents. Run it in a terminal to choose them, or pass --yes to import every agent found in the last %s. Pass --dry-run to see what would be imported, without sending anything.",
+			plural(days, "day"))
+	}
+
+	// Sign in and choose the account first, so a problem there shows
+	// before the slower Langfuse reads.
+	var target *prefactorTarget
+	if !dryRun {
+		if target, err = a.prefactorTarget(cmd); err != nil {
+			return err
+		}
 	}
 
 	dir, err := os.Getwd()
@@ -135,6 +151,14 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 	}
 	for _, agent := range plan.Agents {
 		plan.TotalRuns += agent.Runs
+	}
+
+	if !dryRun {
+		if len(plan.Agents) == 0 {
+			return writeImportMessage(cmd, "No runs found in the last "+plural(days, "day")+", so there is nothing to import.")
+		}
+		fmt.Fprintf(status, "Importing %s in %s. %s\n", plural(plan.TotalRuns, "run"), plural(len(plan.Agents), "agent"), estimateText(plan.TotalRuns))
+		return a.uploadLangfuse(cmd, target, client, plan, from, to)
 	}
 
 	out := cmd.OutOrStdout()

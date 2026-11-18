@@ -42,15 +42,29 @@ func (e *HTTPError) Error() string {
 // token. Like the TypeScript CLI, requests go to the origin of baseURL and any
 // path in it is ignored.
 func New(baseURL, token, version string) (*api.Client, error) {
+	return newClient(baseURL, token, version, &retryingDoer{
+		client:         &http.Client{Timeout: requestTimeout},
+		sleep:          sleepContext,
+		random:         rand.Float64,
+		retryRateLimit: true,
+	})
+}
+
+// NewForUploads is New for requests that carry large bodies: each request
+// may take up to timeout, and a 429 response is returned rather than
+// retried, so the caller can wait as long as the response asks.
+func NewForUploads(baseURL, token, version string, timeout time.Duration) (*api.Client, error) {
+	return newClient(baseURL, token, version, &retryingDoer{
+		client: &http.Client{Timeout: timeout},
+		sleep:  sleepContext,
+		random: rand.Float64,
+	})
+}
+
+func newClient(baseURL, token, version string, doer *retryingDoer) (*api.Client, error) {
 	origin, err := originOf(baseURL)
 	if err != nil {
 		return nil, err
-	}
-
-	doer := &retryingDoer{
-		client: &http.Client{Timeout: requestTimeout},
-		sleep:  sleepContext,
-		random: rand.Float64,
 	}
 
 	return api.NewClient(origin, api.WithHTTPClient(doer), api.WithRequestEditorFn(
@@ -114,12 +128,13 @@ func ValidPort(port string) bool {
 	return err == nil && n >= 0 && n <= 65535
 }
 
-// retryingDoer retries 429 and 5xx responses and network errors with
-// jittered exponential backoff.
+// retryingDoer retries 5xx responses, network errors and, when
+// retryRateLimit is set, 429 responses, with jittered exponential backoff.
 type retryingDoer struct {
-	client *http.Client
-	sleep  func(context.Context, time.Duration) error
-	random func() float64
+	client         *http.Client
+	sleep          func(context.Context, time.Duration) error
+	random         func() float64
+	retryRateLimit bool
 }
 
 func (d *retryingDoer) Do(req *http.Request) (*http.Response, error) {
@@ -151,7 +166,7 @@ func (d *retryingDoer) Do(req *http.Request) (*http.Response, error) {
 			return nil, err
 		}
 
-		if attempt < maxRetries && retryableStatus(resp.StatusCode) {
+		if attempt < maxRetries && retryableStatus(resp.StatusCode) && (d.retryRateLimit || resp.StatusCode != http.StatusTooManyRequests) {
 			_, _ = io.Copy(io.Discard, resp.Body)
 			_ = resp.Body.Close()
 			if sleepErr := d.sleep(req.Context(), retryDelay(attempt, d.random)); sleepErr != nil {

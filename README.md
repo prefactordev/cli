@@ -51,6 +51,7 @@ The `skills/` directory holds skills that teach a coding agent to use the CLI:
 
 - `bootstrap-existing-agent-with-prefactor-cli`: provision an agent's credentials with `prefactor setup` and write them into the project.
 - `inspect-agent-run-with-prefactor-cli`: investigate an agent run from its spans and the agent's code.
+- `import-from-langfuse-with-prefactor-cli`: import an agent's runs from Langfuse with `prefactor import langfuse --yes`, keeping the Langfuse keys out of the chat.
 
 The CLI carries them, matching its version. Install them into the current project for the coding agents found in your home directory:
 
@@ -76,7 +77,7 @@ The skills for instrumenting an agent with the SDK are in the [Prefactor TypeScr
 | `prefactor profiles remove <name>` | Remove a profile |
 | `prefactor setup [agent_id] [--create --name <name> [--description <text>]]` | Mint a deployment token for an agent and print `PREFACTOR_*` setup values, or JSON with `--json` |
 | `prefactor ping [--api-token <token>] [--api-url <url>]` | Verify the selected or supplied API token |
-| `prefactor import langfuse --dry-run [--env <file>] [--days <n>]` | Show the agents and runs an import from Langfuse would bring in, sending nothing to Prefactor (see [`import langfuse`](#import-langfuse)) |
+| `prefactor import langfuse [--dry-run] [--env <file>] [--days <n>] [--account-id <id>]` | Import agents and their past runs from Langfuse, or with `--dry-run` show what an import would bring in (see [`import langfuse`](#import-langfuse)) |
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |
 | `prefactor install`, `update`, `doctor`, `uninstall` | Manage the installed CLI (see [Install](#install)) |
@@ -104,7 +105,7 @@ In interactive mode, `setup` with no agent shows a picker of agents with a choic
 
 ### `import langfuse`
 
-`import langfuse --dry-run` shows what an import from Langfuse would bring in. It needs no Prefactor login and sends nothing to Prefactor. Without `--dry-run` the command stops and says uploading is not available yet.
+`import langfuse` imports agents and their past runs from Langfuse into Prefactor. It reads Langfuse with the keys on your machine and sends only the runs to Prefactor; Prefactor never receives the Langfuse keys. `import langfuse --dry-run` shows what an import would bring in. It needs no Prefactor login and sends nothing to Prefactor.
 
 It reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_BASE_URL` (or `LANGFUSE_HOST`, defaulting to `https://cloud.langfuse.com`) from the first of these that sets both keys, and says which one it used:
 1. The shell environment. When mise is active, this includes its `[env]` section.
@@ -121,9 +122,20 @@ The command then:
 2. Checks the keys can read traces, with a one-row Observations API v2 query, because the projects call succeeds even for keys that cannot. When Langfuse answers `403` (no `traces:read` permission), it stops, explains how to create a Viewer key (Project Settings > API Keys > Create new API keys > Viewer; Full access and Developer keys also work) and says which variables to set to it.
 3. Counts runs (root observations) by trace name and environment over the last `--days` days (30 by default), with the Metrics API v2. That API returns at most 1,000 rows and cannot page, so when a query fills them the command splits the window in two and counts each half.
 4. In interactive mode, lists the trace names busiest first, all ticked, and lets you untick them. Each trace name becomes one agent.
-5. Prints the plan: each agent with its runs per environment, the total, and a rough estimate of how long reading the runs takes at the Langfuse Hobby plan's 30 requests a minute. Outside interactive mode, and with `--json`, the plan is JSON, without the estimate.
+5. With `--dry-run`, prints the plan: each agent with its runs per environment, the total, and a rough estimate of how long reading the runs takes at the Langfuse Hobby plan's 30 requests a minute. Outside interactive mode, and with `--json`, the plan is JSON, without the estimate.
 
-The CLI never prints or logs the keys, including in errors and JSON. Requests that get `429` wait as `Retry-After` asks.
+Without `--dry-run`, the import needs a choice of agents: in interactive mode the choice is the list of trace names above, and `--yes` takes every agent found over `--days` days. Outside interactive mode the command stops unless `--yes` is given, so a coding agent never sends runs without being told to. The command then:
+1. Signs you in to Prefactor through the browser, as `prefactor login` does, when the default profile has no token. This happens before it reads Langfuse.
+2. Uses the only account you can reach, or asks which one in interactive mode. Otherwise pass `--account-id`. It does not ask for an environment: Prefactor maps each Langfuse environment to one, and each trace name to an agent. A renamed or merged agent is sent under its new name.
+3. Opens an import, then reads observations newest first through the Observations API v2, 50 at a time with input, output, metadata, model and usage, for the chosen trace names over the window. Runs without a trace name are left out, because Prefactor needs the name to choose the agent.
+4. Groups observations by trace. A trace is sent once the pages pass its root observation, so a trace split across pages is sent whole. A trace whose root started before the window is read again in full by its ID.
+5. Drops the `resourceAttributes.process.*` metadata keys, which hold the command line and owner of the process that sent the trace, so they never leave your machine.
+6. Sends complete traces in batches of up to 20 and under 8 MB, showing progress. A trace larger than 8 MB on its own is not sent and is reported as rejected (`too_large`). A `429` from Prefactor waits as `retry_after_ms` asks.
+7. Finishes the import, as failed when it stops early or is interrupted with Ctrl+C, and prints the runs sent, imported, skipped and rejected (with reasons), a link to the agents page, and a pointer to `prefactor setup` for sending new runs through the SDK. Outside interactive mode, and with `--json`, the result is JSON.
+
+Running the command again after it stops carries on: Prefactor skips the runs it already imported, by their Langfuse trace ID, and counts them as skipped. A trace still running at the end of the window is imported as it was then, and a later import skips it.
+
+The CLI never prints or logs the keys, including in errors and JSON. Langfuse requests that get `429` wait as `Retry-After` asks.
 
 ### Output
 

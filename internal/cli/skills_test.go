@@ -85,7 +85,7 @@ func TestSkillsInstallForTheAgentsFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	names := "bootstrap-existing-agent-with-prefactor-cli, inspect-agent-run-with-prefactor-cli"
+	names := "bootstrap-existing-agent-with-prefactor-cli, import-from-langfuse-with-prefactor-cli, inspect-agent-run-with-prefactor-cli"
 	want := "Installed " + names + " for Claude Code in " + filepath.Join(project, ".claude", "skills") + "\n" +
 		"Installed " + names + " for Cursor in " + filepath.Join(project, ".agents", "skills") + "\n"
 	if out != want {
@@ -129,7 +129,7 @@ func TestSkillsInstallGlobalForChosenAgents(t *testing.T) {
 		{Path: filepath.Join(home, ".config", "agents", "skills"), Agents: []string{"Amp", "Other agents"}},
 		{Path: filepath.Join(home, ".agents", "skills"), Agents: []string{"Codex"}},
 	}
-	if !reflect.DeepEqual(got.Installs, want) || len(got.Skills) != 2 {
+	if !reflect.DeepEqual(got.Installs, want) || len(got.Skills) != 3 {
 		t.Fatalf("got %+v, want installs %+v", got, want)
 	}
 	if _, err := os.Stat(filepath.Join(home, ".agents", "skills", "inspect-agent-run-with-prefactor-cli", "SKILL.md")); err != nil {
