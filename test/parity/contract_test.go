@@ -137,10 +137,18 @@ func TestRequestsMatchTheOpenAPIDocument(t *testing.T) {
 	}
 
 	for _, op := range coveredOperations(t) {
-		if !checked[op] {
+		if _, own := ownContractTests[op]; !checked[op] && !own {
 			t.Errorf("%s has a command in api/coverage.yaml but no case in contract-cases/", op)
 		}
 	}
+}
+
+// ownContractTests are operations whose command needs more than the
+// recording server to run, so a test of their own checks their requests.
+var ownContractTests = map[string]string{
+	"Action.Import.Create":    "TestImportLangfuseRequestsMatchTheOpenAPIDocument",
+	"Action.Import.AddTraces": "TestImportLangfuseRequestsMatchTheOpenAPIDocument",
+	"Action.Import.Finish":    "TestImportLangfuseRequestsMatchTheOpenAPIDocument",
 }
 
 // coveredOperations lists the operations api/coverage.yaml maps to a
@@ -164,6 +172,13 @@ func coveredOperations(t *testing.T) []string {
 // runContract runs this CLI and returns its stderr.
 func runContract(t *testing.T, serverURL string, args []string) string {
 	t.Helper()
+	return runContractWithEnv(t, serverURL, args, nil)
+}
+
+// runContractWithEnv runs this CLI with extra environment variables and
+// returns its stderr.
+func runContractWithEnv(t *testing.T, serverURL string, args, env []string) string {
+	t.Helper()
 	work := t.TempDir()
 	if err := os.Mkdir(filepath.Join(work, ".git"), 0o755); err != nil {
 		t.Fatal(err)
@@ -178,7 +193,7 @@ func runContract(t *testing.T, serverURL string, args []string) string {
 	}
 	cmd := exec.Command(contractBinary, args...)
 	cmd.Dir = work
-	cmd.Env = append(filteredEnvironment(), "HOME="+work)
+	cmd.Env = append(append(filteredEnvironment(), "HOME="+work), env...)
 	cmd.Stdin = strings.NewReader("")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -189,7 +204,7 @@ func runContract(t *testing.T, serverURL string, args []string) string {
 func filteredEnvironment() []string {
 	var env []string
 	for _, kv := range os.Environ() {
-		if !strings.HasPrefix(kv, "PREFACTOR_") {
+		if !strings.HasPrefix(kv, "PREFACTOR_") && !strings.HasPrefix(kv, "LANGFUSE_") {
 			env = append(env, kv)
 		}
 	}

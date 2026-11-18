@@ -133,3 +133,31 @@ func TestRetryDelayDoublesUpToTheCap(t *testing.T) {
 		t.Errorf("minimum jitter delay = %v, want 125ms", got)
 	}
 }
+
+func TestUploadClientLeavesRateLimitsToTheCaller(t *testing.T) {
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if calls.Add(1) == 1 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusTooManyRequests)
+		_, _ = io.WriteString(w, `{"code":"rate_limited","retry_after_ms":1500}`)
+	}))
+	defer server.Close()
+
+	c, err := NewForUploads(server.URL, "tok", "1.2.3", time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Client.(*retryingDoer).sleep = func(context.Context, time.Duration) error { return nil }
+
+	_, err = ReadJSON(c.QueryPingGet(context.Background(), &api.QueryPingGetParams{}))
+	var httpErr *HTTPError
+	if !errors.As(err, &httpErr) || httpErr.Status != http.StatusTooManyRequests {
+		t.Fatalf("err = %v, want a 429", err)
+	}
+	if calls.Load() != 2 {
+		t.Fatalf("calls = %d, want 2 (the 503 retried, the 429 returned)", calls.Load())
+	}
+}
