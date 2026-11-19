@@ -126,12 +126,12 @@ The command then:
 
 Without `--dry-run`, the import needs a choice of agents: in interactive mode the choice is the list of trace names above, and `--yes` takes every agent found over `--days` days. Outside interactive mode the command stops unless `--yes` is given, so a coding agent never sends runs without being told to. The command then:
 1. Signs you in to Prefactor through the browser, as `prefactor login` does, when the default profile has no token. This happens before it reads Langfuse.
-2. Uses the only account you can reach, or asks which one in interactive mode. Otherwise pass `--account-id`. It does not ask for an environment: Prefactor maps each Langfuse environment to one, and each trace name to an agent. A renamed or merged agent is sent under its new name.
+2. Uses the only account you can reach, or asks which one in interactive mode. Otherwise pass `--account-id`. It does not ask for an environment: Prefactor maps each Langfuse environment to one, and each trace name to an agent.
 3. Opens an import, then reads observations newest first through the Observations API v2, 50 at a time with input, output, metadata, model and usage, for the chosen trace names over the window. Runs without a trace name are left out, because Prefactor needs the name to choose the agent.
-4. Groups observations by trace. A trace is sent once the pages pass its root observation, so a trace split across pages is sent whole. A trace whose root started before the window is read again in full by its ID.
+4. Groups observations by trace. A trace is sent once the pages pass its root observation, so a trace split across pages is sent whole. A trace whose root started before the window is left out, as the run counts leave it out.
 5. Drops the `resourceAttributes.process.*` metadata keys, which hold the command line and owner of the process that sent the trace, so they never leave your machine.
-6. Sends complete traces in batches of up to 20 and under 8 MB, showing progress. A trace larger than 8 MB on its own is not sent and is reported as rejected (`too_large`). A `429` from Prefactor waits as `retry_after_ms` asks.
-7. Finishes the import, as failed when it stops early or is interrupted with Ctrl+C, and prints the runs sent, imported, skipped and rejected (with reasons), a link to the agents page, and a pointer to `prefactor setup` for sending new runs through the SDK. Outside interactive mode, and with `--json`, the result is JSON.
+6. Sends complete traces in batches of up to 20 and under 8 MB, printing a line for each batch. A trace larger than 8 MB on its own is not sent and is reported as rejected (`too_large`). A `429` from Prefactor waits as `retry_after_ms` asks.
+7. Finishes the import, as failed when it stops early or is interrupted with Ctrl+C, and prints the runs sent, imported, skipped and rejected (with Prefactor's reason codes), a link to the agents page, and a pointer to `prefactor setup` for sending new runs through the SDK. Outside interactive mode, and with `--json`, the result is JSON.
 
 Running the command again after it stops carries on: Prefactor skips the runs it already imported, by their Langfuse trace ID, and counts them as skipped. A trace still running at the end of the window is imported as it was then, and a later import skips it.
 

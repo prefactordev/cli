@@ -39,7 +39,7 @@ func TestObservationsSendsTheQuery(t *testing.T) {
 		q := r.URL.Query()
 		if r.URL.Path != "/api/public/v2/observations" || q.Get("fields") != "core,basic,time,io,metadata,model,usage,trace_context" ||
 			q.Get("limit") != "50" || q.Get("fromStartTime") != "2026-08-01T00:00:00.000Z" || q.Get("toStartTime") != "2026-08-02T00:00:00.000Z" ||
-			q.Get("cursor") != "c1" || q.Has("traceId") {
+			q.Get("cursor") != "c1" {
 			t.Errorf("query = %s", r.URL.RawQuery)
 		}
 		var filter []map[string]any
@@ -66,30 +66,9 @@ func TestObservationsSendsTheQuery(t *testing.T) {
 	}
 }
 
-func TestTraceReadsEveryPageOfOneTrace(t *testing.T) {
-	var queries []string
-	c, _ := testClient(t, func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-		queries = append(queries, q.Get("traceId")+" "+q.Get("cursor")+" "+q.Get("fromStartTime"))
-		if q.Get("cursor") == "" {
-			_, _ = io.WriteString(w, `{"data":[{"id":"o3","traceId":"t1"},{"id":"o2","traceId":"t1"}],"meta":{"cursor":"next"}}`)
-			return
-		}
-		_, _ = io.WriteString(w, `{"data":[{"id":"o2","traceId":"t1"},{"id":"o1","traceId":"t1"}],"meta":{"cursor":null}}`)
-	})
-
-	trace, err := c.Trace(context.Background(), "t1", time.Now(), 50)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(trace.Observations) != 3 || strings.Join(queries, "|") != "t1  |t1 next " {
-		t.Fatalf("observations = %d, queries = %q", len(trace.Observations), queries)
-	}
-}
-
 func TestWithoutProcessMetadataDropsOnlyProcessKeys(t *testing.T) {
 	var o Observation
-	_ = json.Unmarshal([]byte(`{"id":"o1","input":"{\"a\":\"<b>\"}","metadata":{"feature":"orders","resourceAttributes.process.pid":"123","resourceAttributes.process.command_args":"[\"--token\"]","resourceAttributes.host.name":"box","resourceAttributes":{"process":{"pid":1},"process.owner":"me","service.name":"svc"}}}`), &o)
+	_ = json.Unmarshal([]byte(`{"id":"o1","input":"{\"a\":\"<b>\"}","metadata":{"feature":"orders","resourceAttributes.process.pid":"123","resourceAttributes.process.command_args":"[\"--token\"]","resourceAttributes.host.name":"box"}}`), &o)
 
 	got := o.WithoutProcessMetadata()
 	var metadata map[string]any
@@ -104,9 +83,6 @@ func TestWithoutProcessMetadataDropsOnlyProcessKeys(t *testing.T) {
 	}
 	if metadata["feature"] != "orders" || metadata["resourceAttributes.host.name"] != "box" {
 		t.Errorf("other keys changed: %s", got["metadata"])
-	}
-	if nested := fmt.Sprint(metadata["resourceAttributes"]); nested != "map[service.name:svc]" {
-		t.Errorf("nested = %s", nested)
 	}
 	if string(got["input"]) != string(o["input"]) {
 		t.Errorf("input changed: %s", got["input"])
@@ -135,7 +111,8 @@ func TestAssemblerWaitsUntilThePagesPassTheRoot(t *testing.T) {
 	if got = a.Add([]Observation{obs("t1", "r1", 30, true)}); len(got) != 0 {
 		t.Fatalf("page 2 completed %v", ids(got))
 	}
-	// Page 3 is older than t1's root, so t1 is complete; t3 has no root yet.
+	// Page 3 is older than t1's root, so t1 is complete; t3 has no root yet,
+	// so it started before the window.
 	got = a.Add([]Observation{obs("t1", "c0", 30, false), obs("t3", "c3", 20, false)})
 	if fmt.Sprint(ids(got)) != "[t1:4]" {
 		t.Fatalf("page 3 completed %v", ids(got))
@@ -145,18 +122,16 @@ func TestAssemblerWaitsUntilThePagesPassTheRoot(t *testing.T) {
 		t.Fatalf("page 4 completed %v", ids(got))
 	}
 
-	complete, partial := a.Finish()
-	if len(complete) != 0 || fmt.Sprint(partial) != "[t3]" {
-		t.Fatalf("complete = %v, partial = %v", ids(complete), partial)
+	if complete := a.Finish(); len(complete) != 0 {
+		t.Fatalf("complete = %v; t3 has no root, so it is left out", ids(complete))
 	}
 }
 
 func TestAssemblerFinishCompletesTracesWithARoot(t *testing.T) {
 	a := NewAssembler()
 	a.Add([]Observation{obs("t1", "c1", 31, false), obs("t1", "r1", 30, true)})
-	complete, partial := a.Finish()
-	if fmt.Sprint(ids(complete)) != "[t1:2]" || len(partial) != 0 {
-		t.Fatalf("complete = %v, partial = %v", ids(complete), partial)
+	if complete := a.Finish(); fmt.Sprint(ids(complete)) != "[t1:2]" {
+		t.Fatalf("complete = %v", ids(complete))
 	}
 }
 
@@ -168,7 +143,7 @@ func TestTraceEncodeTakesTheTraceFieldsFromTheRoot(t *testing.T) {
 		t.Fatalf("trace name = %q", trace.TraceName())
 	}
 
-	raw, err := trace.Encode("Support bot")
+	raw, err := trace.Encode()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +161,7 @@ func TestTraceEncodeTakesTheTraceFieldsFromTheRoot(t *testing.T) {
 	if err := json.Unmarshal(raw, &got); err != nil {
 		t.Fatal(err)
 	}
-	if got.ID != "t1" || got.Name != "Support bot" || got.Environment != "production" || got.Release != "v1" ||
+	if got.ID != "t1" || got.Name != "support" || got.Environment != "production" || got.Release != "v1" ||
 		got.Timestamp != "2026-08-01T10:00:30.000Z" || got.UserID != "u1" || got.SessionID != "s1" || fmt.Sprint(got.Tags) != "[beta]" {
 		t.Fatalf("trace = %+v", got)
 	}

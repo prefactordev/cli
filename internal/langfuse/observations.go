@@ -77,26 +77,6 @@ func (o Observation) WithoutProcessMetadata() Observation {
 			changed = true
 		}
 	}
-	// Metadata can also arrive nested, as {"resourceAttributes":
-	// {"process": {...}}} or {"resourceAttributes": {"process.pid": ...}}.
-	if nestedRaw, ok := metadata["resourceAttributes"]; ok {
-		var nested map[string]json.RawMessage
-		if json.Unmarshal(nestedRaw, &nested) == nil && nested != nil {
-			removed := false
-			for key := range nested {
-				if key == "process" || strings.HasPrefix(key, "process.") {
-					delete(nested, key)
-					removed = true
-				}
-			}
-			if removed {
-				if encoded, err := marshalRaw(nested); err == nil {
-					metadata["resourceAttributes"] = encoded
-					changed = true
-				}
-			}
-		}
-	}
 	if !changed {
 		return o
 	}
@@ -129,11 +109,9 @@ func marshalRaw(value any) (json.RawMessage, error) {
 type ObservationQuery struct {
 	// TraceNames keeps observations of traces with one of these names.
 	TraceNames []string
-	// TraceID keeps observations of one trace.
-	TraceID  string
-	From, To time.Time
-	Limit    int
-	Cursor   string
+	From, To   time.Time
+	Limit      int
+	Cursor     string
 }
 
 // ObservationPage is one page of observations, newest first. Cursor is
@@ -155,9 +133,6 @@ func (c *Client) Observations(ctx context.Context, q ObservationQuery) (Observat
 	}
 	if !q.To.IsZero() {
 		query.Set("toStartTime", Timestamp(q.To))
-	}
-	if q.TraceID != "" {
-		query.Set("traceId", q.TraceID)
 	}
 	if q.Cursor != "" {
 		query.Set("cursor", q.Cursor)
@@ -186,30 +161,6 @@ func (c *Client) Observations(ctx context.Context, q ObservationQuery) (Observat
 		page.Cursor = *response.Meta.Cursor
 	}
 	return page, nil
-}
-
-// Trace returns every observation of one trace that started before to,
-// reading as many pages as it takes.
-func (c *Client) Trace(ctx context.Context, traceID string, to time.Time, limit int) (Trace, error) {
-	trace := Trace{ID: traceID}
-	seen := map[string]bool{}
-	cursor := ""
-	for {
-		page, err := c.Observations(ctx, ObservationQuery{TraceID: traceID, To: to, Limit: limit, Cursor: cursor})
-		if err != nil {
-			return Trace{}, err
-		}
-		for _, o := range page.Observations {
-			if id := o.Text("id"); id != "" && !seen[id] && o.Text("traceId") == traceID {
-				seen[id] = true
-				trace.Observations = append(trace.Observations, o)
-			}
-		}
-		if page.Cursor == "" || page.Cursor == cursor {
-			return trace, nil
-		}
-		cursor = page.Cursor
-	}
 }
 
 // Trace is a Langfuse trace: its ID and its observations.
@@ -255,12 +206,12 @@ type uploadTrace struct {
 	Observations []Observation   `json:"observations"`
 }
 
-// Encode returns the trace as JSON for upload, named name, which is the
-// Prefactor agent its runs go to. The trace fields come from the root
-// observation, where Langfuse copies them; observations are oldest first,
-// without process metadata.
-func (t Trace) Encode(name string) ([]byte, error) {
-	upload := uploadTrace{ID: t.ID, Name: name, Observations: make([]Observation, len(t.Observations))}
+// Encode returns the trace as JSON for upload. Its name is the trace
+// name, which Prefactor uses as the agent's name. The trace fields come
+// from the root observation, where Langfuse copies them; observations are
+// oldest first, without process metadata.
+func (t Trace) Encode() ([]byte, error) {
+	upload := uploadTrace{ID: t.ID, Name: t.TraceName(), Observations: make([]Observation, len(t.Observations))}
 	if root := t.root(); root != nil {
 		upload.Environment = root["environment"]
 		upload.Release = root["release"]
@@ -284,8 +235,8 @@ func (t Trace) Encode(name string) ([]byte, error) {
 // Every observation of a trace starts at or after its root. So once a page
 // ends with an observation older than a trace's root, the trace has no more
 // observations to come. A trace whose root is not seen by the end started
-// before the window, or is cut off at its edge, and must be read again by
-// its ID.
+// before the window, so it is not one of the window's runs and is left
+// out.
 type Assembler struct {
 	pending map[string]*pendingTrace
 	// order is the order traces were first seen, so results are stable.
@@ -341,17 +292,12 @@ func (a *Assembler) Add(observations []Observation) []Trace {
 }
 
 // Finish ends the window. It returns the traces whose root was seen, which
-// are complete because nothing older is left, and the IDs of the traces
-// whose root was not seen, to read again in full.
-func (a *Assembler) Finish() (complete []Trace, partial []string) {
-	complete = a.take(func(p *pendingTrace) bool { return p.hasRoot })
-	for _, id := range a.order {
-		partial = append(partial, id)
-		delete(a.pending, id)
-		a.done[id] = true
-	}
+// are complete because nothing older is left, and drops the rest.
+func (a *Assembler) Finish() []Trace {
+	complete := a.take(func(p *pendingTrace) bool { return p.hasRoot })
+	clear(a.pending)
 	a.order = nil
-	return complete, partial
+	return complete
 }
 
 // take removes and returns the pending traces that ready accepts.
