@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -26,6 +27,11 @@ type langfuseServer struct {
 	mu      sync.Mutex
 	readers map[string]bool
 	metrics string
+	// observations answers the Observations API v2 queries other than
+	// the one-row read check; nil answers with no observations.
+	observations func(q url.Values) string
+	// queries are those observation queries, in order.
+	queries []url.Values
 	// users is the public key of each request, in order.
 	users []string
 }
@@ -47,6 +53,7 @@ func newLangfuseServer(t *testing.T) *langfuseServer {
 		ls.users = append(ls.users, user)
 		canRead, known := ls.readers[user+":"+pass]
 		metrics := ls.metrics
+		observations := ls.observations
 		ls.mu.Unlock()
 
 		w.Header().Set("Content-Type", "application/json")
@@ -59,6 +66,11 @@ func newLangfuseServer(t *testing.T) *langfuseServer {
 		case !canRead:
 			w.WriteHeader(http.StatusForbidden)
 			_, _ = io.WriteString(w, `{"message":"Access denied. The \"traces:read\" permission is required to access this resource.","error":"ForbiddenError"}`)
+		case r.URL.Path == "/api/public/v2/observations" && observations != nil && r.URL.Query().Get("limit") != "1":
+			ls.mu.Lock()
+			ls.queries = append(ls.queries, r.URL.Query())
+			ls.mu.Unlock()
+			_, _ = io.WriteString(w, observations(r.URL.Query()))
 		case r.URL.Path == "/api/public/v2/observations":
 			_, _ = io.WriteString(w, `{"data":[],"meta":{}}`)
 		case r.URL.Path == "/api/public/v2/metrics":
@@ -134,12 +146,13 @@ func TestImportLangfuseNeedsNoPrefactorProfile(t *testing.T) {
 	}
 }
 
-func TestImportLangfuseWithoutDryRunSendsNothing(t *testing.T) {
+func TestImportLangfuseWithoutAChoiceOfAgentsSendsNothing(t *testing.T) {
 	ls := newLangfuseServer(t)
 	ta := langfuseApp(t, ls, lfViewerPublic, lfViewerSecret)
 
 	_, err := ta.run(t, "import", "langfuse")
-	if err == nil || !strings.Contains(err.Error(), "not available yet") {
+	if err == nil || !strings.Contains(err.Error(), "pass --yes to import every agent found in the last 30 days") ||
+		!strings.Contains(err.Error(), "--dry-run") {
 		t.Fatalf("err = %v", err)
 	}
 	if len(ls.users) != 0 {

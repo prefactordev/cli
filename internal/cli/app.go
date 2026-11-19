@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -49,6 +51,9 @@ type App struct {
 	// dryRun stops commands at their first API call; see
 	// checkCommandOptions.
 	dryRun bool
+	// importSleep waits before an import retries a rate-limited batch;
+	// tests replace it.
+	importSleep func(ctx context.Context, d time.Duration) error
 	// checksBeforeProfile are the checks a command makes before the
 	// profile is loaded, as the TypeScript CLI makes them; other checks
 	// come after.
