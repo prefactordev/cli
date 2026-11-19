@@ -465,3 +465,26 @@ func TestImportLangfuseSignsInWhenThereIsNoProfile(t *testing.T) {
 		t.Fatalf("%d requests sent to Langfuse before signing in", len(ls.users))
 	}
 }
+
+func TestImportLangfuseSignsInAtTheDefaultProfileURLWhenItHasNoToken(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ta := langfuseApp(t, ls, lfViewerPublic, lfViewerSecret)
+	ta.addProfile(t, "default", "", "http://prefactor.local")
+	ta.env["PREFACTOR_API_TOKEN"] = "env-token"
+	var started []string
+	ta.Login = LoginDeps{
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+			started = append(started, r.URL.String())
+			return &http.Response{StatusCode: http.StatusServiceUnavailable, Body: io.NopCloser(strings.NewReader(`{}`)), Header: http.Header{}}, nil
+		})},
+		Hostname: func() (string, error) { return "box", nil },
+	}
+
+	_, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err == nil || err.Error() != "Login could not start (HTTP 503)." {
+		t.Fatalf("err = %v", err)
+	}
+	if !strings.Contains(errOut, "You are not signed in to Prefactor") || fmt.Sprint(started) != "[http://prefactor.local/cli/login/start]" {
+		t.Fatalf("stderr = %s, requests = %v", errOut, started)
+	}
+}
