@@ -115,13 +115,15 @@ func (a *App) prefactorTarget(cmd *cobra.Command) (*prefactorTarget, error) {
 
 // prefactorCredentials returns the selected profile's base URL and token.
 // With the default profile and no token, it signs in through the browser
-// first, as prefactor login does.
+// first, as prefactor login does, at the default profile's base URL when the
+// profile has one.
 func (a *App) prefactorCredentials(cmd *cobra.Command) (string, string, error) {
 	baseURL, token, err := a.credentials(cmd)
-	if err == nil {
+	_, isDefault := a.resolveProfileName(cmd)
+	if err == nil && (token != "" || !isDefault) {
 		return baseURL, token, nil
 	}
-	if _, isDefault := a.resolveProfileName(cmd); !isDefault {
+	if !isDefault {
 		return "", "", err
 	}
 	status := cmd.ErrOrStderr()
