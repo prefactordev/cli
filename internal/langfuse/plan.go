@@ -5,7 +5,7 @@ import (
 	"slices"
 )
 
-// Assumptions behind Estimate.
+// Assumptions behind EstimateMinutes.
 const (
 	// HobbyRequestsPerMinute is the Langfuse Hobby plan's rate limit for
 	// the observations API.
@@ -25,52 +25,37 @@ type EnvironmentRuns struct {
 	Runs int    `json:"runs"`
 }
 
-// Agent is one agent an import would create: the runs of one or more
-// Langfuse trace names.
+// Agent is one agent an import would create. Name is the Langfuse trace
+// name, which Prefactor uses as the agent's name; it is "" for runs
+// without a trace name.
 type Agent struct {
 	Name         string            `json:"name"`
-	TraceNames   []string          `json:"trace_names"`
 	Environments []EnvironmentRuns `json:"environments"`
 	Runs         int               `json:"runs"`
 }
 
-// Candidates turns trace counts into one agent per trace name, named after
-// it, busiest first. Rows without a trace name are grouped under "".
+// Candidates turns trace counts into one agent per trace name, busiest
+// first, then by name. Rows without a trace name are grouped under "".
 func Candidates(counts []TraceCount) []Agent {
 	var agents []Agent
 	for _, count := range counts {
-		i := slices.IndexFunc(agents, func(a Agent) bool { return a.TraceNames[0] == count.TraceName })
+		i := slices.IndexFunc(agents, func(a Agent) bool { return a.Name == count.TraceName })
 		if i < 0 {
-			agents = append(agents, Agent{Name: count.TraceName, TraceNames: []string{count.TraceName}})
+			agents = append(agents, Agent{Name: count.TraceName})
 			i = len(agents) - 1
 		}
 		agents[i].Environments = addRuns(agents[i].Environments, count.Environment, count.Count)
 		agents[i].Runs += count.Count
 	}
 	for i := range agents {
-		sortEnvironments(agents[i].Environments)
+		slices.SortStableFunc(agents[i].Environments, func(a, b EnvironmentRuns) int {
+			return cmp.Or(cmp.Compare(b.Runs, a.Runs), cmp.Compare(a.Name, b.Name))
+		})
 	}
-	SortAgents(agents)
-	return agents
-}
-
-// Merge combines two agents into one called name.
-func Merge(a, b Agent, name string) Agent {
-	merged := Agent{Name: name, Runs: a.Runs + b.Runs}
-	merged.TraceNames = append(slices.Clone(a.TraceNames), b.TraceNames...)
-	merged.Environments = slices.Clone(a.Environments)
-	for _, env := range b.Environments {
-		merged.Environments = addRuns(merged.Environments, env.Name, env.Runs)
-	}
-	sortEnvironments(merged.Environments)
-	return merged
-}
-
-// SortAgents orders agents busiest first, then by name.
-func SortAgents(agents []Agent) {
 	slices.SortStableFunc(agents, func(a, b Agent) int {
 		return cmp.Or(cmp.Compare(b.Runs, a.Runs), cmp.Compare(a.Name, b.Name))
 	})
+	return agents
 }
 
 func addRuns(envs []EnvironmentRuns, name string, runs int) []EnvironmentRuns {
@@ -81,38 +66,14 @@ func addRuns(envs []EnvironmentRuns, name string, runs int) []EnvironmentRuns {
 	return append(envs, EnvironmentRuns{Name: name, Runs: runs})
 }
 
-func sortEnvironments(envs []EnvironmentRuns) {
-	slices.SortStableFunc(envs, func(a, b EnvironmentRuns) int {
-		return cmp.Or(cmp.Compare(b.Runs, a.Runs), cmp.Compare(a.Name, b.Name))
-	})
-}
-
-// Estimate is a rough range for how long reading runs from Langfuse takes
-// at the Hobby plan's rate limit.
-type Estimate struct {
-	RequestsPerMinute      int `json:"requests_per_minute"`
-	ObservationsPerPage    int `json:"observations_per_page"`
-	ObservationsPerRunLow  int `json:"observations_per_run_low"`
-	ObservationsPerRunHigh int `json:"observations_per_run_high"`
-	RequestsLow            int `json:"requests_low"`
-	RequestsHigh           int `json:"requests_high"`
-	MinutesLow             int `json:"minutes_low"`
-	MinutesHigh            int `json:"minutes_high"`
-}
-
-// EstimateFor estimates reading runs runs.
-func EstimateFor(runs int) Estimate {
-	e := Estimate{
-		RequestsPerMinute:      HobbyRequestsPerMinute,
-		ObservationsPerPage:    ObservationsPerPage,
-		ObservationsPerRunLow:  ObservationsPerRunLow,
-		ObservationsPerRunHigh: ObservationsPerRunHigh,
+// EstimateMinutes is a rough range for how many minutes reading runs runs
+// from Langfuse takes at the Hobby plan's rate limit.
+func EstimateMinutes(runs int) (low, high int) {
+	minutes := func(perRun int) int {
+		requests := ceilDiv(runs*perRun, ObservationsPerPage)
+		return ceilDiv(requests, HobbyRequestsPerMinute)
 	}
-	e.RequestsLow = ceilDiv(runs*ObservationsPerRunLow, ObservationsPerPage)
-	e.RequestsHigh = ceilDiv(runs*ObservationsPerRunHigh, ObservationsPerPage)
-	e.MinutesLow = ceilDiv(e.RequestsLow, HobbyRequestsPerMinute)
-	e.MinutesHigh = ceilDiv(e.RequestsHigh, HobbyRequestsPerMinute)
-	return e
+	return minutes(ObservationsPerRunLow), minutes(ObservationsPerRunHigh)
 }
 
 func ceilDiv(a, b int) int {

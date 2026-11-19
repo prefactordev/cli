@@ -122,47 +122,6 @@ func TestFindKeysOutsideARepositoryLooksOnlyInTheDirectory(t *testing.T) {
 	}
 }
 
-func TestFindKeysPrefersDotenvToMise(t *testing.T) {
-	root, dir := repoWithDir(t)
-	writeFile(t, filepath.Join(dir, "mise.toml"), "[env]\nLANGFUSE_PUBLIC_KEY = \"pk-mise\"\nLANGFUSE_SECRET_KEY = \"sk-mise\"\n")
-	writeFile(t, filepath.Join(root, ".env"), dotenvKeys)
-
-	keys, err := FindKeys(FindOptions{LookupEnv: envOf(nil), Dir: dir})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if keys.PublicKey.Reveal() != "pk-file" {
-		t.Fatalf("keys from %v", keys.Source)
-	}
-}
-
-func TestFindKeysReadsMiseLocalBeforeMise(t *testing.T) {
-	root, dir := repoWithDir(t)
-	writeFile(t, filepath.Join(root, "mise.toml"), "[env]\nLANGFUSE_PUBLIC_KEY = \"pk-mise\"\nLANGFUSE_SECRET_KEY = \"sk-mise\"\n")
-	writeFile(t, filepath.Join(root, "mise.local.toml"), `[tools]
-go = "1.27"
-
-[env] # local secrets
-LANGFUSE_PUBLIC_KEY = 'pk-local'
-"LANGFUSE_SECRET_KEY" = "sk-local" # trailing comment
-LANGFUSE_HOST = "https://us.cloud.langfuse.com"
-
-[tasks]
-LANGFUSE_PUBLIC_KEY = "not-env"
-`)
-
-	keys, err := FindKeys(FindOptions{LookupEnv: envOf(nil), Dir: dir})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if keys.Source.Path != filepath.Join(root, "mise.local.toml") {
-		t.Fatalf("keys from %v", keys.Source)
-	}
-	if keys.PublicKey.Reveal() != "pk-local" || keys.SecretKey.Reveal() != "sk-local" || keys.BaseURL != "https://us.cloud.langfuse.com" {
-		t.Fatalf("keys = %q %q %q", keys.PublicKey.Reveal(), keys.SecretKey.Reveal(), keys.BaseURL)
-	}
-}
-
 func TestFindKeysWithAFileReadsOnlyThatFile(t *testing.T) {
 	root, dir := repoWithDir(t)
 	writeFile(t, filepath.Join(root, ".env"), dotenvKeys)
@@ -236,31 +195,6 @@ func TestParseDotenv(t *testing.T) {
 	}
 }
 
-func TestParseMiseEnvSkipsDirectivesAndTables(t *testing.T) {
-	values := parseMiseEnv(`
-[env]
-_.file = ".env"
-NUMBER = 3
-TABLE = { value = "x", tools = true }
-LIST = ["a"]
-MULTI = """
-x
-"""
-QUOTED = "a#b"
-
-[env.other]
-NESTED = "no"
-`)
-	if values["NUMBER"] != "3" || values["QUOTED"] != "a#b" {
-		t.Fatalf("values = %v", values)
-	}
-	for _, key := range []string{"_.file", "TABLE", "LIST", "MULTI", "NESTED"} {
-		if _, ok := values[key]; ok {
-			t.Errorf("%s was read: %v", key, values)
-		}
-	}
-}
-
 func TestSecretNeverPrints(t *testing.T) {
 	keys := Keys{PublicKey: NewSecret("pk-lf-visible"), SecretKey: NewSecret("sk-lf-visible"), BaseURL: DefaultBaseURL}
 	raw, err := json.Marshal(keys)
@@ -316,11 +250,11 @@ func TestAHostInTheFileWinsOverTheShell(t *testing.T) {
 }
 
 func TestShellHostOnly(t *testing.T) {
-	host, from, err := ShellHost(envOf(map[string]string{HostVar: "https://us.cloud.langfuse.com/"}))
+	host, from, err := shellHost(envOf(map[string]string{HostVar: "https://us.cloud.langfuse.com/"}))
 	if err != nil || host != "https://us.cloud.langfuse.com" || from.Kind != SourceEnvironment {
 		t.Fatalf("host %q from %v, %v", host, from, err)
 	}
-	host, from, err = ShellHost(envOf(nil))
+	host, from, err = shellHost(envOf(nil))
 	if err != nil || host != DefaultBaseURL || from.Kind != SourceDefault {
 		t.Fatalf("host %q from %v, %v", host, from, err)
 	}

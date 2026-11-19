@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -214,12 +215,77 @@ func TestErrorsNeverContainTheKeys(t *testing.T) {
 	}
 }
 
-func TestRetryAfterAcceptsADate(t *testing.T) {
-	when := time.Now().Add(30 * time.Second).UTC().Format(http.TimeFormat)
-	if got := retryAfter(when, 1); got < 25*time.Second || got > 30*time.Second {
-		t.Fatalf("retryAfter = %v", got)
-	}
+func TestRetryAfterGrowsWithoutAHeader(t *testing.T) {
 	if got := retryAfter("", 2); got != 10*time.Second {
 		t.Fatalf("retryAfter without header = %v", got)
+	}
+}
+
+func TestTraceCountsSplitsAWindowThatFillsTheRowLimit(t *testing.T) {
+	from := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+	to := from.AddDate(0, 0, 2)
+	mid := from.AddDate(0, 0, 1)
+	// rows returns n rows named agent-start to agent-(start+n-1), with one
+	// run each in production.
+	rows := func(start, n int) string {
+		parts := make([]string, n)
+		for i := range parts {
+			parts[i] = fmt.Sprintf(`{"traceName":"agent-%d","environment":"production","count_count":1}`, start+i)
+		}
+		return `{"data":[` + strings.Join(parts, ",") + `]}`
+	}
+	var windows []string
+	c, _ := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		var query struct {
+			From   string         `json:"fromTimestamp"`
+			To     string         `json:"toTimestamp"`
+			Config map[string]int `json:"config"`
+		}
+		if err := json.Unmarshal([]byte(r.URL.Query().Get("query")), &query); err != nil || query.Config["row_limit"] != metricsRowLimit {
+			t.Errorf("query = %s", r.URL.Query().Get("query"))
+		}
+		windows = append(windows, query.From+" "+query.To)
+		switch query.From + " " + query.To {
+		case Timestamp(from) + " " + Timestamp(to):
+			// The whole window fills the limit, so its rows are cut off.
+			_, _ = io.WriteString(w, rows(0, metricsRowLimit))
+		case Timestamp(from) + " " + Timestamp(mid):
+			_, _ = io.WriteString(w, rows(0, 700))
+		case Timestamp(mid.Add(time.Millisecond)) + " " + Timestamp(to):
+			// agent-600 to agent-699 have runs in both halves.
+			_, _ = io.WriteString(w, rows(600, 500))
+		default:
+			t.Errorf("unexpected window %s %s", query.From, query.To)
+		}
+	})
+
+	counts, err := c.TraceCounts(context.Background(), from, to)
+	if err != nil {
+		t.Fatal(err)
+	}
+	total := 0
+	for _, count := range counts {
+		total += count.Count
+	}
+	if len(windows) != 3 || len(counts) != 1100 || total != 1200 {
+		t.Fatalf("windows = %v, %d counts adding to %d", windows, len(counts), total)
+	}
+	if counts[650] != (TraceCount{"agent-650", "production", 2}) {
+		t.Fatalf("counts[650] = %+v", counts[650])
+	}
+}
+
+func TestTraceCountsGivesUpOnAWindowTooShortToSplit(t *testing.T) {
+	c, _ := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		parts := make([]string, metricsRowLimit)
+		for i := range parts {
+			parts[i] = fmt.Sprintf(`{"traceName":"agent-%d","environment":"production","count_count":1}`, i)
+		}
+		_, _ = io.WriteString(w, `{"data":[`+strings.Join(parts, ",")+`]}`)
+	})
+
+	from := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+	if _, err := c.TraceCounts(context.Background(), from, from.Add(minCountWindow)); err == nil || !strings.Contains(err.Error(), "too many to count") {
+		t.Fatalf("err = %v", err)
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +27,11 @@ const (
 	retryBaseDelay = time.Second
 	// maxRetryAfter caps a Retry-After wait.
 	maxRetryAfter = 2 * time.Minute
+	// metricsRowLimit is the most rows the Metrics API returns for one
+	// query. It has no pagination.
+	metricsRowLimit = 1000
+	// minCountWindow is the shortest window TraceCounts splits.
+	minCountWindow = time.Second
 )
 
 // APIError is a response from Langfuse other than 2xx. Message is
@@ -105,8 +111,47 @@ type TraceCount struct {
 }
 
 // TraceCounts counts root observations by trace name and environment
-// between from and to, with one Metrics API request.
+// between from and to, both inclusive, with the Metrics API. That API
+// returns at most metricsRowLimit rows and cannot page, so a window that
+// fills them is split in two and each half counted on its own.
 func (c *Client) TraceCounts(ctx context.Context, from, to time.Time) ([]TraceCount, error) {
+	counts, err := c.traceCountsQuery(ctx, from, to)
+	if err != nil || len(counts) < metricsRowLimit {
+		return counts, err
+	}
+	if to.Sub(from) <= minCountWindow {
+		return nil, fmt.Errorf("Langfuse has more than %d trace name and environment pairs between %s and %s, which is too many to count.",
+			metricsRowLimit, Timestamp(from), Timestamp(to))
+	}
+	mid := from.Add(to.Sub(from) / 2).Truncate(time.Millisecond)
+	first, err := c.TraceCounts(ctx, from, mid)
+	if err != nil {
+		return nil, err
+	}
+	second, err := c.TraceCounts(ctx, mid.Add(time.Millisecond), to)
+	if err != nil {
+		return nil, err
+	}
+	return addCounts(first, second), nil
+}
+
+// addCounts adds b's counts to a's, by trace name and environment.
+func addCounts(a, b []TraceCount) []TraceCount {
+	for _, count := range b {
+		i := slices.IndexFunc(a, func(tc TraceCount) bool {
+			return tc.TraceName == count.TraceName && tc.Environment == count.Environment
+		})
+		if i < 0 {
+			a = append(a, count)
+			continue
+		}
+		a[i].Count += count.Count
+	}
+	return a
+}
+
+// traceCountsQuery sends one Metrics API query for TraceCounts.
+func (c *Client) traceCountsQuery(ctx context.Context, from, to time.Time) ([]TraceCount, error) {
 	metricsQuery := map[string]any{
 		"view":       "observations",
 		"metrics":    []map[string]string{{"measure": "count", "aggregation": "count"}},
@@ -116,7 +161,7 @@ func (c *Client) TraceCounts(ctx context.Context, from, to time.Time) ([]TraceCo
 		},
 		"fromTimestamp": Timestamp(from),
 		"toTimestamp":   Timestamp(to),
-		"config":        map[string]int{"row_limit": 1000},
+		"config":        map[string]int{"row_limit": metricsRowLimit},
 	}
 	encoded, err := json.Marshal(metricsQuery)
 	if err != nil {
@@ -272,15 +317,13 @@ func errorMessage(status int, body []byte) string {
 }
 
 // retryAfter is how long a 429 response asks to wait: Retry-After in
-// seconds or as a date, or a growing delay when it has neither.
+// seconds, or a growing delay without it.
 func retryAfter(header string, attempt int) time.Duration {
 	wait := time.Duration(attempt) * 5 * time.Second
 	if seconds, err := strconv.Atoi(strings.TrimSpace(header)); err == nil && seconds >= 0 {
 		wait = time.Duration(seconds) * time.Second
-	} else if when, err := http.ParseTime(header); err == nil {
-		wait = time.Until(when)
 	}
-	return min(max(wait, 0), maxRetryAfter)
+	return min(wait, maxRetryAfter)
 }
 
 // Timestamp formats a time as Langfuse's ISO 8601 parameters expect.

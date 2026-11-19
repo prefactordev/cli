@@ -21,14 +21,11 @@ const langfuseDefaultDays = "30"
 
 // langfusePlan is what import langfuse --dry-run prints.
 type langfusePlan struct {
-	DryRun     bool              `json:"dry_run"`
-	KeysSource langfuse.Source   `json:"keys_source"`
-	HostSource langfuse.Source   `json:"host_source"`
-	Langfuse   langfuseTarget    `json:"langfuse"`
-	Window     langfuseWindow    `json:"window"`
-	Agents     []langfuse.Agent  `json:"agents"`
-	TotalRuns  int               `json:"total_runs"`
-	Estimate   langfuse.Estimate `json:"estimate"`
+	KeysSource langfuse.Source  `json:"keys_source"`
+	Langfuse   langfuseTarget   `json:"langfuse"`
+	Window     langfuseWindow   `json:"window"`
+	Agents     []langfuse.Agent `json:"agents"`
+	TotalRuns  int              `json:"total_runs"`
 }
 
 type langfuseTarget struct {
@@ -60,7 +57,7 @@ func newImportCommand(app *App) *cobra.Command {
 		},
 	}
 	importLangfuse.Flags().Bool("dry-run", false, "Show what an import would bring in, sending nothing to Prefactor")
-	importLangfuse.Flags().String("env", "", "Read the Langfuse keys from this file only (.env format, or a mise TOML file); by default they come from the shell environment, the nearest .env, then mise.local.toml and mise.toml")
+	importLangfuse.Flags().String("env", "", "Read the Langfuse keys from this file only, in .env format; by default they come from the shell environment, then the nearest .env")
 	setPlaceholder(importLangfuse, "env", "file")
 	importLangfuse.Flags().String("days", langfuseDefaultDays, "Look for runs from this many days back")
 	setPlaceholder(importLangfuse, "days", "n")
@@ -82,10 +79,6 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 		return err
 	}
 	keys, err := langfuse.FindKeys(langfuse.FindOptions{LookupEnv: a.LookupEnv, Dir: dir, File: stringFlag(cmd, "env")})
-	var noKeys *langfuse.NoKeysError
-	if errors.As(err, &noKeys) {
-		keys, err = a.pasteMissingKeys(cmd, noKeys)
-	}
 	if err != nil {
 		return err
 	}
@@ -95,37 +88,25 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 	to := time.Now().UTC()
 	from := to.AddDate(0, 0, -days)
 
-	var client *langfuse.Client
-	var projects []langfuse.Project
-	for {
-		fmt.Fprintf(status, "Using Langfuse keys from %s.\n", keys.Source)
-		if keys.HostSource.Kind == langfuse.SourceDefault {
-			fmt.Fprintf(status, "Using the default Langfuse host %s, as %s and %s are not set.\n", keys.BaseURL, langfuse.BaseURLVar, langfuse.HostVar)
-		} else {
-			fmt.Fprintf(status, "Using the Langfuse host %s from %s.\n", keys.BaseURL, keys.HostSource)
-		}
-		if err := langfuse.CheckRegion(keys.BaseURL); err != nil {
-			return err
-		}
-		client = langfuse.NewClient(keys, a.Version)
-		if projects, err = client.Projects(ctx); err != nil {
-			return langfuseKeyError(err, keys)
-		}
-		for _, p := range projects {
-			fmt.Fprintf(status, "Langfuse project: %s at %s.\n", projectLabel(p), keys.BaseURL)
-		}
-
-		err = client.CheckTracesRead(ctx, from, to)
-		var apiErr *langfuse.APIError
-		if err == nil {
-			break
-		}
-		if !errors.As(err, &apiErr) || apiErr.Status != http.StatusForbidden {
-			return err
-		}
-		if keys, err = a.pasteReadableKeys(cmd, apiErr, keys); err != nil {
-			return err
-		}
+	fmt.Fprintf(status, "Using Langfuse keys from %s.\n", keys.Source)
+	if keys.HostSource.Kind == langfuse.SourceDefault {
+		fmt.Fprintf(status, "Using the default Langfuse host %s, as %s and %s are not set.\n", keys.BaseURL, langfuse.BaseURLVar, langfuse.HostVar)
+	} else {
+		fmt.Fprintf(status, "Using the Langfuse host %s from %s.\n", keys.BaseURL, keys.HostSource)
+	}
+	if err := langfuse.CheckRegion(keys.BaseURL); err != nil {
+		return err
+	}
+	client := langfuse.NewClient(keys, a.Version)
+	projects, err := client.Projects(ctx)
+	if err != nil {
+		return langfuseKeyError(err, keys)
+	}
+	for _, p := range projects {
+		fmt.Fprintf(status, "Langfuse project: %s at %s.\n", projectLabel(p), keys.BaseURL)
+	}
+	if err := client.CheckTracesRead(ctx, from, to); err != nil {
+		return langfuseReadError(err)
 	}
 	fmt.Fprintln(status, "The key can read traces.")
 
@@ -135,15 +116,13 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 	}
 	agents := langfuse.Candidates(counts)
 	if len(agents) > 0 && a.canPick() {
-		if agents, err = a.editLangfusePlan(cmd, agents); err != nil {
+		if agents, err = a.pickLangfuseAgents(agents); err != nil {
 			return err
 		}
 	}
 
 	plan := langfusePlan{
-		DryRun:     true,
 		KeysSource: keys.Source,
-		HostSource: keys.HostSource,
 		Langfuse:   langfuseTarget{BaseURL: keys.BaseURL, Projects: projects},
 		Window:     langfuseWindow{Days: days, From: langfuse.Timestamp(from), To: langfuse.Timestamp(to)},
 		Agents:     agents,
@@ -157,7 +136,6 @@ func (a *App) importLangfuse(cmd *cobra.Command) error {
 	for _, agent := range plan.Agents {
 		plan.TotalRuns += agent.Runs
 	}
-	plan.Estimate = langfuse.EstimateFor(plan.TotalRuns)
 
 	out := cmd.OutOrStdout()
 	if a.styled(out) {
@@ -177,77 +155,21 @@ func langfuseKeyError(err error, keys langfuse.Keys) error {
 		apiErr.Error(), keys.BaseURL, keys.Source, langfuse.BaseURLVar)
 }
 
-// langfuseReadHelp explains a 403 from the read check and how to get a key
-// that can read traces.
-func langfuseReadHelp(apiErr *langfuse.APIError) string {
-	return apiErr.Error() + "\n" +
-		"These keys cannot read traces. Create a Viewer key in Langfuse: open the project, go to Project Settings > API Keys, " +
-		`choose "Create new API keys" and pick the Viewer role. Full access and Developer keys also work.`
+// langfuseReadError explains a 403 from the read check: how to create a key
+// that can read traces, and which variables to set to it.
+func langfuseReadError(err error) error {
+	var apiErr *langfuse.APIError
+	if !errors.As(err, &apiErr) || apiErr.Status != http.StatusForbidden {
+		return err
+	}
+	return fmt.Errorf("%s\nThese keys cannot read traces. Create a Viewer key in Langfuse: open the project, go to Project Settings > API Keys, "+
+		`choose "Create new API keys" and pick the Viewer role. Full access and Developer keys also work. `+
+		"Set %s and %s to the new key, or pass --env <file>, then run the command again.",
+		apiErr.Error(), langfuse.PublicKeyVar, langfuse.SecretKeyVar)
 }
 
-// pasteReadableKeys asks for keys that can read traces, for this run only,
-// on the same host.
-func (a *App) pasteReadableKeys(cmd *cobra.Command, apiErr *langfuse.APIError, keys langfuse.Keys) (langfuse.Keys, error) {
-	help := langfuseReadHelp(apiErr)
-	notInteractive := fmt.Errorf("%s\nSet %s and %s to the new key, or pass --env <file>, then run the command again.",
-		help, langfuse.PublicKeyVar, langfuse.SecretKeyVar)
-	return a.pasteKeys(cmd, help, notInteractive, keys)
-}
-
-// pasteMissingKeys asks for keys when none were found, for this run only,
-// on the host the shell environment sets or the default.
-func (a *App) pasteMissingKeys(cmd *cobra.Command, noKeys *langfuse.NoKeysError) (langfuse.Keys, error) {
-	host, from, err := langfuse.ShellHost(a.LookupEnv)
-	if err != nil {
-		return langfuse.Keys{}, err
-	}
-	if err := langfuse.CheckRegion(host); err != nil {
-		return langfuse.Keys{}, err
-	}
-	return a.pasteKeys(cmd, noKeys.Error(), noKeys, langfuse.Keys{BaseURL: host, HostSource: from})
-}
-
-// pasteKeys explains problem and asks for a public and secret key with
-// hidden input, used for this run only and never saved. A coding agent is
-// never asked, because keys pasted into its chat go to its model provider;
-// other sessions that cannot prompt get notInteractive.
-func (a *App) pasteKeys(cmd *cobra.Command, problem string, notInteractive error, keys langfuse.Keys) (langfuse.Keys, error) {
-	if agent := a.detectAgent(); agent != "" {
-		return keys, fmt.Errorf("%s\nA coding agent is running this command (%s is set), so the CLI will not ask for a key. Set %s and %s in your shell or the project's .env yourself, then run the command again. Do not paste the keys into the agent's chat: that sends them to the model provider.",
-			problem, agent, langfuse.PublicKeyVar, langfuse.SecretKeyVar)
-	}
-	if !a.canPick() {
-		return keys, notInteractive
-	}
-
-	fmt.Fprintln(cmd.ErrOrStderr(), problem+"\nPaste a Langfuse key below. It is used for this run only and is not saved.")
-	public, err := a.Picker.Secret("Langfuse public key (pk-lf-...)")
-	if err != nil {
-		return keys, err
-	}
-	secret, err := a.Picker.Secret("Langfuse secret key (sk-lf-...)")
-	if err != nil {
-		return keys, err
-	}
-	return langfuse.Keys{
-		PublicKey:  langfuse.NewSecret(public),
-		SecretKey:  langfuse.NewSecret(secret),
-		BaseURL:    keys.BaseURL,
-		Source:     langfuse.Source{Kind: langfuse.SourcePasted},
-		HostSource: keys.HostSource,
-	}, nil
-}
-
-// Choices in the plan review.
-const (
-	planContinue = "continue"
-	planRename   = "rename"
-	planMerge    = "merge"
-)
-
-// editLangfusePlan lets the user choose which agents to import, then rename
-// them or merge two into one.
-func (a *App) editLangfusePlan(cmd *cobra.Command, candidates []langfuse.Agent) ([]langfuse.Agent, error) {
+// pickLangfuseAgents lets the user choose which agents to import.
+func (a *App) pickLangfuseAgents(candidates []langfuse.Agent) ([]langfuse.Agent, error) {
 	choices := make([]Choice, len(candidates))
 	all := make([]string, len(candidates))
 	for i, agent := range candidates {
@@ -267,91 +189,7 @@ func (a *App) editLangfusePlan(cmd *cobra.Command, candidates []langfuse.Agent) 
 	if len(plan) == 0 {
 		return nil, errors.New("No agents chosen, so there is nothing to import.")
 	}
-
-	for {
-		options := []Choice{{Label: "Continue with this plan", Value: planContinue}, {Label: "Rename an agent", Value: planRename}}
-		if len(plan) > 1 {
-			options = append(options, Choice{Label: "Merge two agents into one", Value: planMerge})
-		}
-		action, err := a.Picker.Pick("Review the import plan", planSummary(plan), options)
-		if err != nil {
-			return nil, err
-		}
-
-		switch action {
-		case planContinue:
-			return plan, nil
-		case planRename:
-			i, err := a.pickPlannedAgent("Choose the agent to rename", plan, -1)
-			if err != nil {
-				return nil, err
-			}
-			name, err := a.Picker.Input("New name for "+displayName(plan[i].Name), true)
-			if err != nil {
-				return nil, err
-			}
-			if nameTaken(plan, name, i, -1) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "There is already an agent called %s. Merge the two instead.\n", name)
-				continue
-			}
-			plan[i].Name = name
-		case planMerge:
-			i, err := a.pickPlannedAgent("Choose the first agent to merge", plan, -1)
-			if err != nil {
-				return nil, err
-			}
-			j, err := a.pickPlannedAgent("Choose the agent to merge into "+displayName(plan[i].Name), plan, i)
-			if err != nil {
-				return nil, err
-			}
-			name, err := a.Picker.Input("Name for the merged agent (leave blank for "+displayName(plan[i].Name)+")", false)
-			if err != nil {
-				return nil, err
-			}
-			if name == "" {
-				name = plan[i].Name
-			}
-			if nameTaken(plan, name, i, j) {
-				fmt.Fprintf(cmd.ErrOrStderr(), "There is already an agent called %s. Choose another name.\n", name)
-				continue
-			}
-			rest := []langfuse.Agent{langfuse.Merge(plan[i], plan[j], name)}
-			for k, agent := range plan {
-				if k != i && k != j {
-					rest = append(rest, agent)
-				}
-			}
-			plan = rest
-			langfuse.SortAgents(plan)
-		}
-	}
-}
-
-// pickPlannedAgent asks for one agent in plan other than skip and returns
-// its index.
-func (a *App) pickPlannedAgent(title string, plan []langfuse.Agent, skip int) (int, error) {
-	var choices []Choice
-	for i, agent := range plan {
-		if i != skip {
-			choices = append(choices, Choice{Label: agentLabel(agent), Value: strconv.Itoa(i)})
-		}
-	}
-	value, err := a.Picker.Pick(title, "", choices)
-	if err != nil {
-		return 0, err
-	}
-	return strconv.Atoi(value)
-}
-
-// nameTaken reports whether an agent in plan, other than those at skip1
-// and skip2, is called name.
-func nameTaken(plan []langfuse.Agent, name string, skip1, skip2 int) bool {
-	for i, agent := range plan {
-		if i != skip1 && i != skip2 && agent.Name == name {
-			return true
-		}
-	}
-	return false
+	return plan, nil
 }
 
 // displayName shows runs without a trace name, which Langfuse allows.
@@ -362,10 +200,10 @@ func displayName(name string) string {
 	return name
 }
 
-// agentLabel is one line about an agent: its name, runs, environments and,
-// when it was renamed or merged, the trace names it imports.
+// agentLabel is one line about an agent: its name, runs and
+// environments.
 func agentLabel(agent langfuse.Agent) string {
-	return strings.TrimRight(fmt.Sprintf("%s  %s  (%s)  %s", displayName(agent.Name), plural(agent.Runs, "run"), environmentsText(agent), traceNamesText(agent)), " ")
+	return fmt.Sprintf("%s  %s  (%s)", displayName(agent.Name), plural(agent.Runs, "run"), environmentsText(agent))
 }
 
 // environmentsText lists an agent's runs in each environment.
@@ -375,19 +213,6 @@ func environmentsText(agent langfuse.Agent) string {
 		envs[i] = fmt.Sprintf("%s %d", displayName(env.Name), env.Runs)
 	}
 	return strings.Join(envs, ", ")
-}
-
-// traceNamesText lists the trace names an agent imports when they differ
-// from its name, because it was renamed or merged.
-func traceNamesText(agent langfuse.Agent) string {
-	if len(agent.TraceNames) == 1 && agent.TraceNames[0] == agent.Name {
-		return ""
-	}
-	names := make([]string, len(agent.TraceNames))
-	for i, name := range agent.TraceNames {
-		names[i] = displayName(name)
-	}
-	return "from " + strings.Join(names, ", ")
 }
 
 // planSummary lists the agents in a plan and the totals.
@@ -401,18 +226,14 @@ func planSummary(plan []langfuse.Agent) string {
 	return strings.Join(append(lines, "Total: "+plural(total, "run")+" in "+plural(len(plan), "agent")+"."), "\n")
 }
 
-// estimateText describes an estimate in a sentence.
-func estimateText(e langfuse.Estimate) string {
-	return fmt.Sprintf("Reading these runs from Langfuse needs %s, which take %s at the Hobby plan's limit of %d requests a minute (assuming %d to %d observations a run and %d a request).",
-		rangeText(e.RequestsLow, e.RequestsHigh, "request"), rangeText(e.MinutesLow, e.MinutesHigh, "minute"),
-		e.RequestsPerMinute, e.ObservationsPerRunLow, e.ObservationsPerRunHigh, e.ObservationsPerPage)
-}
-
-func rangeText(low, high int, noun string) string {
+// estimateText says roughly how long reading runs from Langfuse takes.
+func estimateText(runs int) string {
+	low, high := langfuse.EstimateMinutes(runs)
+	text := fmt.Sprintf("about %d to %s", low, plural(high, "minute"))
 	if low == high {
-		return "about " + plural(low, noun)
+		text = "about " + plural(low, "minute")
 	}
-	return fmt.Sprintf("about %d to %s", low, plural(high, noun))
+	return fmt.Sprintf("Reading these runs from Langfuse takes %s at the Hobby plan's limit of %d requests a minute.", text, langfuse.HobbyRequestsPerMinute)
 }
 
 func plural(n int, noun string) string {
@@ -454,22 +275,8 @@ func writeLangfusePlan(w io.Writer, plan langfusePlan, t human.Theme) error {
 		return err
 	}
 
-	width, runsWidth := 0, 0
-	for _, agent := range plan.Agents {
-		width = max(width, len(displayName(agent.Name)))
-		runsWidth = max(runsWidth, len(plural(agent.Runs, "run")))
-	}
-	for _, agent := range plan.Agents {
-		name := displayName(agent.Name)
-		line := "  " + t.Command.Render(name) + strings.Repeat(" ", width-len(name)) + "  " +
-			fmt.Sprintf("%-*s  ", runsWidth, plural(agent.Runs, "run")) + t.Muted.Render(environmentsText(agent))
-		if from := traceNamesText(agent); from != "" {
-			line += t.Muted.Render("  " + from)
-		}
-		b.WriteString(line + "\n")
-	}
-	b.WriteString("\nTotal: " + plural(plan.TotalRuns, "run") + " in " + plural(len(plan.Agents), "agent") + ".\n")
-	b.WriteString(estimateText(plan.Estimate) + "\n")
+	b.WriteString(planSummary(plan.Agents) + "\n")
+	b.WriteString(estimateText(plan.TotalRuns) + "\n")
 	_, err := io.WriteString(w, b.String())
 	return err
 }

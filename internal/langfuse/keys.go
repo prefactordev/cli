@@ -50,13 +50,12 @@ type SourceKind string
 const (
 	SourceEnvironment SourceKind = "environment"
 	SourceFile        SourceKind = "file"
-	SourcePasted      SourceKind = "pasted"
 	// SourceDefault is a host that nothing set, so DefaultBaseURL is used.
 	SourceDefault SourceKind = "default"
 )
 
 // Source is where keys or the host were found: the shell environment, a
-// file, a paste for this run only, or the default host.
+// file, or the default host.
 type Source struct {
 	Kind SourceKind `json:"kind"`
 	Path string     `json:"path,omitempty"`
@@ -66,8 +65,6 @@ func (s Source) String() string {
 	switch s.Kind {
 	case SourceEnvironment:
 		return "the shell environment"
-	case SourcePasted:
-		return "the keys pasted for this run"
 	case SourceDefault:
 		return "the default"
 	}
@@ -90,10 +87,10 @@ type Keys struct {
 type FindOptions struct {
 	// LookupEnv reads the shell environment.
 	LookupEnv func(string) (string, bool)
-	// Dir is where the search for .env and mise files starts.
+	// Dir is where the search for .env files starts.
 	Dir string
-	// File, when set, is the only place keys are read from: a .env file,
-	// or a mise TOML file when its name ends in .toml.
+	// File, when set, is the only place keys are read from, in .env
+	// format.
 	File string
 }
 
@@ -106,19 +103,19 @@ type NoKeysError struct {
 }
 
 func (e *NoKeysError) Error() string {
-	return fmt.Sprintf("No Langfuse keys found. Set %s and %s in the shell environment, a .env file or the [env] section of mise.toml, or pass --env <file>. Looked in: %s.",
+	return fmt.Sprintf("No Langfuse keys found. Set %s and %s in the shell environment or a .env file, or pass --env <file>, then run the command again. Looked in: %s.",
 		PublicKeyVar, SecretKeyVar, strings.Join(e.Searched, ", "))
 }
 
 func (e *NoKeysError) Unwrap() error { return ErrNoKeys }
 
 // FindKeys looks for LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY in order:
-// the shell environment, the nearest .env from Dir up to the root of its git
-// repository, then mise.local.toml and mise.toml in the same directories.
-// The first source that sets both keys is used, with its LANGFUSE_BASE_URL
-// or LANGFUSE_HOST; when a file sets neither, the host comes from the shell
-// environment or is the default. With File set, only that file is read for
-// the keys.
+// the shell environment, then the nearest .env from Dir up to the root of
+// its git repository. An active mise puts its [env] section in the shell
+// environment, so mise files are not read. The first source that sets both
+// keys is used, with its LANGFUSE_BASE_URL or LANGFUSE_HOST; when a file
+// sets neither, the host comes from the shell environment or is the
+// default. With File set, only that file is read for the keys.
 func FindKeys(opts FindOptions) (Keys, error) {
 	if opts.File != "" {
 		values, err := readKeyFile(opts.File)
@@ -142,32 +139,28 @@ func FindKeys(opts FindOptions) (Keys, error) {
 	}
 
 	dirs := searchDirs(opts.Dir)
-	for _, names := range [][]string{{".env"}, {"mise.local.toml", "mise.toml"}} {
-		for _, dir := range dirs {
-			for _, name := range names {
-				path := filepath.Join(dir, name)
-				values, err := readKeyFile(path)
-				if errors.Is(err, os.ErrNotExist) {
-					continue
-				}
-				searched = append(searched, path)
-				if err != nil {
-					return Keys{}, err
-				}
-				if keys, ok, err := keysFrom(values, Source{Kind: SourceFile, Path: path}, opts.LookupEnv); ok || err != nil {
-					return keys, err
-				}
-			}
+	for _, dir := range dirs {
+		path := filepath.Join(dir, ".env")
+		values, err := readKeyFile(path)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		searched = append(searched, path)
+		if err != nil {
+			return Keys{}, err
+		}
+		if keys, ok, err := keysFrom(values, Source{Kind: SourceFile, Path: path}, opts.LookupEnv); ok || err != nil {
+			return keys, err
 		}
 	}
 	if len(searched) == 1 {
-		searched = append(searched, ".env, mise.local.toml and mise.toml from "+opts.Dir+" up to the repository root")
+		searched = append(searched, ".env from "+opts.Dir+" up to the repository root")
 	}
 	return Keys{}, &NoKeysError{Searched: searched}
 }
 
 // keysFrom returns the keys in values, and false when either key is
-// missing. Without a host in values, the host comes from ShellHost.
+// missing. Without a host in values, the host comes from shellHost.
 func keysFrom(values map[string]string, source Source, lookupEnv func(string) (string, bool)) (Keys, bool, error) {
 	public, secret := strings.TrimSpace(values[PublicKeyVar]), strings.TrimSpace(values[SecretKeyVar])
 	if public == "" || secret == "" {
@@ -177,7 +170,7 @@ func keysFrom(values map[string]string, source Source, lookupEnv func(string) (s
 	base := hostIn(values)
 	if base == "" {
 		var err error
-		if keys.BaseURL, keys.HostSource, err = ShellHost(lookupEnv); err != nil {
+		if keys.BaseURL, keys.HostSource, err = shellHost(lookupEnv); err != nil {
 			return Keys{}, false, err
 		}
 		return keys, true, nil
@@ -190,9 +183,9 @@ func keysFrom(values map[string]string, source Source, lookupEnv func(string) (s
 	return keys, true, nil
 }
 
-// ShellHost is the host LANGFUSE_BASE_URL or LANGFUSE_HOST sets in the
+// shellHost is the host LANGFUSE_BASE_URL or LANGFUSE_HOST sets in the
 // shell environment, or DefaultBaseURL, and where it came from.
-func ShellHost(lookupEnv func(string) (string, bool)) (string, Source, error) {
+func shellHost(lookupEnv func(string) (string, bool)) (string, Source, error) {
 	from := Source{Kind: SourceEnvironment}
 	base := hostIn(envValues(lookupEnv, BaseURLVar, HostVar))
 	if base == "" {
@@ -275,7 +268,7 @@ func searchDirs(dir string) []string {
 	}
 }
 
-// readKeyFile reads the variables a .env or mise TOML file sets.
+// readKeyFile reads the variables a .env file sets.
 func readKeyFile(path string) (map[string]string, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -283,9 +276,6 @@ func readKeyFile(path string) (map[string]string, error) {
 			return nil, fmt.Errorf("%s does not exist: %w", path, os.ErrNotExist)
 		}
 		return nil, fmt.Errorf("Unable to read %s: %w", path, err)
-	}
-	if strings.HasSuffix(strings.ToLower(path), ".toml") {
-		return parseMiseEnv(string(raw)), nil
 	}
 	return parseDotenv(string(raw)), nil
 }
@@ -310,65 +300,14 @@ func parseDotenv(contents string) map[string]string {
 		if key == "" {
 			continue
 		}
-		values[key] = unquoteValue(strings.TrimSpace(value), " #")
+		values[key] = unquoteValue(strings.TrimSpace(value))
 	}
 	return values
-}
-
-// parseMiseEnv reads the string values in a mise TOML file's [env] table.
-// It understands KEY = "value", KEY = 'value' and bare values, which is
-// all FindKeys needs; tables, arrays and mise directives such as _.file
-// are skipped.
-func parseMiseEnv(contents string) map[string]string {
-	values := map[string]string{}
-	inEnv := false
-	for _, line := range strings.Split(contents, "\n") {
-		line = strings.TrimSpace(strings.TrimSuffix(line, "\r"))
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		if strings.HasPrefix(line, "[") {
-			header := strings.TrimSpace(strings.Trim(stripComment(line), "[]"))
-			inEnv = header == "env"
-			continue
-		}
-		if !inEnv {
-			continue
-		}
-		key, value, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		key = strings.Trim(strings.TrimSpace(key), `"'`)
-		value = strings.TrimSpace(value)
-		if key == "" || strings.HasPrefix(key, "_") || strings.HasPrefix(value, "{") || strings.HasPrefix(value, "[") ||
-			strings.HasPrefix(value, `"""`) || strings.HasPrefix(value, "'''") {
-			continue
-		}
-		values[key] = unquoteValue(value, "#")
-	}
-	return values
-}
-
-// stripComment removes a # comment that is outside quotes.
-func stripComment(line string) string {
-	quote := byte(0)
-	for i := 0; i < len(line); i++ {
-		switch c := line[i]; {
-		case quote != 0 && c == quote:
-			quote = 0
-		case quote == 0 && (c == '"' || c == '\''):
-			quote = c
-		case quote == 0 && c == '#':
-			return strings.TrimSpace(line[:i])
-		}
-	}
-	return line
 }
 
 // unquoteValue returns a value without its quotes. An unquoted value ends
-// at comment.
-func unquoteValue(value, comment string) string {
+// at " #".
+func unquoteValue(value string) string {
 	if value == "" {
 		return ""
 	}
@@ -403,7 +342,7 @@ func unquoteValue(value, comment string) string {
 		}
 		return b.String()
 	}
-	if i := strings.Index(value, comment); i >= 0 {
+	if i := strings.Index(value, " #"); i >= 0 {
 		value = value[:i]
 	}
 	return strings.TrimSpace(value)

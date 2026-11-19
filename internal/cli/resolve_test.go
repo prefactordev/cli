@@ -85,11 +85,6 @@ func (p *fakePicker) MultiPick(title, note string, choices []Choice, selected []
 	return values, nil
 }
 
-// Secret answers with the next scripted text.
-func (p *fakePicker) Secret(title string) (string, error) {
-	return p.Input(title, true)
-}
-
 // listServer answers list requests by path and records every request.
 type listServer struct {
 	*httptest.Server

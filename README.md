@@ -107,22 +107,21 @@ In interactive mode, `setup` with no agent shows a picker of agents with a choic
 `import langfuse --dry-run` shows what an import from Langfuse would bring in. It needs no Prefactor login and sends nothing to Prefactor. Without `--dry-run` the command stops and says uploading is not available yet.
 
 It reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_BASE_URL` (or `LANGFUSE_HOST`, defaulting to `https://cloud.langfuse.com`) from the first of these that sets both keys, and says which one it used:
-1. The shell environment.
+1. The shell environment. When mise is active, this includes its `[env]` section.
 2. The nearest `.env`, from the current directory up to the root of its git repository.
-3. `mise.local.toml`, then `mise.toml`, in the `[env]` section, in the same directories.
 
-Quoted values are accepted. `--env <file>` reads the keys only from that file, as `.env` or, when its name ends in `.toml`, as a mise file. When the file that gave the keys sets no host, the host comes from `LANGFUSE_BASE_URL` or `LANGFUSE_HOST` in the shell, or is the default. The command says which source gave the host.
+Quoted values are accepted. `--env <file>` reads the keys only from that file, in `.env` format. When the file that gave the keys sets no host, the host comes from `LANGFUSE_BASE_URL` or `LANGFUSE_HOST` in the shell, or is the default. The command says which source gave the host.
 
-When no source sets both keys, an interactive session asks for them with hidden input and uses them for this run only, without saving or printing them. A coding agent is not asked and is told to have the variables set instead; other sessions that cannot prompt fail with where the command looked.
+When no source sets both keys, the command stops, says where it looked and which variables to set, and does not ask for the keys.
 
 Prefactor cannot import from Langfuse's HIPAA region: when the host is `hipaa.cloud.langfuse.com`, the command stops before sending any request.
 
 The command then:
 1. Shows the Langfuse project and organisation the keys belong to. A `401` usually means the keys are for another region, so it says how to set `LANGFUSE_BASE_URL`.
-2. Checks the keys can read traces, with a one-row Observations API v2 query, because the projects call succeeds even for keys that cannot. When Langfuse answers `403` (no `traces:read` permission), it explains how to create a Viewer key (Project Settings > API Keys > Create new API keys > Viewer; Full access and Developer keys also work). In interactive mode it then asks for the new key with hidden input and uses it for this run only, without saving it. When a coding agent is detected it does not ask, and tells you to set the variables yourself, since keys pasted into an agent's chat go to its model provider.
-3. Counts runs (root observations) by trace name and environment over the last `--days` days (30 by default), with one Metrics API v2 request.
-4. In interactive mode, lists the trace names busiest first, all ticked, and lets you untick them, rename them and merge two into one agent.
-5. Prints the plan: each agent with its runs per environment, the total, and a rough estimate of how long reading the runs takes at the Langfuse Hobby plan's 30 requests a minute. Outside interactive mode, and with `--json`, the plan is JSON.
+2. Checks the keys can read traces, with a one-row Observations API v2 query, because the projects call succeeds even for keys that cannot. When Langfuse answers `403` (no `traces:read` permission), it stops, explains how to create a Viewer key (Project Settings > API Keys > Create new API keys > Viewer; Full access and Developer keys also work) and says which variables to set to it.
+3. Counts runs (root observations) by trace name and environment over the last `--days` days (30 by default), with the Metrics API v2. That API returns at most 1,000 rows and cannot page, so when a query fills them the command splits the window in two and counts each half.
+4. In interactive mode, lists the trace names busiest first, all ticked, and lets you untick them. Each trace name becomes one agent.
+5. Prints the plan: each agent with its runs per environment, the total, and a rough estimate of how long reading the runs takes at the Langfuse Hobby plan's 30 requests a minute. Outside interactive mode, and with `--json`, the plan is JSON, without the estimate.
 
 The CLI never prints or logs the keys, including in errors and JSON. Requests that get `429` wait as `Retry-After` asks.
 

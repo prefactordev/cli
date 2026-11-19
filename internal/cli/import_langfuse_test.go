@@ -112,7 +112,7 @@ func TestImportLangfuseDryRunPrintsThePlanAsJSON(t *testing.T) {
 	if err := json.Unmarshal([]byte(out), &plan); err != nil {
 		t.Fatalf("stdout is not JSON: %v\n%s", err, out)
 	}
-	if !plan.DryRun || plan.KeysSource.Kind != "environment" || plan.Window.Days != 7 || plan.TotalRuns != 107 {
+	if plan.KeysSource.Kind != "environment" || plan.Window.Days != 7 || plan.TotalRuns != 107 {
 		t.Fatalf("plan = %+v", plan)
 	}
 	if len(plan.Agents) != 3 || plan.Agents[0].Name != "linear-daily-report" || plan.Agents[0].Runs != 101 ||
@@ -161,79 +161,31 @@ func TestImportLangfuseExplainsTheWrongHost(t *testing.T) {
 	}
 }
 
-func TestImportLangfuseRefusesToAskACodingAgentForKeys(t *testing.T) {
+func TestImportLangfuseSaysWhichVariablesToSetForAKeyThatCannotRead(t *testing.T) {
 	ls := newLangfuseServer(t)
 	ta := langfuseApp(t, ls, lfPublic, lfSecret)
 	ta.terminal = true
-	ta.env["CLAUDECODE"] = "1"
-	picker := &fakePicker{answers: []string{lfViewerPublic, lfViewerSecret}}
-	ta.Picker = picker
 
 	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--dry-run")
 	if err == nil {
 		t.Fatal("no error")
 	}
-	for _, want := range []string{`"traces:read" permission`, "Project Settings > API Keys", "Viewer", "CLAUDECODE is set", "LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY", "model provider"} {
+	for _, want := range []string{`"traces:read" permission`, "Project Settings > API Keys", "Viewer", "Set LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY to the new key, or pass --env <file>"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error lacks %q: %v", want, err)
 		}
 	}
-	if len(picker.prompts) != 0 {
-		t.Fatalf("asked %v", picker.prompts)
-	}
 	assertNoKeys(t, out, errOut, err.Error())
 }
 
-func TestImportLangfuseWithoutATerminalSaysWhichVariablesToSet(t *testing.T) {
-	ls := newLangfuseServer(t)
-	ta := langfuseApp(t, ls, lfPublic, lfSecret)
-
-	_, err := ta.run(t, "import", "langfuse", "--dry-run")
-	if err == nil || !strings.Contains(err.Error(), "Set LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY to the new key, or pass --env <file>") {
-		t.Fatalf("err = %v", err)
-	}
-}
-
-func TestImportLangfuseAcceptsAPastedKeyForThisRun(t *testing.T) {
-	ls := newLangfuseServer(t)
-	ta := langfuseApp(t, ls, lfPublic, lfSecret)
-	ta.terminal = true
-	picker := &fakePicker{answers: []string{lfViewerPublic, lfViewerSecret, "*", "Continue"}}
-	ta.Picker = picker
-
-	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--dry-run")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if picker.prompts[0] != "Langfuse public key (pk-lf-...)" || picker.prompts[1] != "Langfuse secret key (sk-lf-...)" {
-		t.Fatalf("prompts = %v", picker.prompts)
-	}
-	if !strings.Contains(errOut, "Viewer") || !strings.Contains(errOut, "Using Langfuse keys from the keys pasted for this run.") {
-		t.Fatalf("stderr = %s", errOut)
-	}
-	if last := ls.users[len(ls.users)-1]; last != lfViewerPublic {
-		t.Fatalf("last request used %s", last)
-	}
-	var plan langfusePlan
-	if err := json.Unmarshal([]byte(out), &plan); err != nil || plan.KeysSource.Kind != "pasted" {
-		t.Fatalf("plan = %+v, %v", plan, err)
-	}
-	assertNoKeys(t, out, errOut)
-}
-
-func TestImportLangfuseLetsAPersonChooseRenameAndMerge(t *testing.T) {
+func TestImportLangfuseLetsAPersonChooseAgents(t *testing.T) {
 	ls := newLangfuseServer(t)
 	ta := langfuseApp(t, ls, lfViewerPublic, lfViewerSecret)
 	ta.terminal = true
 	ta.Terminal = func(io.Writer) bool { return true }
 	ta.env["NO_COLOR"] = "1"
-	picker := &fakePicker{answers: []string{
-		// Untick linear-daily-report.
-		"triage  4,triage-v2",
-		"Merge", "triage  4", "triage-v2", "Triage bot",
-		"Rename", "Triage bot", "Support triage",
-		"Continue",
-	}}
+	// Untick linear-daily-report.
+	picker := &fakePicker{answers: []string{"triage  4,triage-v2"}}
 	ta.Picker = picker
 
 	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--dry-run")
@@ -246,7 +198,7 @@ func TestImportLangfuseLetsAPersonChooseRenameAndMerge(t *testing.T) {
 	if !strings.HasPrefix(picker.offered[0][0].Label, "linear-daily-report  101 runs") {
 		t.Fatalf("busiest agent is not first: %v", picker.offered[0])
 	}
-	for _, want := range []string{"Langfuse import plan", "Dry run: nothing was sent to Prefactor.", "Support triage", "6 runs", "from triage, triage-v2", "Total: 6 runs in 1 agent.", "Hobby plan"} {
+	for _, want := range []string{"Langfuse import plan", "Dry run: nothing was sent to Prefactor.", "triage  4 runs  (production 4)", "triage-v2  2 runs", "Total: 6 runs in 2 agents.", "about 1 minute at the Hobby plan's limit"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("output lacks %q:\n%s", want, out)
 		}
@@ -281,51 +233,26 @@ func TestImportLangfuseSaysWhereTheHostCameFrom(t *testing.T) {
 		t.Fatalf("stderr = %s", errOut)
 	}
 	var plan langfusePlan
-	if err := json.Unmarshal([]byte(out), &plan); err != nil || plan.KeysSource.Kind != "file" || plan.HostSource.Kind != "environment" {
+	if err := json.Unmarshal([]byte(out), &plan); err != nil || plan.KeysSource.Kind != "file" {
 		t.Fatalf("plan = %+v, %v", plan, err)
 	}
 	assertNoKeys(t, out, errOut)
 }
 
-func TestImportLangfuseOffersAPasteWhenNoKeysAreFound(t *testing.T) {
+func TestImportLangfuseSaysWhichVariablesToSetWhenNoKeysAreFound(t *testing.T) {
 	ls := newLangfuseServer(t)
 	ta := langfuseApp(t, ls, "", "")
 	delete(ta.env, "LANGFUSE_PUBLIC_KEY")
 	delete(ta.env, "LANGFUSE_SECRET_KEY")
 	ta.terminal = true
-	picker := &fakePicker{answers: []string{lfViewerPublic, lfViewerSecret, "*", "Continue"}}
-	ta.Picker = picker
-
-	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--dry-run")
-	if err != nil {
-		t.Fatalf("%v\n%s", err, errOut)
-	}
-	if picker.prompts[0] != "Langfuse public key (pk-lf-...)" || !strings.Contains(errOut, "No Langfuse keys found") ||
-		!strings.Contains(errOut, "used for this run only and is not saved") {
-		t.Fatalf("prompts = %v\nstderr = %s", picker.prompts, errOut)
-	}
-	if last := ls.users[len(ls.users)-1]; last != lfViewerPublic {
-		t.Fatalf("last request used %s", last)
-	}
-	assertNoKeys(t, out, errOut)
-}
-
-func TestImportLangfuseTellsACodingAgentToSetTheVariablesWhenNoKeysAreFound(t *testing.T) {
-	ls := newLangfuseServer(t)
-	ta := langfuseApp(t, ls, "", "")
-	delete(ta.env, "LANGFUSE_PUBLIC_KEY")
-	delete(ta.env, "LANGFUSE_SECRET_KEY")
-	ta.terminal = true
-	ta.env["CLAUDECODE"] = "1"
-	picker := &fakePicker{answers: []string{lfViewerPublic, lfViewerSecret}}
-	ta.Picker = picker
 
 	_, err := ta.run(t, "import", "langfuse", "--dry-run")
-	if err == nil || !strings.Contains(err.Error(), "No Langfuse keys found") || !strings.Contains(err.Error(), "model provider") {
+	if err == nil || !strings.Contains(err.Error(), "No Langfuse keys found. Set LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY") ||
+		!strings.Contains(err.Error(), "pass --env <file>") {
 		t.Fatalf("err = %v", err)
 	}
-	if len(picker.prompts) != 0 || len(ls.users) != 0 {
-		t.Fatalf("asked %v, sent %d requests", picker.prompts, len(ls.users))
+	if len(ls.users) != 0 {
+		t.Fatalf("%d requests sent", len(ls.users))
 	}
 }
 
@@ -347,22 +274,5 @@ func writeTestFile(t *testing.T, path, contents string) {
 	t.Helper()
 	if err := os.WriteFile(path, []byte(contents), 0o600); err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestImportLangfuseRefusesTheHIPAARegionBeforeAskingForKeys(t *testing.T) {
-	ls := newLangfuseServer(t)
-	ta := langfuseApp(t, ls, "", "")
-	delete(ta.env, "LANGFUSE_PUBLIC_KEY")
-	delete(ta.env, "LANGFUSE_SECRET_KEY")
-	ta.env["LANGFUSE_HOST"] = "https://hipaa.cloud.langfuse.com"
-	delete(ta.env, "LANGFUSE_BASE_URL")
-	ta.terminal = true
-	picker := &fakePicker{answers: []string{lfViewerPublic, lfViewerSecret}}
-	ta.Picker = picker
-
-	_, err := ta.run(t, "import", "langfuse", "--dry-run")
-	if err == nil || !strings.Contains(err.Error(), "HIPAA region") || len(picker.prompts) != 0 {
-		t.Fatalf("err = %v, asked %v", err, picker.prompts)
 	}
 }
