@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"os"
+	"slices"
 	"strings"
 
 	"charm.land/huh/v2"
@@ -22,6 +23,10 @@ type Picker interface {
 	// Input asks for a line of text, which must not be blank when
 	// required. The answer is trimmed.
 	Input(title string, required bool) (string, error)
+	// MultiPick shows title, an optional note and the choices, with the
+	// choices in selected ticked, and returns the values of those ticked.
+	// At least one must be ticked.
+	MultiPick(title, note string, choices []Choice, selected []string) ([]string, error)
 }
 
 // errPickCancelled is returned when the user leaves a picker without
@@ -70,4 +75,31 @@ func (huhPicker) Input(title string, required bool) (string, error) {
 		return "", errPickCancelled
 	}
 	return strings.TrimSpace(value), err
+}
+
+func (huhPicker) MultiPick(title, note string, choices []Choice, selected []string) ([]string, error) {
+	options := make([]huh.Option[string], len(choices))
+	for i, c := range choices {
+		options[i] = huh.NewOption(c.Label, c.Value)
+	}
+
+	value := slices.Clone(selected)
+	field := huh.NewMultiSelect[string]().
+		Title(title).
+		Description(note).
+		Options(options...).
+		Height(min(len(choices)+3, 15)).
+		Validate(func(values []string) error {
+			if len(values) == 0 {
+				return errors.New("Choose at least one.")
+			}
+			return nil
+		}).
+		Value(&value)
+
+	err := huh.NewForm(huh.NewGroup(field)).WithOutput(os.Stderr).Run()
+	if errors.Is(err, huh.ErrUserAborted) {
+		return nil, errPickCancelled
+	}
+	return value, err
 }
