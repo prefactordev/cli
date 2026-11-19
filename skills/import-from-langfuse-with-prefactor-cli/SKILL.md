@@ -24,7 +24,7 @@ Apply this skill when the user asks to:
 
 ## Langfuse keys
 
-The CLI reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_BASE_URL` (or `LANGFUSE_HOST`) from the shell environment, then the nearest `.env` up to the repository root, then the `[env]` section of `mise.local.toml` and `mise.toml`. `--env <file>` reads only that file.
+The CLI reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_BASE_URL` (or `LANGFUSE_HOST`) from the shell environment, which includes mise's `[env]` section when mise is active, then the nearest `.env` up to the repository root. `--env <file>` reads only that file, in `.env` format. The CLI never asks for the keys: when they are missing, or cannot read traces, it stops and says which variables to set.
 
 Never ask the user to paste Langfuse keys into the chat, and never print, echo or read out their values. Keys in the chat go to the model provider. When the keys are missing, or cannot read traces, ask the user to set them themselves:
 
@@ -57,9 +57,9 @@ Useful options:
 - `--env <file>` reads the Langfuse keys only from that file.
 - `--account-id <id>` chooses the Prefactor account when the user can reach several.
 
-The command reads Langfuse 50 observations at a time and waits whenever Langfuse's rate limit asks it to (30 requests a minute on the Hobby plan), so a large import can take many minutes; the dry run gives an estimate. Let it run. If it stops, run the same command again: runs already imported are skipped.
+The command reads Langfuse 50 observations at a time and waits whenever Langfuse's rate limit asks it to (30 requests a minute on the Hobby plan), so a large import can take many minutes; the command prints an estimate when it starts. Let it run. If it stops, run the same command again: runs already imported are skipped.
 
-Each Langfuse trace name becomes a Prefactor agent, and each Langfuse environment becomes a deployment. To choose, rename or merge agents, the user can run `prefactor import langfuse` in their own terminal.
+Each Langfuse trace name becomes a Prefactor agent, and each Langfuse environment becomes a deployment. To choose which agents to import, the user can run `prefactor import langfuse` in their own terminal.
 
 ## Report back
 

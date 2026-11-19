@@ -12,9 +12,6 @@ import (
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/prefactordev/cli/internal/api"
-	"github.com/prefactordev/cli/internal/client"
 )
 
 // prefactorServer is a fake Prefactor API for imports. statuses sets what
@@ -174,10 +171,6 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 	windowStart := now.AddDate(0, 0, -30)
 	ls.observations = func(q url.Values) string {
 		switch {
-		case q.Get("traceId") == "old":
-			return observationPage("",
-				lfObservation("old", "old-c", "triage", windowStart.Add(time.Hour), false, "{}"),
-				lfObservation("old", "old-r", "triage", windowStart.Add(-time.Hour), true, "{}"))
 		case q.Get("cursor") == "":
 			// t1 runs across both pages; t2 is whole on the first.
 			return observationPage("p2",
@@ -185,10 +178,12 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 				lfObservation("t2", "t2-r", "support", base.Add(45*time.Second), true, "{}"),
 				lfObservation("t1", "t1-c1", "support", base.Add(40*time.Second), false, "{}"))
 		default:
-			// old started before the window, so only its child is here.
+			// old started before the window, so only its child is here,
+			// and the metrics do not count it.
 			return observationPage("",
 				lfObservation("t1", "t1-r", "support", base.Add(30*time.Second), true, "{}"),
 				lfObservation("t3", "t3-r", "support", base.Add(20*time.Second), true, "{}"),
+				lfObservation("t4", "t4-r", "triage", base.Add(10*time.Second), true, "{}"),
 				lfObservation("old", "old-c", "triage", windowStart.Add(time.Hour), false, "{}"))
 		}
 	}
@@ -208,15 +203,15 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 		!strings.Contains(first.Get("filter"), `"value":["support","triage"]`) || first.Get("fromStartTime") == "" {
 		t.Fatalf("first query = %v", first)
 	}
-	if last := ls.queries[len(ls.queries)-1]; last.Get("traceId") != "old" || last.Get("fromStartTime") != "" {
-		t.Fatalf("the trace cut off at the window's edge was not read again: %v", last)
+	if len(ls.queries) != 2 {
+		t.Fatalf("queries = %v", ls.queries)
 	}
 
 	if len(ps.created) != 1 || fmt.Sprint(ps.created[0]["details"]) != "map[account_id:acc1 source:langfuse]" {
 		t.Fatalf("created = %v", ps.created)
 	}
 	traces := ps.tracesByID()
-	want := map[string]string{"t1": "[t1-r t1-c1 t1-c2]", "t2": "[t2-r]", "t3": "[t3-r]", "old": "[old-r old-c]"}
+	want := map[string]string{"t1": "[t1-r t1-c1 t1-c2]", "t2": "[t2-r]", "t3": "[t3-r]", "t4": "[t4-r]"}
 	if len(traces) != len(want) {
 		t.Fatalf("traces = %v", traces)
 	}
@@ -230,8 +225,8 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 		t1["timestamp"] != base.Add(30*time.Second).Format("2006-01-02T15:04:05.000Z") {
 		t.Fatalf("t1 = %v", t1)
 	}
-	if traces["old"]["name"] != "triage" {
-		t.Fatalf("old name = %v", traces["old"]["name"])
+	if traces["t4"]["name"] != "triage" {
+		t.Fatalf("t4 name = %v", traces["t4"]["name"])
 	}
 	for _, batch := range ps.batches {
 		raw, _ := json.Marshal(batch)
@@ -255,7 +250,7 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 		!strings.Contains(result.NextStep, "prefactor setup") || len(result.Rejected) != 0 {
 		t.Fatalf("result = %+v", result)
 	}
-	for _, want := range []string{"Importing into the account Acme (acc1).", "Opened import imp1.", "Sent 4 of about 4 runs"} {
+	for _, want := range []string{"Importing into the account Acme  acc1.", "Opened import imp1.", "Sent 4 of about 4 runs"} {
 		if !strings.Contains(errOut, want) {
 			t.Errorf("stderr lacks %q:\n%s", want, errOut)
 		}
@@ -353,7 +348,7 @@ func TestImportLangfuseCarriesOnAfterAnInterruption(t *testing.T) {
 	for _, want := range []string{
 		"Langfuse import finished",
 		"Runs: 0 imported, 2 skipped because they were already imported, 1 rejected.",
-		"1: the agent for the trace name is retired (trace t3)",
+		"1: agent_retired (trace t3)",
 		ps.URL + "/agents",
 		"prefactor setup",
 	} {
@@ -361,8 +356,8 @@ func TestImportLangfuseCarriesOnAfterAnInterruption(t *testing.T) {
 			t.Errorf("output lacks %q:\n%s", want, out)
 		}
 	}
-	if !strings.Contains(errOut, "[##############################] 3/3 runs  0 imported, 2 skipped, 1 rejected") {
-		t.Errorf("no progress bar:\n%q", errOut)
+	if !strings.Contains(errOut, "Sent 3 of about 3 runs (0 imported, 2 skipped, 1 rejected).") {
+		t.Errorf("no progress line:\n%q", errOut)
 	}
 }
 
@@ -414,7 +409,7 @@ func TestImportLangfuseNeedsAnAccountWhenThereAreSeveral(t *testing.T) {
 	ta, _ := importApp(t, ls, ps)
 
 	_, err := ta.run(t, "import", "langfuse", "--yes")
-	if err == nil || err.Error() != "You can import into 2 accounts. Pass --account-id <id> to choose one: Acme (acc1), Beta (acc2)." {
+	if err == nil || err.Error() != "You can import into 2 accounts. Pass --account-id <id> to choose one: Acme  acc1, Beta  acc2." {
 		t.Fatalf("err = %v", err)
 	}
 	if len(ls.users) != 0 || len(ps.created) != 0 {
@@ -469,46 +464,4 @@ func TestImportLangfuseSignsInWhenThereIsNoProfile(t *testing.T) {
 	if len(ls.users) != 0 {
 		t.Fatalf("%d requests sent to Langfuse before signing in", len(ls.users))
 	}
-}
-
-func TestImportBatchSplitsWhenPrefactorFindsItTooLarge(t *testing.T) {
-	var bodies []string
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw, _ := io.ReadAll(r.Body)
-		bodies = append(bodies, string(raw))
-		var parsed struct {
-			Traces []struct {
-				ID string `json:"id"`
-			} `json:"traces"`
-		}
-		_ = json.Unmarshal(raw, &parsed)
-		if len(parsed.Traces) > 1 {
-			w.WriteHeader(http.StatusRequestEntityTooLarge)
-			_, _ = io.WriteString(w, `{"status":"error","code":"request_too_large"}`)
-			return
-		}
-		_, _ = fmt.Fprintf(w, `{"status":"success","results":[{"trace_id":%q,"status":"written","reason":null}]}`, parsed.Traces[0].ID)
-	}))
-	defer server.Close()
-	c, err := clientForTest(server.URL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	u := &importUpload{target: &prefactorTarget{uploadClient: c}, importID: "imp1"}
-
-	results, err := u.send(context.Background(), [][]byte{[]byte(`{"id":"a"}`), []byte(`{"id":"b"}`), []byte(`{"id":"c"}`)})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var ids []string
-	for _, r := range results {
-		ids = append(ids, r.TraceID)
-	}
-	if fmt.Sprint(ids) != "[a b c]" || len(bodies) != 5 || bodies[0] != `{"traces":[{"id":"a"},{"id":"b"},{"id":"c"}]}` {
-		t.Fatalf("ids = %v, bodies = %q", ids, bodies)
-	}
-}
-
-func clientForTest(baseURL string) (*api.Client, error) {
-	return client.NewForUploads(baseURL, "tok", "1.2.3", time.Minute)
 }

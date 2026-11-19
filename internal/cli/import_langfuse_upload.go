@@ -153,25 +153,16 @@ func (a *App) chooseImportAccount(cmd *cobra.Command, c *api.Client) (string, er
 	case len(choices) == 0:
 		return "", errors.New("No accounts found to import into.")
 	case len(choices) == 1:
-		fmt.Fprintf(cmd.ErrOrStderr(), "Importing into the account %s.\n", accountText(choices[0]))
+		fmt.Fprintf(cmd.ErrOrStderr(), "Importing into the account %s.\n", choices[0].Label)
 		return choices[0].Value, nil
 	case a.canPick():
 		return a.Picker.Pick("Choose the account to import into", "", choices)
 	}
 	labels := make([]string, len(choices))
 	for i, choice := range choices {
-		labels[i] = accountText(choice)
+		labels[i] = choice.Label
 	}
 	return "", fmt.Errorf("You can import into %d accounts. Pass --account-id <id> to choose one: %s.", len(choices), strings.Join(labels, ", "))
-}
-
-// accountText is an account's name with its ID in brackets.
-func accountText(choice Choice) string {
-	name := strings.TrimSpace(strings.TrimSuffix(choice.Label, choice.Value))
-	if name == "" || name == choice.Value {
-		return choice.Value
-	}
-	return name + " (" + choice.Value + ")"
 }
 
 // importUpload is one run of the upload.
@@ -179,7 +170,6 @@ type importUpload struct {
 	target    *prefactorTarget
 	langfuse  *langfuse.Client
 	importID  string
-	traceName map[string]string
 	from, to  time.Time
 	counts    importCounts
 	rejected  []rejectedTrace
@@ -195,7 +185,6 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 	status := cmd.ErrOrStderr()
 	// Runs without a trace name cannot be read by name, and Prefactor
 	// needs the name to choose the agent, so they are left out.
-	names := map[string]string{}
 	var traceNames []string
 	expected := 0
 	for _, agent := range plan.Agents {
@@ -203,7 +192,6 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 			fmt.Fprintf(status, "Leaving out %s without a trace name: Prefactor needs the trace name to choose the agent.\n", plural(agent.Runs, "run"))
 			continue
 		}
-		names[agent.Name] = agent.Name
 		traceNames = append(traceNames, agent.Name)
 		expected += agent.Runs
 	}
@@ -224,12 +212,11 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 		a.importSleep = sleepContext
 	}
 	u := &importUpload{
-		target: target, langfuse: lf, importID: importID, traceName: names,
+		target: target, langfuse: lf, importID: importID,
 		from: from, to: to, sleep: a.importSleep,
-		progress: newImportProgress(status, a.styled(status), expected),
+		progress: &importProgress{w: status, expected: expected},
 	}
 	runErr := u.run(ctx, traceNames)
-	u.progress.done()
 
 	finishStatus := "finished"
 	if runErr != nil {
@@ -272,9 +259,9 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 	return nil
 }
 
-// run pages through the window newest first, sends each trace once it is
-// complete, then reads again in full the traces cut off at the edge of
-// the window.
+// run pages through the window newest first and sends each trace once it
+// is complete. Traces whose root is not in the window started before it,
+// are not in the plan's counts, and are left out.
 func (u *importUpload) run(ctx context.Context, traceNames []string) error {
 	assembler := langfuse.NewAssembler()
 	cursor := ""
@@ -296,20 +283,7 @@ func (u *importUpload) run(ctx context.Context, traceNames []string) error {
 		cursor = page.Cursor
 	}
 
-	complete, partial := assembler.Finish()
-	for _, trace := range complete {
-		if err := u.queue(ctx, trace); err != nil {
-			return err
-		}
-	}
-	for _, id := range partial {
-		trace, err := u.langfuse.Trace(ctx, id, u.to, observationsPerPage)
-		if err != nil {
-			return err
-		}
-		if len(trace.Observations) == 0 {
-			continue
-		}
+	for _, trace := range assembler.Finish() {
 		if err := u.queue(ctx, trace); err != nil {
 			return err
 		}
@@ -320,11 +294,7 @@ func (u *importUpload) run(ctx context.Context, traceNames []string) error {
 // queue adds a trace to the batch, sending the batch first when the trace
 // would make it too long or too large.
 func (u *importUpload) queue(ctx context.Context, trace langfuse.Trace) error {
-	name, ok := u.traceName[trace.TraceName()]
-	if !ok {
-		name = trace.TraceName()
-	}
-	encoded, err := trace.Encode(name)
+	encoded, err := trace.Encode()
 	if err != nil {
 		return err
 	}
@@ -355,7 +325,7 @@ func (u *importUpload) flush(ctx context.Context) error {
 	if len(u.batch) == 0 {
 		return nil
 	}
-	results, err := u.send(ctx, u.batch)
+	results, err := u.send(ctx)
 	if err != nil {
 		return err
 	}
@@ -380,12 +350,12 @@ func (u *importUpload) flush(ctx context.Context) error {
 	return nil
 }
 
-// send posts traces to imports/add_traces. It waits out 429 responses as
-// retry_after_ms asks, and splits a batch the server finds too large.
-func (u *importUpload) send(ctx context.Context, traces [][]byte) ([]traceResult, error) {
-	body := make([]byte, 0, batchBytes(len(traces), 0)+sumLengths(traces))
+// send posts the batch to imports/add_traces. It waits out 429 responses
+// as retry_after_ms asks.
+func (u *importUpload) send(ctx context.Context) ([]traceResult, error) {
+	body := make([]byte, 0, batchBytes(len(u.batch), u.batchSize))
 	body = append(body, `{"traces":[`...)
-	body = append(body, bytes.Join(traces, []byte(","))...)
+	body = append(body, bytes.Join(u.batch, []byte(","))...)
 	body = append(body, `]}`...)
 
 	for attempt := 1; ; attempt++ {
@@ -404,29 +374,10 @@ func (u *importUpload) send(ctx context.Context, traces [][]byte) ([]traceResult
 			if err := u.sleep(ctx, prefactorRetryAfter(httpErr.Body, attempt)); err != nil {
 				return nil, err
 			}
-		case errors.As(err, &httpErr) && httpErr.Status == http.StatusRequestEntityTooLarge && len(traces) > 1:
-			half := len(traces) / 2
-			first, err := u.send(ctx, traces[:half])
-			if err != nil {
-				return nil, err
-			}
-			second, err := u.send(ctx, traces[half:])
-			if err != nil {
-				return nil, err
-			}
-			return append(first, second...), nil
 		default:
 			return nil, prefactorError(err)
 		}
 	}
-}
-
-func sumLengths(items [][]byte) int {
-	total := 0
-	for _, item := range items {
-		total += len(item)
-	}
-	return total
 }
 
 // prefactorRetryAfter is the wait a 429 body asks for in retry_after_ms,
@@ -523,15 +474,6 @@ func importSummary(result langfuseImportResult) string {
 	return fmt.Sprintf("Runs: %d imported, %d skipped because they were already imported, %d rejected.", c.Written, c.Skipped, c.Rejected)
 }
 
-// rejectedReasons explains the reasons Prefactor and the CLI give.
-var rejectedReasons = map[string]string{
-	"trace_name_blank":   "the trace has no name, so no agent can be chosen",
-	"agent_retired":      "the agent for the trace name is retired",
-	"trace_time_missing": "the trace has no start time",
-	"invalid_trace":      "Prefactor could not store the trace",
-	tooLarge:             "the trace is larger than the 8 MB Prefactor accepts in one request",
-}
-
 // rejectedSummary counts rejected runs by reason, with up to three trace
 // IDs for each.
 func rejectedSummary(rejected []rejectedTrace) string {
@@ -546,55 +488,24 @@ func rejectedSummary(rejected []rejectedTrace) string {
 	lines := []string{"Rejected runs:"}
 	for _, reason := range reasons {
 		ids := byReason[reason]
-		text := reason
-		if explained, ok := rejectedReasons[reason]; ok {
-			text = explained
-		}
 		shown := ids[:min(len(ids), 3)]
 		more := ""
 		if len(ids) > len(shown) {
 			more = fmt.Sprintf(" and %d more", len(ids)-len(shown))
 		}
-		lines = append(lines, fmt.Sprintf("  %d: %s (trace %s%s)", len(ids), text, strings.Join(shown, ", "), more))
+		lines = append(lines, fmt.Sprintf("  %d: %s (trace %s%s)", len(ids), reason, strings.Join(shown, ", "), more))
 	}
 	return strings.Join(lines, "\n")
 }
 
-// importProgress shows how many runs have been sent. At a terminal it
-// redraws a bar on one line; otherwise it prints a line for each batch.
+// importProgress prints a line for each batch sent.
 type importProgress struct {
 	w        io.Writer
-	terminal bool
 	expected int
-	drawn    bool
-}
-
-func newImportProgress(w io.Writer, terminal bool, expected int) *importProgress {
-	return &importProgress{w: w, terminal: terminal, expected: expected}
 }
 
 func (p *importProgress) update(c importCounts) {
 	handled := c.Written + c.Skipped + c.Rejected
-	total := max(p.expected, handled)
-	counts := fmt.Sprintf("%d imported, %d skipped, %d rejected", c.Written, c.Skipped, c.Rejected)
-	if !p.terminal {
-		fmt.Fprintf(p.w, "Sent %d of about %s (%s).\n", handled, plural(total, "run"), counts)
-		return
-	}
-	const width = 30
-	filled := 0
-	if total > 0 {
-		filled = handled * width / total
-	}
-	bar := strings.Repeat("#", filled) + strings.Repeat("-", width-filled)
-	fmt.Fprintf(p.w, "\r[%s] %d/%d runs  %s", bar, handled, total, counts)
-	p.drawn = true
-}
-
-// done ends the bar's line.
-func (p *importProgress) done() {
-	if p.drawn {
-		fmt.Fprintln(p.w)
-		p.drawn = false
-	}
+	fmt.Fprintf(p.w, "Sent %d of about %s (%d imported, %d skipped, %d rejected).\n",
+		handled, plural(max(p.expected, handled), "run"), c.Written, c.Skipped, c.Rejected)
 }
