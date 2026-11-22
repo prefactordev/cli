@@ -119,6 +119,19 @@ func newLoginCommand(app *App) *cobra.Command {
 	}
 }
 
+// signInBaseURL is where signIn signs in: the default profile's base URL,
+// or PREFACTOR_API_URL when there is no default profile, or the default
+// URL.
+func signInBaseURL(store *profile.Store, getenv func(string) string) string {
+	if existing, ok := store.Get(profile.DefaultName); ok {
+		return existing.BaseURL
+	}
+	if apiURL := getenv("PREFACTOR_API_URL"); apiURL != "" {
+		return apiURL
+	}
+	return profile.DefaultBaseURL
+}
+
 // signIn signs in through the browser, or by pasting a token when the
 // server has no device login, and saves the token to the default profile.
 // Instructions go to info. It returns the grant and the base URL it
@@ -129,10 +142,7 @@ func (a *App) signIn(ctx context.Context, info io.Writer) (deviceLoginGrant, str
 		return deviceLoginGrant{}, "", err
 	}
 
-	baseURL := profile.DefaultBaseURL
-	if existing, ok := store.Get(profile.DefaultName); ok {
-		baseURL = existing.BaseURL
-	}
+	baseURL := signInBaseURL(store, a.Getenv)
 
 	deps := a.Login
 	started, err := startDeviceLogin(ctx, baseURL, deps, a.Version)

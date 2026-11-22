@@ -38,6 +38,10 @@ const (
 	maxRedirects = 10
 )
 
+// ErrResponseTooLarge is returned for a response over maxBodySize. A
+// smaller page of observations can fit.
+var ErrResponseTooLarge = errors.New("Langfuse sent a response larger than 5 MB.")
+
 // errRedirect refuses a redirect that would send the keys to another host
 // or over another scheme.
 var errRedirect = errors.New("Langfuse redirected the request to another host or scheme, so the keys were not sent there")
@@ -326,7 +330,7 @@ func readBody(resp *http.Response) ([]byte, error) {
 		return nil, fmt.Errorf("Unable to read the response from Langfuse: %w", err)
 	}
 	if len(body) > maxBodySize {
-		return nil, errors.New("Langfuse sent a response larger than 5 MB.")
+		return nil, ErrResponseTooLarge
 	}
 	return body, nil
 }

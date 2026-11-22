@@ -64,8 +64,11 @@ type langfuseImportResult struct {
 	Agents    []langfuse.Agent `json:"agents"`
 	Runs      importCounts     `json:"runs"`
 	Rejected  []rejectedTrace  `json:"rejected"`
-	AgentsURL string           `json:"agents_url"`
-	NextStep  string           `json:"next_step"`
+	// LateObservations counts observations Langfuse returned after their
+	// run had been sent, which the run does not include.
+	LateObservations int    `json:"late_observations"`
+	AgentsURL        string `json:"agents_url"`
+	NextStep         string `json:"next_step"`
 }
 
 // importCounts are the runs sent and what Prefactor did with them.
@@ -107,7 +110,7 @@ func (a *App) prefactorTarget(cmd *cobra.Command) (*prefactorTarget, error) {
 		return nil, err
 	}
 	target := &prefactorTarget{baseURL: baseURL, client: c, uploadClient: upload}
-	if target.accountID, err = a.chooseImportAccount(cmd, c); err != nil {
+	if target.accountID, err = a.chooseImportAccount(cmd, c, baseURL); err != nil {
 		return nil, err
 	}
 	return target, nil
@@ -115,8 +118,8 @@ func (a *App) prefactorTarget(cmd *cobra.Command) (*prefactorTarget, error) {
 
 // prefactorCredentials returns the selected profile's base URL and token.
 // With the default profile and no token, it signs in through the browser
-// first, as prefactor login does, at the default profile's base URL when the
-// profile has one.
+// first, as prefactor login does: at the default profile's base URL when
+// the profile has one, otherwise at PREFACTOR_API_URL or the default URL.
 func (a *App) prefactorCredentials(cmd *cobra.Command) (string, string, error) {
 	baseURL, token, err := a.credentials(cmd)
 	_, isDefault := a.resolveProfileName(cmd)
@@ -128,6 +131,12 @@ func (a *App) prefactorCredentials(cmd *cobra.Command) (string, string, error) {
 	}
 	status := cmd.ErrOrStderr()
 	fmt.Fprintln(status, "You are not signed in to Prefactor, so the CLI will sign you in first. Your Langfuse keys stay on this machine.")
+	if err == nil && a.Getenv("PREFACTOR_API_TOKEN") != "" {
+		fmt.Fprintf(status, "PREFACTOR_API_TOKEN is set, but the default profile has no token, so the CLI signs in at the profile's URL instead of using it.\n")
+	}
+	if store, err := a.loadProfiles(); err == nil {
+		fmt.Fprintf(status, "Signing in to %s.\n", signInBaseURL(store, a.Getenv))
+	}
 	grant, baseURL, err := a.signIn(cmd.Context(), status)
 	if err != nil {
 		return "", "", err
@@ -143,7 +152,7 @@ func (a *App) prefactorCredentials(cmd *cobra.Command) (string, string, error) {
 // chooseImportAccount is --account-id, the only account the token can
 // reach, or the account a person picks. Environments are not chosen: the
 // server maps each Langfuse environment to one.
-func (a *App) chooseImportAccount(cmd *cobra.Command, c *api.Client) (string, error) {
+func (a *App) chooseImportAccount(cmd *cobra.Command, c *api.Client, baseURL string) (string, error) {
 	if id := stringFlag(cmd, "account-id"); id != "" {
 		return id, nil
 	}
@@ -155,7 +164,7 @@ func (a *App) chooseImportAccount(cmd *cobra.Command, c *api.Client) (string, er
 	case len(choices) == 0:
 		return "", errors.New("No accounts found to import into.")
 	case len(choices) == 1:
-		fmt.Fprintf(cmd.ErrOrStderr(), "Importing into the account %s.\n", choices[0].Label)
+		fmt.Fprintf(cmd.ErrOrStderr(), "Importing into the account %s at %s.\n", choices[0].Label, baseURL)
 		return choices[0].Value, nil
 	case a.canPick():
 		return a.Picker.Pick("Choose the account to import into", "", choices)
@@ -179,6 +188,8 @@ type importUpload struct {
 	sleep     func(context.Context, time.Duration) error
 	batch     [][]byte
 	batchSize int
+	// late counts observations that arrived after their run was sent.
+	late int
 }
 
 // uploadLangfuse opens an import, sends the plan's runs and finishes the
@@ -219,6 +230,9 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 		progress: &importProgress{w: status, expected: expected},
 	}
 	runErr := u.run(ctx, traceNames)
+	interrupted := ctx.Err() != nil && cmd.Context().Err() == nil
+	// A second Ctrl-C while the import is finished stops the CLI at once.
+	stop()
 
 	finishStatus := "finished"
 	if runErr != nil {
@@ -229,22 +243,33 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 	finishErr := finishImport(finishCtx, target, importID, finishStatus)
 
 	switch {
-	case runErr != nil && ctx.Err() != nil && cmd.Context().Err() == nil:
+	case runErr != nil && interrupted:
 		runErr = errors.New("The import was stopped. Run the same command again to carry on: runs already imported are skipped.")
 	case runErr != nil:
 		runErr = fmt.Errorf("%w\nThe import stopped early. Run the same command again to carry on: runs already imported are skipped.", runErr)
 	}
+	if runErr != nil && finishErr != nil {
+		runErr = fmt.Errorf("%w\nThe import could not be marked as failed either, so it stays open in Prefactor: %w", runErr, finishErr)
+	}
 
+	resultStatus := finishStatus
+	if finishErr != nil {
+		resultStatus = "not_finished"
+	}
+	if u.late > 0 {
+		fmt.Fprintf(status, "%s arrived after its run was sent, so it is not in Prefactor. This happens when an observation starts more than 5 minutes before its run.\n", plural(u.late, "observation"))
+	}
 	result := langfuseImportResult{
-		ImportID:  importID,
-		AccountID: target.accountID,
-		Status:    finishStatus,
-		Window:    plan.Window,
-		Agents:    plan.Agents,
-		Runs:      u.counts,
-		Rejected:  u.rejected,
-		AgentsURL: strings.TrimRight(target.baseURL, "/") + "/agents",
-		NextStep:  setupNextStep,
+		ImportID:         importID,
+		AccountID:        target.accountID,
+		Status:           resultStatus,
+		Window:           plan.Window,
+		Agents:           plan.Agents,
+		Runs:             u.counts,
+		Rejected:         u.rejected,
+		LateObservations: u.late,
+		AgentsURL:        strings.TrimRight(target.baseURL, "/") + "/agents",
+		NextStep:         setupNextStep,
 	}
 	if result.Rejected == nil {
 		result.Rejected = []rejectedTrace{}
@@ -266,14 +291,23 @@ func (a *App) uploadLangfuse(cmd *cobra.Command, target *prefactorTarget, lf *la
 // are not in the plan's counts, and are left out.
 func (u *importUpload) run(ctx context.Context, traceNames []string) error {
 	assembler := langfuse.NewAssembler()
+	defer func() { u.late = assembler.Late() }()
 	cursor := ""
+	limit := observationsPerPage
 	for {
 		page, err := u.langfuse.Observations(ctx, langfuse.ObservationQuery{
-			TraceNames: traceNames, From: u.from, To: u.to, Limit: observationsPerPage, Cursor: cursor,
+			TraceNames: traceNames, From: u.from, To: u.to, Limit: limit, Cursor: cursor,
 		})
+		// A page of large observations can pass Langfuse's response
+		// limit, so the same page is read again in smaller parts.
+		if errors.Is(err, langfuse.ErrResponseTooLarge) && limit > 1 {
+			limit /= 2
+			continue
+		}
 		if err != nil {
 			return err
 		}
+		limit = observationsPerPage
 		for _, trace := range assembler.Add(page.Observations) {
 			if err := u.queue(ctx, trace); err != nil {
 				return err
@@ -330,6 +364,9 @@ func (u *importUpload) flush(ctx context.Context) error {
 	results, err := u.send(ctx)
 	if err != nil {
 		return err
+	}
+	if len(results) != len(u.batch) {
+		return fmt.Errorf("Prefactor answered for %d of %d runs in a batch, so it is not known whether the rest were imported.", len(results), len(u.batch))
 	}
 	u.counts.Sent += len(u.batch)
 	for _, r := range results {

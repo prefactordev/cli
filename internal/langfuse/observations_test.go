@@ -26,6 +26,17 @@ func obs(trace, id string, second int, root bool) Observation {
 	return o
 }
 
+// obsAt is obs at start. Without rootMark, isRootObservation is left out,
+// as in older data, so only a missing parent makes it a root.
+func obsAt(trace, id string, start time.Time, root, rootMark bool) Observation {
+	o := obs(trace, id, 0, root)
+	o["startTime"] = json.RawMessage(`"` + start.UTC().Format("2006-01-02T15:04:05.000Z") + `"`)
+	if !rootMark {
+		delete(o, "isRootObservation")
+	}
+	return o
+}
+
 func ids(traces []Trace) []string {
 	var out []string
 	for _, t := range traces {
@@ -100,30 +111,82 @@ func TestWithoutProcessMetadataDropsOnlyProcessKeys(t *testing.T) {
 
 func TestAssemblerWaitsUntilThePagesPassTheRoot(t *testing.T) {
 	a := NewAssembler()
+	at := func(minute int) time.Time { return time.Date(2026, 8, 1, 10, minute, 0, 0, time.UTC) }
 
-	// Page 1: t1's children, and all of t2.
-	got := a.Add([]Observation{obs("t1", "c2", 50, false), obs("t2", "r2", 45, true), obs("t1", "c1", 40, false)})
-	if len(got) != 1 || got[0].ID != "t2" {
+	// Page 1: t1's children, and all of t2, whose root is more than the
+	// margin older than the page's oldest observation only after page 2.
+	got := a.Add([]Observation{obsAt("t1", "c2", at(50), false, true), obsAt("t2", "r2", at(45), true, true), obsAt("t1", "c1", at(40), false, true)})
+	if len(got) != 0 {
 		t.Fatalf("page 1 completed %v", ids(got))
 	}
 	// Page 2 ends at t1's root, which may share its start time with
 	// observations on the next page.
-	if got = a.Add([]Observation{obs("t1", "r1", 30, true)}); len(got) != 0 {
+	if got = a.Add([]Observation{obsAt("t1", "r1", at(30), true, true)}); fmt.Sprint(ids(got)) != "[t2:1]" {
 		t.Fatalf("page 2 completed %v", ids(got))
 	}
-	// Page 3 is older than t1's root, so t1 is complete; t3 has no root yet,
-	// so it started before the window.
-	got = a.Add([]Observation{obs("t1", "c0", 30, false), obs("t3", "c3", 20, false)})
+	// Page 3 is more than the margin older than t1's root, so t1 is
+	// complete; t3 has no root yet, so it started before the window.
+	got = a.Add([]Observation{obsAt("t1", "c0", at(30), false, true), obsAt("t3", "c3", at(20), false, true)})
 	if fmt.Sprint(ids(got)) != "[t1:4]" {
 		t.Fatalf("page 3 completed %v", ids(got))
 	}
-	// A repeated observation, or one for a trace already completed, is ignored.
-	if got = a.Add([]Observation{obs("t1", "late", 10, false), obs("t3", "c3", 20, false)}); len(got) != 0 {
+	// A repeated observation is ignored. One for a trace already completed
+	// is counted as late.
+	if got = a.Add([]Observation{obsAt("t1", "late", at(10), false, true), obsAt("t3", "c3", at(20), false, true)}); len(got) != 0 {
 		t.Fatalf("page 4 completed %v", ids(got))
 	}
 
 	if complete := a.Finish(); len(complete) != 0 {
 		t.Fatalf("complete = %v; t3 has no root, so it is left out", ids(complete))
+	}
+	if a.Late() != 1 {
+		t.Fatalf("late = %d", a.Late())
+	}
+}
+
+func TestAssemblerKeepsAChildThatStartsJustBeforeItsRoot(t *testing.T) {
+	a := NewAssembler()
+	root := time.Date(2026, 8, 1, 10, 30, 0, 0, time.UTC)
+
+	if got := a.Add([]Observation{obsAt("t1", "r1", root, true, true)}); len(got) != 0 {
+		t.Fatalf("page 1 completed %v", ids(got))
+	}
+	// Clock skew puts a child 30 seconds before its root, on the next page.
+	if got := a.Add([]Observation{obsAt("t1", "c0", root.Add(-30*time.Second), false, true), obsAt("t2", "r2", root.Add(-time.Minute), true, true)}); len(got) != 0 {
+		t.Fatalf("page 2 completed %v", ids(got))
+	}
+	got := a.Add([]Observation{obsAt("t3", "r3", root.Add(-10*time.Minute), true, true)})
+	if fmt.Sprint(ids(got)) != "[t1:2 t2:1]" || a.Late() != 0 {
+		t.Fatalf("page 3 completed %v, late %d", ids(got), a.Late())
+	}
+}
+
+func TestAssemblerHoldsTracesWithoutARootMarkUntilFinish(t *testing.T) {
+	a := NewAssembler()
+	newer := time.Date(2026, 8, 1, 10, 30, 0, 0, time.UTC)
+	older := newer.Add(-20 * time.Minute)
+
+	// Older SDKs leave isRootObservation out and can send several
+	// observations without a parent; the newest arrives first.
+	if got := a.Add([]Observation{obsAt("t1", "a", newer, true, false)}); len(got) != 0 {
+		t.Fatalf("page 1 completed %v", ids(got))
+	}
+	if got := a.Add([]Observation{obsAt("t1", "b", older, true, false), obsAt("t2", "r2", older.Add(-10*time.Minute), true, true)}); len(got) != 0 {
+		t.Fatalf("page 2 completed %v", ids(got))
+	}
+	complete := a.Finish()
+	if fmt.Sprint(ids(complete)) != "[t1:2 t2:1]" {
+		t.Fatalf("complete = %v", ids(complete))
+	}
+	raw, err := complete[0].Encode()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encoded struct {
+		Timestamp string `json:"timestamp"`
+	}
+	if err := json.Unmarshal(raw, &encoded); err != nil || encoded.Timestamp != "2026-08-01T10:10:00.000Z" {
+		t.Fatalf("timestamp = %q, %v; want the earliest root's start", encoded.Timestamp, err)
 	}
 }
 

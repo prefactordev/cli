@@ -49,13 +49,20 @@ func (o Observation) StartTime() time.Time {
 // IsRoot reports whether the observation is its trace's root: Langfuse
 // marks it with isRootObservation, and older data has no parent.
 func (o Observation) IsRoot() bool {
-	if raw, ok := o["isRootObservation"]; ok {
-		var root bool
-		if json.Unmarshal(raw, &root) == nil {
-			return root
-		}
+	if root, ok := o.rootMark(); ok {
+		return root
 	}
 	return o.Text("parentObservationId") == ""
+}
+
+// rootMark is isRootObservation, and false when Langfuse did not send it.
+// Older data without it can have several observations with no parent.
+func (o Observation) rootMark() (root, ok bool) {
+	raw, found := o["isRootObservation"]
+	if !found {
+		return false, false
+	}
+	return root, json.Unmarshal(raw, &root) == nil
 }
 
 // WithoutProcessMetadata returns the observation without the
@@ -169,17 +176,20 @@ type Trace struct {
 	Observations []Observation
 }
 
-// root is the trace's root observation, or its earliest when none is
-// marked as the root.
+// root is the trace's earliest root observation, or its earliest
+// observation when none is a root.
 func (t Trace) root() Observation {
-	var earliest Observation
+	var root, earliest Observation
 	for _, o := range t.Observations {
-		if o.IsRoot() {
-			return o
+		if o.IsRoot() && (root == nil || o.StartTime().Before(root.StartTime())) {
+			root = o
 		}
 		if earliest == nil || o.StartTime().Before(earliest.StartTime()) {
 			earliest = o
 		}
+	}
+	if root != nil {
+		return root
 	}
 	return earliest
 }
@@ -232,24 +242,37 @@ func (t Trace) Encode() ([]byte, error) {
 // Assembler groups observations read newest first into traces, and says
 // when each trace is complete.
 //
-// Every observation of a trace starts at or after its root. So once a page
-// ends with an observation older than a trace's root, the trace has no more
-// observations to come. A trace whose root is not seen by the end started
-// before the window, so it is not one of the window's runs and is left
-// out.
+// The observations of a trace start at or after its root, give or take
+// clock differences between the services that sent them. So once a page
+// ends with an observation more than rootMargin older than a trace's
+// root, the trace has no more observations to come. A trace whose root
+// Langfuse does not mark with isRootObservation, as in older data, can
+// have several observations without a parent, so it is complete only at
+// Finish. A trace whose root is not seen by the end started before the
+// window, so it is not one of the window's runs and is left out.
 type Assembler struct {
 	pending map[string]*pendingTrace
 	// order is the order traces were first seen, so results are stable.
 	order []string
 	// done holds the IDs of traces already returned.
 	done map[string]bool
+	// late counts observations that arrived after their trace was
+	// returned.
+	late int
 }
+
+// rootMargin is how much earlier than its root an observation of the same
+// trace may start.
+const rootMargin = 5 * time.Minute
 
 type pendingTrace struct {
 	trace     Trace
 	ids       map[string]bool
 	hasRoot   bool
 	rootStart time.Time
+	// unmarkedRoot is set when a root was found only by its missing
+	// parent.
+	unmarkedRoot bool
 }
 
 // NewAssembler returns an empty Assembler.
@@ -263,7 +286,11 @@ func (a *Assembler) Add(observations []Observation) []Trace {
 	var oldest time.Time
 	for _, o := range observations {
 		traceID, id := o.Text("traceId"), o.Text("id")
-		if traceID == "" || id == "" || a.done[traceID] {
+		if traceID == "" || id == "" {
+			continue
+		}
+		if a.done[traceID] {
+			a.late++
 			continue
 		}
 		p := a.pending[traceID]
@@ -278,8 +305,13 @@ func (a *Assembler) Add(observations []Observation) []Trace {
 		p.ids[id] = true
 		p.trace.Observations = append(p.trace.Observations, o)
 		start := o.StartTime()
-		if o.IsRoot() && (!p.hasRoot || start.Before(p.rootStart)) {
-			p.hasRoot, p.rootStart = true, start
+		if o.IsRoot() {
+			if _, marked := o.rootMark(); !marked {
+				p.unmarkedRoot = true
+			}
+			if !p.hasRoot || start.Before(p.rootStart) {
+				p.hasRoot, p.rootStart = true, start
+			}
 		}
 		if oldest.IsZero() || start.Before(oldest) {
 			oldest = start
@@ -288,7 +320,15 @@ func (a *Assembler) Add(observations []Observation) []Trace {
 	if oldest.IsZero() {
 		return nil
 	}
-	return a.take(func(p *pendingTrace) bool { return p.hasRoot && oldest.Before(p.rootStart) })
+	return a.take(func(p *pendingTrace) bool {
+		return p.hasRoot && !p.unmarkedRoot && oldest.Before(p.rootStart.Add(-rootMargin))
+	})
+}
+
+// Late is how many observations arrived after their trace was returned,
+// and so were not sent with it.
+func (a *Assembler) Late() int {
+	return a.late
 }
 
 // Finish ends the window. It returns the traces whose root was seen, which

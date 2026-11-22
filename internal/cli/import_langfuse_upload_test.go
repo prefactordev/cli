@@ -25,11 +25,16 @@ type prefactorServer struct {
 	rateLimited int
 	// failTraces answers add_traces with this status when set.
 	failTraces int
-	created    []map[string]any
-	batches    [][]map[string]any
-	bodySizes  []int
-	finished   []string
-	requests   []string
+	// failFinish answers finish with this status when set.
+	failFinish int
+	// dropResults answers add_traces with a result for the first trace
+	// only.
+	dropResults bool
+	created     []map[string]any
+	batches     [][]map[string]any
+	bodySizes   []int
+	finished    []string
+	requests    []string
 }
 
 func newPrefactorServer(t *testing.T) *prefactorServer {
@@ -91,6 +96,9 @@ func newPrefactorServer(t *testing.T) *prefactorServer {
 					results = append(results, fmt.Sprintf(`{"trace_id":%q,"status":"rejected","agent_instance_id":null,"reason":%q}`, id, status))
 				}
 			}
+			if ps.dropResults {
+				results = results[:1]
+			}
 			_, _ = io.WriteString(w, `{"status":"success","results":[`+strings.Join(results, ",")+`],"details":{"id":"imp1"}}`)
 		case r.Method == http.MethodPost && r.URL.Path == "/api/v1/import/imp1/finish":
 			var parsed struct {
@@ -98,6 +106,11 @@ func newPrefactorServer(t *testing.T) *prefactorServer {
 			}
 			_ = json.Unmarshal(body, &parsed)
 			ps.finished = append(ps.finished, parsed.Status)
+			if ps.failFinish != 0 {
+				w.WriteHeader(ps.failFinish)
+				_, _ = io.WriteString(w, `{"status":"error","code":"invalid_state","message":"Import is not open"}`)
+				return
+			}
 			_, _ = io.WriteString(w, `{"status":"success","details":{"id":"imp1"}}`)
 		default:
 			t.Errorf("unexpected request %s %s", r.Method, r.URL.Path)
@@ -250,7 +263,7 @@ func TestImportLangfuseUploadsCompleteTraces(t *testing.T) {
 		!strings.Contains(result.NextStep, "prefactor setup") || len(result.Rejected) != 0 {
 		t.Fatalf("result = %+v", result)
 	}
-	for _, want := range []string{"Importing into the account Acme  acc1.", "Opened import imp1.", "Sent 4 of about 4 runs"} {
+	for _, want := range []string{"Importing into the account Acme  acc1 at " + ps.URL + ".", "Opened import imp1.", "Sent 4 of about 4 runs"} {
 		if !strings.Contains(errOut, want) {
 			t.Errorf("stderr lacks %q:\n%s", want, errOut)
 		}
@@ -486,5 +499,151 @@ func TestImportLangfuseSignsInAtTheDefaultProfileURLWhenItHasNoToken(t *testing.
 	}
 	if !strings.Contains(errOut, "You are not signed in to Prefactor") || fmt.Sprint(started) != "[http://prefactor.local/cli/login/start]" {
 		t.Fatalf("stderr = %s, requests = %v", errOut, started)
+	}
+	for _, want := range []string{"PREFACTOR_API_TOKEN is set, but the default profile has no token", "Signing in to http://prefactor.local."} {
+		if !strings.Contains(errOut, want) {
+			t.Fatalf("stderr does not say %q:\n%s", want, errOut)
+		}
+	}
+}
+
+func TestImportLangfuseSignsInAtPrefactorAPIURLWhenThereIsNoProfile(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ta := langfuseApp(t, ls, lfViewerPublic, lfViewerSecret)
+	ta.env["PREFACTOR_API_URL"] = "http://prefactor.local"
+	var started []string
+	ta.Login = LoginDeps{
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+			started = append(started, r.URL.String())
+			return &http.Response{StatusCode: http.StatusServiceUnavailable, Body: io.NopCloser(strings.NewReader(`{}`)), Header: http.Header{}}, nil
+		})},
+		Hostname: func() (string, error) { return "box", nil },
+	}
+
+	_, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err == nil || err.Error() != "Login could not start (HTTP 503)." {
+		t.Fatalf("err = %v", err)
+	}
+	if fmt.Sprint(started) != "[http://prefactor.local/cli/login/start]" || !strings.Contains(errOut, "Signing in to http://prefactor.local.") {
+		t.Fatalf("stderr = %s, requests = %v", errOut, started)
+	}
+}
+
+func TestImportLangfuseFailsWhenABatchIsMissingResults(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ls.metrics = `{"data":[{"traceName":"support","environment":"production","count_count":2}]}`
+	start := time.Now().UTC().Add(-time.Hour)
+	ls.observations = func(url.Values) string {
+		return observationPage("",
+			lfObservation("t1", "t1-r", "support", start, true, "{}"),
+			lfObservation("t2", "t2-r", "support", start.Add(-time.Minute), true, "{}"))
+	}
+	ps := newPrefactorServer(t)
+	ps.dropResults = true
+	ta, _ := importApp(t, ls, ps)
+
+	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err == nil || !strings.Contains(err.Error(), "Prefactor answered for 1 of 2 runs in a batch") {
+		t.Fatalf("err = %v\n%s", err, errOut)
+	}
+	var result langfuseImportResult
+	if err := json.Unmarshal([]byte(out), &result); err != nil || result.Status != "failed" || fmt.Sprint(ps.finished) != "[failed]" {
+		t.Fatalf("result = %+v, finished = %v, %v", result, ps.finished, err)
+	}
+}
+
+func TestImportLangfuseReportsAnImportThatCouldNotBeFinished(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ls.metrics = `{"data":[{"traceName":"support","environment":"production","count_count":1}]}`
+	start := time.Now().UTC().Add(-time.Hour)
+	ls.observations = func(url.Values) string {
+		return observationPage("", lfObservation("t1", "t1-r", "support", start, true, "{}"))
+	}
+	ps := newPrefactorServer(t)
+	ps.failFinish = http.StatusConflict
+	ta, _ := importApp(t, ls, ps)
+
+	out, _, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err == nil || !strings.Contains(err.Error(), "All runs were sent, but the import could not be finished") {
+		t.Fatalf("err = %v", err)
+	}
+	var result langfuseImportResult
+	if err := json.Unmarshal([]byte(out), &result); err != nil || result.Status != "not_finished" {
+		t.Fatalf("result = %+v, %v", result, err)
+	}
+}
+
+func TestImportLangfuseSaysWhenAFailedImportCouldNotBeFinished(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ls.metrics = `{"data":[{"traceName":"support","environment":"production","count_count":1}]}`
+	ls.observations = func(url.Values) string { return `not json` }
+	ps := newPrefactorServer(t)
+	ps.failFinish = http.StatusConflict
+	ta, _ := importApp(t, ls, ps)
+
+	_, _, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err == nil || !strings.Contains(err.Error(), "not valid JSON") || !strings.Contains(err.Error(), "could not be marked as failed") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestImportLangfuseReadsSmallerPagesWhenAPageIsTooLarge(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ls.metrics = `{"data":[{"traceName":"support","environment":"production","count_count":1}]}`
+	start := time.Now().UTC().Add(-time.Hour)
+	big := strings.Repeat("x", 5*1024*1024)
+	ls.observations = func(q url.Values) string {
+		if q.Get("limit") == "50" && q.Get("cursor") == "" {
+			return observationPage("", lfObservation("t1", "t1-r", "support", start, true, big))
+		}
+		if q.Get("cursor") == "" {
+			return observationPage("p2", lfObservation("t1", "t1-c", "support", start.Add(time.Second), false, "{}"))
+		}
+		return observationPage("", lfObservation("t1", "t1-r", "support", start, true, "{}"))
+	}
+	ps := newPrefactorServer(t)
+	ta, _ := importApp(t, ls, ps)
+
+	_, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err != nil {
+		t.Fatalf("%v\n%s", err, errOut)
+	}
+	var limits []string
+	for _, q := range ls.queries {
+		limits = append(limits, q.Get("limit"))
+	}
+	if fmt.Sprint(limits) != "[50 25 50]" || len(ps.batches) != 1 || len(ps.batches[0]) != 1 {
+		t.Fatalf("limits = %v, batches = %d", limits, len(ps.batches))
+	}
+}
+
+func TestImportLangfuseWarnsAboutObservationsAfterTheirRunWasSent(t *testing.T) {
+	ls := newLangfuseServer(t)
+	ls.metrics = `{"data":[{"traceName":"support","environment":"production","count_count":2}]}`
+	start := time.Now().UTC().Add(-time.Hour)
+	ls.observations = func(q url.Values) string {
+		switch q.Get("cursor") {
+		case "":
+			return observationPage("p2",
+				lfObservation("t1", "t1-r", "support", start, true, "{}"),
+				lfObservation("t2", "t2-r", "support", start.Add(-10*time.Minute), true, "{}"))
+		default:
+			// A child of t1 that starts 20 minutes before its root.
+			return observationPage("", lfObservation("t1", "t1-c", "support", start.Add(-20*time.Minute), false, "{}"))
+		}
+	}
+	ps := newPrefactorServer(t)
+	ta, _ := importApp(t, ls, ps)
+
+	out, errOut, err := ta.runWithStderr(t, "import", "langfuse", "--yes")
+	if err != nil {
+		t.Fatalf("%v\n%s", err, errOut)
+	}
+	var result langfuseImportResult
+	if err := json.Unmarshal([]byte(out), &result); err != nil || result.LateObservations != 1 {
+		t.Fatalf("result = %+v, %v", result, err)
+	}
+	if !strings.Contains(errOut, "1 observation arrived after its run was sent") {
+		t.Fatalf("stderr = %s", errOut)
 	}
 }
