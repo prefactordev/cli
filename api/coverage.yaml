@@ -55,6 +55,9 @@ Action.ApiToken.Update: api-tokens update
 Action.Environment.Create: environments create
 Action.Environment.Delete: environments delete
 Action.Environment.Update: environments update
+Action.Import.AddTraces: import langfuse
+Action.Import.Create: import langfuse
+Action.Import.Finish: import langfuse
 Action.Knowledgebase.Archive: knowledgebases archive
 Action.Knowledgebase.Create: knowledgebases create
 Action.Knowledgebase.Delete: knowledgebases delete

@@ -89,17 +89,6 @@ func newLoginCommand(app *App) *cobra.Command {
 		Short: "Authenticate the CLI with your Prefactor account",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			store, err := app.loadProfiles()
-			if err != nil {
-				return err
-			}
-
-			baseURL := profile.DefaultBaseURL
-			if existing, ok := store.Get(profile.DefaultName); ok {
-				baseURL = existing.BaseURL
-			}
-
-			deps := app.Login
 			// Instructions go to stderr in JSON mode, so stdout holds only
 			// the result.
 			info := cmd.OutOrStdout()
@@ -107,25 +96,8 @@ func newLoginCommand(app *App) *cobra.Command {
 				info = cmd.ErrOrStderr()
 			}
 
-			started, err := startDeviceLogin(cmd.Context(), baseURL, deps, app.Version)
+			grant, baseURL, err := app.signIn(cmd.Context(), info)
 			if err != nil {
-				return err
-			}
-
-			var grant deviceLoginGrant
-			if started == nil {
-				if !app.interactive() {
-					return errors.New("Cannot ask for an API token because the CLI is not interactive. Run 'prefactor profiles add default <baseUrl> --api-token <apiToken>' instead.")
-				}
-				grant, err = loginByPastingToken(info, baseURL, deps)
-			} else {
-				grant, err = loginWithDeviceCode(cmd.Context(), info, baseURL, *started, deps)
-			}
-			if err != nil {
-				return err
-			}
-
-			if err := store.Set(profile.DefaultName, profile.Profile{APIKey: grant.AccessToken, BaseURL: baseURL}); err != nil {
 				return err
 			}
 
@@ -145,6 +117,56 @@ func newLoginCommand(app *App) *cobra.Command {
 			return err
 		},
 	}
+}
+
+// signInBaseURL is where signIn signs in: the default profile's base URL,
+// or PREFACTOR_API_URL when there is no default profile, or the default
+// URL.
+func signInBaseURL(store *profile.Store, getenv func(string) string) string {
+	if existing, ok := store.Get(profile.DefaultName); ok {
+		return existing.BaseURL
+	}
+	if apiURL := getenv("PREFACTOR_API_URL"); apiURL != "" {
+		return apiURL
+	}
+	return profile.DefaultBaseURL
+}
+
+// signIn signs in through the browser, or by pasting a token when the
+// server has no device login, and saves the token to the default profile.
+// Instructions go to info. It returns the grant and the base URL it
+// signed in to.
+func (a *App) signIn(ctx context.Context, info io.Writer) (deviceLoginGrant, string, error) {
+	store, err := a.loadProfiles()
+	if err != nil {
+		return deviceLoginGrant{}, "", err
+	}
+
+	baseURL := signInBaseURL(store, a.Getenv)
+
+	deps := a.Login
+	started, err := startDeviceLogin(ctx, baseURL, deps, a.Version)
+	if err != nil {
+		return deviceLoginGrant{}, "", err
+	}
+
+	var grant deviceLoginGrant
+	if started == nil {
+		if !a.interactive() {
+			return deviceLoginGrant{}, "", errors.New("Cannot ask for an API token because the CLI is not interactive. Run 'prefactor profiles add default <baseUrl> --api-token <apiToken>' instead.")
+		}
+		grant, err = loginByPastingToken(info, baseURL, deps)
+	} else {
+		grant, err = loginWithDeviceCode(ctx, info, baseURL, *started, deps)
+	}
+	if err != nil {
+		return deviceLoginGrant{}, "", err
+	}
+
+	if err := store.Set(profile.DefaultName, profile.Profile{APIKey: grant.AccessToken, BaseURL: baseURL}); err != nil {
+		return deviceLoginGrant{}, "", err
+	}
+	return grant, baseURL, nil
 }
 
 // loginResult is the login --json output. It never includes the token.

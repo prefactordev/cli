@@ -40,11 +40,11 @@ var laterCommands = map[string]string{
 	"playground": "excluded: seeds demo data",
 }
 
-// goOnlyCommands are commands the TypeScript CLI lacks that call no API
-// operation.
+// goOnlyCommands are commands the TypeScript CLI lacks whose options are
+// not the request fields of an API operation.
 var goOnlyCommands = map[string]string{
 	"prefactor skills": "installs the skills built into the CLI",
-	"prefactor import": "reads from Langfuse and sends nothing to Prefactor yet",
+	"prefactor import": "reads runs from Langfuse and sends them with the imports actions; its options choose what to read",
 }
 
 // goOnlyFlags are the session flags this CLI adds to every command.

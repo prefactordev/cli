@@ -860,6 +860,7 @@ func (e AgentInstanceDetailsExecutionMode) Valid() bool {
 // Defines values for AgentInstanceDetailsPurpose.
 const (
 	AgentInstanceDetailsPurposeEval      AgentInstanceDetailsPurpose = "eval"
+	AgentInstanceDetailsPurposeImport    AgentInstanceDetailsPurpose = "import"
 	AgentInstanceDetailsPurposeLive      AgentInstanceDetailsPurpose = "live"
 	AgentInstanceDetailsPurposeSmokeTest AgentInstanceDetailsPurpose = "smoke_test"
 )
@@ -868,6 +869,8 @@ const (
 func (e AgentInstanceDetailsPurpose) Valid() bool {
 	switch e {
 	case AgentInstanceDetailsPurposeEval:
+		return true
+	case AgentInstanceDetailsPurposeImport:
 		return true
 	case AgentInstanceDetailsPurposeLive:
 		return true
@@ -1166,6 +1169,7 @@ func (e AgentInstanceSummaryExecutionMode) Valid() bool {
 // Defines values for AgentInstanceSummaryPurpose.
 const (
 	AgentInstanceSummaryPurposeEval      AgentInstanceSummaryPurpose = "eval"
+	AgentInstanceSummaryPurposeImport    AgentInstanceSummaryPurpose = "import"
 	AgentInstanceSummaryPurposeLive      AgentInstanceSummaryPurpose = "live"
 	AgentInstanceSummaryPurposeSmokeTest AgentInstanceSummaryPurpose = "smoke_test"
 )
@@ -1174,6 +1178,8 @@ const (
 func (e AgentInstanceSummaryPurpose) Valid() bool {
 	switch e {
 	case AgentInstanceSummaryPurposeEval:
+		return true
+	case AgentInstanceSummaryPurposeImport:
 		return true
 	case AgentInstanceSummaryPurposeLive:
 		return true
@@ -2999,6 +3005,120 @@ const (
 func (e EnvironmentSummaryType) Valid() bool {
 	switch e {
 	case EnvironmentSummaryTypeEnvironment:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportDetailsSource.
+const (
+	ImportDetailsSourceLangfuse ImportDetailsSource = "langfuse"
+)
+
+// Valid indicates whether the value is a known member of the ImportDetailsSource enum.
+func (e ImportDetailsSource) Valid() bool {
+	switch e {
+	case ImportDetailsSourceLangfuse:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportDetailsStatus.
+const (
+	ImportDetailsStatusFailed   ImportDetailsStatus = "failed"
+	ImportDetailsStatusFinished ImportDetailsStatus = "finished"
+	ImportDetailsStatusOpen     ImportDetailsStatus = "open"
+)
+
+// Valid indicates whether the value is a known member of the ImportDetailsStatus enum.
+func (e ImportDetailsStatus) Valid() bool {
+	switch e {
+	case ImportDetailsStatusFailed:
+		return true
+	case ImportDetailsStatusFinished:
+		return true
+	case ImportDetailsStatusOpen:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportDetailsType.
+const (
+	ImportDetailsTypeImport ImportDetailsType = "import"
+)
+
+// Valid indicates whether the value is a known member of the ImportDetailsType enum.
+func (e ImportDetailsType) Valid() bool {
+	switch e {
+	case ImportDetailsTypeImport:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportForCreateSource.
+const (
+	ImportForCreateSourceLangfuse ImportForCreateSource = "langfuse"
+)
+
+// Valid indicates whether the value is a known member of the ImportForCreateSource enum.
+func (e ImportForCreateSource) Valid() bool {
+	switch e {
+	case ImportForCreateSourceLangfuse:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportTraceResultReason0.
+const (
+	AgentRetired     ImportTraceResultReason0 = "agent_retired"
+	AlreadyImported  ImportTraceResultReason0 = "already_imported"
+	InvalidTrace     ImportTraceResultReason0 = "invalid_trace"
+	TraceNameBlank   ImportTraceResultReason0 = "trace_name_blank"
+	TraceTimeMissing ImportTraceResultReason0 = "trace_time_missing"
+)
+
+// Valid indicates whether the value is a known member of the ImportTraceResultReason0 enum.
+func (e ImportTraceResultReason0) Valid() bool {
+	switch e {
+	case AgentRetired:
+		return true
+	case AlreadyImported:
+		return true
+	case InvalidTrace:
+		return true
+	case TraceNameBlank:
+		return true
+	case TraceTimeMissing:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ImportTraceResultStatus.
+const (
+	Rejected ImportTraceResultStatus = "rejected"
+	Skipped  ImportTraceResultStatus = "skipped"
+	Written  ImportTraceResultStatus = "written"
+)
+
+// Valid indicates whether the value is a known member of the ImportTraceResultStatus enum.
+func (e ImportTraceResultStatus) Valid() bool {
+	switch e {
+	case Rejected:
+		return true
+	case Skipped:
+		return true
+	case Written:
 		return true
 	default:
 		return false
@@ -5648,6 +5768,69 @@ const (
 func (e ActionEnvironmentUpdate200JSONResponseBodyStatus) Valid() bool {
 	switch e {
 	case ActionEnvironmentUpdate200JSONResponseBodyStatusSuccess:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ActionImportCreate200JSONResponseBodyStatus.
+const (
+	ActionImportCreate200JSONResponseBodyStatusSuccess ActionImportCreate200JSONResponseBodyStatus = "success"
+)
+
+// Valid indicates whether the value is a known member of the ActionImportCreate200JSONResponseBodyStatus enum.
+func (e ActionImportCreate200JSONResponseBodyStatus) Valid() bool {
+	switch e {
+	case ActionImportCreate200JSONResponseBodyStatusSuccess:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ActionImportFinishJSONBodyStatus.
+const (
+	ActionImportFinishJSONBodyStatusFailed   ActionImportFinishJSONBodyStatus = "failed"
+	ActionImportFinishJSONBodyStatusFinished ActionImportFinishJSONBodyStatus = "finished"
+)
+
+// Valid indicates whether the value is a known member of the ActionImportFinishJSONBodyStatus enum.
+func (e ActionImportFinishJSONBodyStatus) Valid() bool {
+	switch e {
+	case ActionImportFinishJSONBodyStatusFailed:
+		return true
+	case ActionImportFinishJSONBodyStatusFinished:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ActionImportFinish200JSONResponseBodyStatus.
+const (
+	ActionImportFinish200JSONResponseBodyStatusSuccess ActionImportFinish200JSONResponseBodyStatus = "success"
+)
+
+// Valid indicates whether the value is a known member of the ActionImportFinish200JSONResponseBodyStatus enum.
+func (e ActionImportFinish200JSONResponseBodyStatus) Valid() bool {
+	switch e {
+	case ActionImportFinish200JSONResponseBodyStatusSuccess:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ActionImportAddTraces200JSONResponseBodyStatus.
+const (
+	ActionImportAddTraces200JSONResponseBodyStatusSuccess ActionImportAddTraces200JSONResponseBodyStatus = "success"
+)
+
+// Valid indicates whether the value is a known member of the ActionImportAddTraces200JSONResponseBodyStatus enum.
+func (e ActionImportAddTraces200JSONResponseBodyStatus) Valid() bool {
+	switch e {
+	case ActionImportAddTraces200JSONResponseBodyStatusSuccess:
 		return true
 	default:
 		return false
@@ -8363,7 +8546,7 @@ type AgentInstanceDetails struct {
 	// ParamsPayload Input payload recorded when the instance was registered, validated against the agent schema version's instance_params_payload_schema when present. Values marked $sensitive were stored securely, separate from the rest of the payload, and are returned encoded with $sensitive markers.
 	ParamsPayload AgentInstanceDetails_ParamsPayload `json:"params_payload"`
 
-	// Purpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, or 'eval' for an evaluation run
+	// Purpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, 'eval' for an evaluation run, or 'import' for a historical run imported from another system. Clients cannot set 'import'.
 	//
 	// Example: live
 	Purpose AgentInstanceDetailsPurpose `json:"purpose"`
@@ -8475,7 +8658,7 @@ type AgentInstanceDetails_ParamsPayload struct {
 	union json.RawMessage
 }
 
-// AgentInstanceDetailsPurpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, or 'eval' for an evaluation run
+// AgentInstanceDetailsPurpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, 'eval' for an evaluation run, or 'import' for a historical run imported from another system. Clients cannot set 'import'.
 //
 // Example: live
 type AgentInstanceDetailsPurpose string
@@ -8731,7 +8914,7 @@ type AgentInstanceSummary struct {
 	// LastActivitySpanAt When this agent instance last had an activity span, quantised to the nearest 30 seconds, or null if none yet
 	LastActivitySpanAt AgentInstanceSummary_LastActivitySpanAt `json:"last_activity_span_at"`
 
-	// Purpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, or 'eval' for an evaluation run
+	// Purpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, 'eval' for an evaluation run, or 'import' for a historical run imported from another system. Clients cannot set 'import'.
 	//
 	// Example: live
 	Purpose AgentInstanceSummaryPurpose `json:"purpose"`
@@ -8798,7 +8981,7 @@ type AgentInstanceSummary_LastActivitySpanAt struct {
 	union json.RawMessage
 }
 
-// AgentInstanceSummaryPurpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, or 'eval' for an evaluation run
+// AgentInstanceSummaryPurpose Why this instance ran: 'live' for an actual agent run, 'smoke_test' for a pipeline check, 'eval' for an evaluation run, or 'import' for a historical run imported from another system. Clients cannot set 'import'.
 //
 // Example: live
 type AgentInstanceSummaryPurpose string
@@ -12053,6 +12236,437 @@ type IdempotencyKeyOrNull struct {
 
 // IdempotencyKeyOrNull0 Optional idempotency key for ensuring request idempotency
 type IdempotencyKeyOrNull0 = string
+
+// ImportDetails Full details of an import
+type ImportDetails struct {
+	// AccountId A valid account ID
+	//
+	// Example: 013xrzp12g3nqk8ns6jadrqmpgrjkeny
+	AccountId AccountId `json:"account_id"`
+
+	// CreatedByAdminUserId Admin user who started the import, when the caller was an admin session
+	CreatedByAdminUserId ImportDetails_CreatedByAdminUserId `json:"created_by_admin_user_id"`
+
+	// CreatedByApiTokenId API token that started the import, when the caller was an API token
+	CreatedByApiTokenId ImportDetails_CreatedByApiTokenId `json:"created_by_api_token_id"`
+
+	// FinishedAt When the import was finished or failed; null while it is open
+	FinishedAt ImportDetails_FinishedAt `json:"finished_at"`
+
+	// Id A valid import ID
+	//
+	// Example: 013xrzp12g3nqk8ns6jadrqmpgrjkeny
+	Id ImportId `json:"id"`
+
+	// InsertedAt When the import was started
+	//
+	// Example: 2024-01-01T00:00:00Z
+	InsertedAt time.Time `json:"inserted_at"`
+
+	// Source Tool the agent runs are imported from
+	//
+	// Example: langfuse
+	Source ImportDetailsSource `json:"source"`
+
+	// Status Whether the import is open, finished, or failed. Only an open import can be finished
+	//
+	// Example: open
+	Status ImportDetailsStatus `json:"status"`
+
+	// TracesReceivedCount Number of traces the client has sent in this import
+	//
+	// Example: 120
+	TracesReceivedCount int `json:"traces_received_count"`
+
+	// TracesWrittenCount Number of traces stored as agent runs in this import
+	//
+	// Example: 118
+	TracesWrittenCount int `json:"traces_written_count"`
+
+	// Type Type of resource (always 'import')
+	//
+	// Example: import
+	Type ImportDetailsType `json:"type"`
+}
+
+// ImportDetails_CreatedByAdminUserId Admin user who started the import, when the caller was an admin session
+type ImportDetails_CreatedByAdminUserId struct {
+	union json.RawMessage
+}
+
+// ImportDetails_CreatedByApiTokenId API token that started the import, when the caller was an API token
+type ImportDetails_CreatedByApiTokenId struct {
+	union json.RawMessage
+}
+
+// ImportDetailsFinishedAt0 Example: 2024-01-01T00:00:00Z
+type ImportDetailsFinishedAt0 = time.Time
+
+// ImportDetails_FinishedAt When the import was finished or failed; null while it is open
+type ImportDetails_FinishedAt struct {
+	union json.RawMessage
+}
+
+// ImportDetailsSource Tool the agent runs are imported from
+//
+// Example: langfuse
+type ImportDetailsSource string
+
+// ImportDetailsStatus Whether the import is open, finished, or failed. Only an open import can be finished
+//
+// Example: open
+type ImportDetailsStatus string
+
+// ImportDetailsType Type of resource (always 'import')
+//
+// Example: import
+type ImportDetailsType string
+
+// ImportForCreate Parameters for starting an import
+type ImportForCreate struct {
+	// AccountId Account ID (defaults to token's account if not provided)
+	AccountId *ImportForCreate_AccountId `json:"account_id,omitempty"`
+
+	// Id Import ID (optional; a new ID is generated if omitted). Its embedded timestamp must not be more than 7 days in the past.
+	Id *ImportForCreate_Id `json:"id,omitempty"`
+
+	// Source Tool the agent runs are imported from
+	//
+	// Example: langfuse
+	Source ImportForCreateSource `json:"source"`
+}
+
+// ImportForCreate_AccountId Account ID (defaults to token's account if not provided)
+type ImportForCreate_AccountId struct {
+	union json.RawMessage
+}
+
+// ImportForCreate_Id Import ID (optional; a new ID is generated if omitted). Its embedded timestamp must not be more than 7 days in the past.
+type ImportForCreate_Id struct {
+	union json.RawMessage
+}
+
+// ImportForCreateSource Tool the agent runs are imported from
+//
+// Example: langfuse
+type ImportForCreateSource string
+
+// ImportId A valid import ID
+//
+// Example: 013xrzp12g3nqk8ns6jadrqmpgrjkeny
+type ImportId = string
+
+// ImportLangfuseObservation One raw observation from the Langfuse Observations API v2 (field groups core, basic, time, io, metadata, model and usage). Other keys are ignored
+type ImportLangfuseObservation struct {
+	// CompletionStartTime When a generation started returning output
+	CompletionStartTime *ImportLangfuseObservation_CompletionStartTime `json:"completionStartTime,omitempty"`
+	CostDetails         *ImportLangfuseObservation_CostDetails         `json:"costDetails,omitempty"`
+
+	// EndTime When the observation ended; the start time is used when absent
+	EndTime *ImportLangfuseObservation_EndTime `json:"endTime,omitempty"`
+
+	// Environment Langfuse environment of the observation
+	Environment *ImportLangfuseObservation_Environment `json:"environment,omitempty"`
+
+	// Id Langfuse observation id
+	//
+	// Example: a1b2c3d4e5f60718
+	Id string `json:"id"`
+
+	// Input Observation input, usually the JSON-encoded string Langfuse returns; decoded by the server
+	Input interface{} `json:"input,omitempty"`
+
+	// Level Langfuse level (DEBUG, DEFAULT, WARNING or ERROR); ERROR marks the step failed
+	Level *ImportLangfuseObservation_Level `json:"level,omitempty"`
+
+	// Metadata Observation metadata; keys under resourceAttributes.process. are dropped by the server
+	Metadata interface{} `json:"metadata,omitempty"`
+
+	// Model Model name, used when providedModelName is absent
+	Model           *ImportLangfuseObservation_Model           `json:"model,omitempty"`
+	ModelParameters *ImportLangfuseObservation_ModelParameters `json:"modelParameters,omitempty"`
+
+	// Name Observation name
+	Name *ImportLangfuseObservation_Name `json:"name,omitempty"`
+
+	// Output Observation output, usually the JSON-encoded string Langfuse returns; decoded by the server
+	Output interface{} `json:"output,omitempty"`
+
+	// ParentObservationId Id of the parent observation; null for a top-level observation
+	ParentObservationId *ImportLangfuseObservation_ParentObservationId `json:"parentObservationId,omitempty"`
+
+	// ProvidedModelName Model name the application recorded
+	ProvidedModelName *ImportLangfuseObservation_ProvidedModelName `json:"providedModelName,omitempty"`
+
+	// StartTime When the observation started
+	//
+	// Example: 2024-01-01T00:00:00Z
+	StartTime time.Time `json:"startTime"`
+
+	// StatusMessage Langfuse status message
+	StatusMessage *ImportLangfuseObservation_StatusMessage `json:"statusMessage,omitempty"`
+
+	// TraceId Langfuse trace id; when present it must match the trace's id
+	TraceId *ImportLangfuseObservation_TraceId `json:"traceId,omitempty"`
+
+	// Type Langfuse observation type, such as AGENT, TOOL, CHAIN, RETRIEVER, EVALUATOR, EMBEDDING, GUARDRAIL, GENERATION, SPAN or EVENT
+	//
+	// Example: GENERATION
+	Type         string                                  `json:"type"`
+	UsageDetails *ImportLangfuseObservation_UsageDetails `json:"usageDetails,omitempty"`
+
+	// Version Langfuse version of the observation
+	Version              *ImportLangfuseObservation_Version `json:"version,omitempty"`
+	AdditionalProperties map[string]interface{}             `json:"-"`
+}
+
+// ImportLangfuseObservationCompletionStartTime0 Example: 2024-01-01T00:00:00Z
+type ImportLangfuseObservationCompletionStartTime0 = time.Time
+
+// ImportLangfuseObservation_CompletionStartTime When a generation started returning output
+type ImportLangfuseObservation_CompletionStartTime struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationCostDetails0 Costs by usage type; only number values are kept
+type ImportLangfuseObservationCostDetails0 map[string]interface{}
+
+// ImportLangfuseObservation_CostDetails defines model for ImportLangfuseObservation.CostDetails.
+type ImportLangfuseObservation_CostDetails struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationEndTime0 Example: 2024-01-01T00:00:00Z
+type ImportLangfuseObservationEndTime0 = time.Time
+
+// ImportLangfuseObservation_EndTime When the observation ended; the start time is used when absent
+type ImportLangfuseObservation_EndTime struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationEnvironment0 defines model for ImportLangfuseObservation.Environment.0.
+type ImportLangfuseObservationEnvironment0 = string
+
+// ImportLangfuseObservation_Environment Langfuse environment of the observation
+type ImportLangfuseObservation_Environment struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationLevel0 defines model for ImportLangfuseObservation.Level.0.
+type ImportLangfuseObservationLevel0 = string
+
+// ImportLangfuseObservation_Level Langfuse level (DEBUG, DEFAULT, WARNING or ERROR); ERROR marks the step failed
+type ImportLangfuseObservation_Level struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationModel0 defines model for ImportLangfuseObservation.Model.0.
+type ImportLangfuseObservationModel0 = string
+
+// ImportLangfuseObservation_Model Model name, used when providedModelName is absent
+type ImportLangfuseObservation_Model struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationModelParameters0 Model parameters
+type ImportLangfuseObservationModelParameters0 map[string]interface{}
+
+// ImportLangfuseObservation_ModelParameters defines model for ImportLangfuseObservation.ModelParameters.
+type ImportLangfuseObservation_ModelParameters struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationName0 defines model for ImportLangfuseObservation.Name.0.
+type ImportLangfuseObservationName0 = string
+
+// ImportLangfuseObservation_Name Observation name
+type ImportLangfuseObservation_Name struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationParentObservationId0 defines model for ImportLangfuseObservation.ParentObservationId.0.
+type ImportLangfuseObservationParentObservationId0 = string
+
+// ImportLangfuseObservation_ParentObservationId Id of the parent observation; null for a top-level observation
+type ImportLangfuseObservation_ParentObservationId struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationProvidedModelName0 defines model for ImportLangfuseObservation.ProvidedModelName.0.
+type ImportLangfuseObservationProvidedModelName0 = string
+
+// ImportLangfuseObservation_ProvidedModelName Model name the application recorded
+type ImportLangfuseObservation_ProvidedModelName struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationStatusMessage0 defines model for ImportLangfuseObservation.StatusMessage.0.
+type ImportLangfuseObservationStatusMessage0 = string
+
+// ImportLangfuseObservation_StatusMessage Langfuse status message
+type ImportLangfuseObservation_StatusMessage struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationTraceId0 defines model for ImportLangfuseObservation.TraceId.0.
+type ImportLangfuseObservationTraceId0 = string
+
+// ImportLangfuseObservation_TraceId Langfuse trace id; when present it must match the trace's id
+type ImportLangfuseObservation_TraceId struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationUsageDetails0 Token counts by usage type; only number values are kept
+type ImportLangfuseObservationUsageDetails0 map[string]interface{}
+
+// ImportLangfuseObservation_UsageDetails defines model for ImportLangfuseObservation.UsageDetails.
+type ImportLangfuseObservation_UsageDetails struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseObservationVersion0 defines model for ImportLangfuseObservation.Version.0.
+type ImportLangfuseObservationVersion0 = string
+
+// ImportLangfuseObservation_Version Langfuse version of the observation
+type ImportLangfuseObservation_Version struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTrace One Langfuse trace and its raw observations
+type ImportLangfuseTrace struct {
+	// Environment Langfuse environment; 'default' maps to the account's production environment
+	Environment *ImportLangfuseTrace_Environment `json:"environment,omitempty"`
+
+	// Id Langfuse trace id. A trace already imported into the account is skipped
+	//
+	// Example: 0b7c3c6c2f4e4f0e9c1d2a3b4c5d6e7f
+	Id string `json:"id"`
+
+	// Input Trace input, used when the root observation has no input
+	Input interface{} `json:"input,omitempty"`
+
+	// Name Trace name; each trace name is one agent. A trace without a name is rejected
+	Name         *ImportLangfuseTrace_Name         `json:"name,omitempty"`
+	Observations *ImportLangfuseTrace_Observations `json:"observations,omitempty"`
+
+	// Output Trace output, used when the root observation has no output
+	Output interface{} `json:"output,omitempty"`
+
+	// Release Langfuse release; each release is one agent version
+	Release *ImportLangfuseTrace_Release `json:"release,omitempty"`
+
+	// SessionId Langfuse session id
+	SessionId *ImportLangfuseTrace_SessionId `json:"sessionId,omitempty"`
+	Tags      *ImportLangfuseTrace_Tags      `json:"tags,omitempty"`
+
+	// Timestamp When the trace started; used when it is before every observation
+	Timestamp *ImportLangfuseTrace_Timestamp `json:"timestamp,omitempty"`
+
+	// UserId Langfuse user id
+	UserId               *ImportLangfuseTrace_UserId `json:"userId,omitempty"`
+	AdditionalProperties map[string]interface{}      `json:"-"`
+}
+
+// ImportLangfuseTraceEnvironment0 defines model for ImportLangfuseTrace.Environment.0.
+type ImportLangfuseTraceEnvironment0 = string
+
+// ImportLangfuseTrace_Environment Langfuse environment; 'default' maps to the account's production environment
+type ImportLangfuseTrace_Environment struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceName0 defines model for ImportLangfuseTrace.Name.0.
+type ImportLangfuseTraceName0 = string
+
+// ImportLangfuseTrace_Name Trace name; each trace name is one agent. A trace without a name is rejected
+type ImportLangfuseTrace_Name struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceObservations0 The trace's raw observations
+type ImportLangfuseTraceObservations0 = []ImportLangfuseObservation
+
+// ImportLangfuseTrace_Observations defines model for ImportLangfuseTrace.Observations.
+type ImportLangfuseTrace_Observations struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceRelease0 defines model for ImportLangfuseTrace.Release.0.
+type ImportLangfuseTraceRelease0 = string
+
+// ImportLangfuseTrace_Release Langfuse release; each release is one agent version
+type ImportLangfuseTrace_Release struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceSessionId0 defines model for ImportLangfuseTrace.SessionId.0.
+type ImportLangfuseTraceSessionId0 = string
+
+// ImportLangfuseTrace_SessionId Langfuse session id
+type ImportLangfuseTrace_SessionId struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceTags0 Langfuse trace tags
+type ImportLangfuseTraceTags0 = []string
+
+// ImportLangfuseTrace_Tags defines model for ImportLangfuseTrace.Tags.
+type ImportLangfuseTrace_Tags struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceTimestamp0 Example: 2024-01-01T00:00:00Z
+type ImportLangfuseTraceTimestamp0 = time.Time
+
+// ImportLangfuseTrace_Timestamp When the trace started; used when it is before every observation
+type ImportLangfuseTrace_Timestamp struct {
+	union json.RawMessage
+}
+
+// ImportLangfuseTraceUserId0 defines model for ImportLangfuseTrace.UserId.0.
+type ImportLangfuseTraceUserId0 = string
+
+// ImportLangfuseTrace_UserId Langfuse user id
+type ImportLangfuseTrace_UserId struct {
+	union json.RawMessage
+}
+
+// ImportTraceResult What happened to one trace sent to an import
+type ImportTraceResult struct {
+	// AgentInstanceId Agent run stored for the trace: the new run when written, the earlier run when skipped, and null when rejected
+	AgentInstanceId ImportTraceResult_AgentInstanceId `json:"agent_instance_id"`
+	Reason          ImportTraceResult_Reason          `json:"reason"`
+
+	// Status 'written' when an agent run was stored, 'skipped' when the trace was already imported into the account, and 'rejected' when nothing was stored
+	//
+	// Example: written
+	Status ImportTraceResultStatus `json:"status"`
+
+	// TraceId Langfuse trace id, as sent
+	//
+	// Example: 0b7c3c6c2f4e4f0e9c1d2a3b4c5d6e7f
+	TraceId string `json:"trace_id"`
+}
+
+// ImportTraceResult_AgentInstanceId Agent run stored for the trace: the new run when written, the earlier run when skipped, and null when rejected
+type ImportTraceResult_AgentInstanceId struct {
+	union json.RawMessage
+}
+
+// ImportTraceResultReason0 Why the trace was skipped or rejected: 'already_imported' (skipped), 'trace_name_blank' (no name to choose an agent by), 'agent_retired' (the agent for the trace name is retired), 'trace_time_missing' (no observations and no timestamp), or 'invalid_trace' (an observation belongs to another trace, or the name, environment or release is longer than 255 characters). Null when written
+//
+// Example: already_imported
+type ImportTraceResultReason0 string
+
+// ImportTraceResult_Reason defines model for ImportTraceResult.Reason.
+type ImportTraceResult_Reason struct {
+	union json.RawMessage
+}
+
+// ImportTraceResultStatus 'written' when an agent run was stored, 'skipped' when the trace was already imported into the account, and 'rejected' when nothing was stored
+//
+// Example: written
+type ImportTraceResultStatus string
 
 // Items List of items to process in bulk. Each item is processed sequentially in its own database transaction. Processing stops immediately on the first error: the failing item is included in the response as an error entry, and any items after it are not processed and are omitted from the response.
 type Items = []Items_Item
@@ -15914,6 +16528,43 @@ type ActionEnvironmentUpdateJSONBody struct {
 // ActionEnvironmentUpdate200JSONResponseBodyStatus defines parameters for ActionEnvironmentUpdate.
 type ActionEnvironmentUpdate200JSONResponseBodyStatus string
 
+// ActionImportCreateJSONBody defines parameters for ActionImportCreate.
+type ActionImportCreateJSONBody struct {
+	// Details Parameters for starting an import
+	Details        ImportForCreate       `json:"details"`
+	IdempotencyKey *IdempotencyKeyOrNull `json:"idempotency_key,omitempty"`
+}
+
+// ActionImportCreate200JSONResponseBodyStatus defines parameters for ActionImportCreate.
+type ActionImportCreate200JSONResponseBodyStatus string
+
+// ActionImportFinishJSONBody defines parameters for ActionImportFinish.
+type ActionImportFinishJSONBody struct {
+	IdempotencyKey *IdempotencyKeyOrNull `json:"idempotency_key,omitempty"`
+
+	// Status Status to close the import with: 'finished' (default) or 'failed'. Only an open import can be finished.
+	//
+	// Example: finished
+	Status *ActionImportFinishJSONBodyStatus `json:"status,omitempty"`
+}
+
+// ActionImportFinishJSONBodyStatus defines parameters for ActionImportFinish.
+type ActionImportFinishJSONBodyStatus string
+
+// ActionImportFinish200JSONResponseBodyStatus defines parameters for ActionImportFinish.
+type ActionImportFinish200JSONResponseBodyStatus string
+
+// ActionImportAddTracesJSONBody defines parameters for ActionImportAddTraces.
+type ActionImportAddTracesJSONBody struct {
+	IdempotencyKey *IdempotencyKeyOrNull `json:"idempotency_key,omitempty"`
+
+	// Traces Langfuse traces to import, each with its raw observations
+	Traces []ImportLangfuseTrace `json:"traces"`
+}
+
+// ActionImportAddTraces200JSONResponseBodyStatus defines parameters for ActionImportAddTraces.
+type ActionImportAddTraces200JSONResponseBodyStatus string
+
 // QueryKnowledgebaseListParams defines parameters for QueryKnowledgebaseList.
 type QueryKnowledgebaseListParams struct {
 	// AccountId Account ID (defaults to token's account)
@@ -17109,6 +17760,15 @@ type ActionEnvironmentDeleteJSONRequestBody ActionEnvironmentDeleteJSONBody
 // ActionEnvironmentUpdateJSONRequestBody defines body for ActionEnvironmentUpdate for application/json ContentType.
 type ActionEnvironmentUpdateJSONRequestBody ActionEnvironmentUpdateJSONBody
 
+// ActionImportCreateJSONRequestBody defines body for ActionImportCreate for application/json ContentType.
+type ActionImportCreateJSONRequestBody ActionImportCreateJSONBody
+
+// ActionImportFinishJSONRequestBody defines body for ActionImportFinish for application/json ContentType.
+type ActionImportFinishJSONRequestBody ActionImportFinishJSONBody
+
+// ActionImportAddTracesJSONRequestBody defines body for ActionImportAddTraces for application/json ContentType.
+type ActionImportAddTracesJSONRequestBody ActionImportAddTracesJSONBody
+
 // ActionKnowledgebaseCreateJSONRequestBody defines body for ActionKnowledgebaseCreate for application/json ContentType.
 type ActionKnowledgebaseCreateJSONRequestBody ActionKnowledgebaseCreateJSONBody
 
@@ -17400,6 +18060,559 @@ func (a BulkRequest_Items_Item) MarshalJSON() ([]byte, error) {
 	object["idempotency_key"], err = json.Marshal(a.IdempotencyKey)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling 'idempotency_key': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ImportLangfuseObservation. Returns the specified
+// element and whether it was found
+func (a ImportLangfuseObservation) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ImportLangfuseObservation
+func (a *ImportLangfuseObservation) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ImportLangfuseObservation to handle AdditionalProperties
+func (a *ImportLangfuseObservation) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["completionStartTime"]; found {
+		err = json.Unmarshal(raw, &a.CompletionStartTime)
+		if err != nil {
+			return fmt.Errorf("error reading 'completionStartTime': %w", err)
+		}
+		delete(object, "completionStartTime")
+	}
+
+	if raw, found := object["costDetails"]; found {
+		err = json.Unmarshal(raw, &a.CostDetails)
+		if err != nil {
+			return fmt.Errorf("error reading 'costDetails': %w", err)
+		}
+		delete(object, "costDetails")
+	}
+
+	if raw, found := object["endTime"]; found {
+		err = json.Unmarshal(raw, &a.EndTime)
+		if err != nil {
+			return fmt.Errorf("error reading 'endTime': %w", err)
+		}
+		delete(object, "endTime")
+	}
+
+	if raw, found := object["environment"]; found {
+		err = json.Unmarshal(raw, &a.Environment)
+		if err != nil {
+			return fmt.Errorf("error reading 'environment': %w", err)
+		}
+		delete(object, "environment")
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &a.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+		delete(object, "id")
+	}
+
+	if raw, found := object["input"]; found {
+		err = json.Unmarshal(raw, &a.Input)
+		if err != nil {
+			return fmt.Errorf("error reading 'input': %w", err)
+		}
+		delete(object, "input")
+	}
+
+	if raw, found := object["level"]; found {
+		err = json.Unmarshal(raw, &a.Level)
+		if err != nil {
+			return fmt.Errorf("error reading 'level': %w", err)
+		}
+		delete(object, "level")
+	}
+
+	if raw, found := object["metadata"]; found {
+		err = json.Unmarshal(raw, &a.Metadata)
+		if err != nil {
+			return fmt.Errorf("error reading 'metadata': %w", err)
+		}
+		delete(object, "metadata")
+	}
+
+	if raw, found := object["model"]; found {
+		err = json.Unmarshal(raw, &a.Model)
+		if err != nil {
+			return fmt.Errorf("error reading 'model': %w", err)
+		}
+		delete(object, "model")
+	}
+
+	if raw, found := object["modelParameters"]; found {
+		err = json.Unmarshal(raw, &a.ModelParameters)
+		if err != nil {
+			return fmt.Errorf("error reading 'modelParameters': %w", err)
+		}
+		delete(object, "modelParameters")
+	}
+
+	if raw, found := object["name"]; found {
+		err = json.Unmarshal(raw, &a.Name)
+		if err != nil {
+			return fmt.Errorf("error reading 'name': %w", err)
+		}
+		delete(object, "name")
+	}
+
+	if raw, found := object["output"]; found {
+		err = json.Unmarshal(raw, &a.Output)
+		if err != nil {
+			return fmt.Errorf("error reading 'output': %w", err)
+		}
+		delete(object, "output")
+	}
+
+	if raw, found := object["parentObservationId"]; found {
+		err = json.Unmarshal(raw, &a.ParentObservationId)
+		if err != nil {
+			return fmt.Errorf("error reading 'parentObservationId': %w", err)
+		}
+		delete(object, "parentObservationId")
+	}
+
+	if raw, found := object["providedModelName"]; found {
+		err = json.Unmarshal(raw, &a.ProvidedModelName)
+		if err != nil {
+			return fmt.Errorf("error reading 'providedModelName': %w", err)
+		}
+		delete(object, "providedModelName")
+	}
+
+	if raw, found := object["startTime"]; found {
+		err = json.Unmarshal(raw, &a.StartTime)
+		if err != nil {
+			return fmt.Errorf("error reading 'startTime': %w", err)
+		}
+		delete(object, "startTime")
+	}
+
+	if raw, found := object["statusMessage"]; found {
+		err = json.Unmarshal(raw, &a.StatusMessage)
+		if err != nil {
+			return fmt.Errorf("error reading 'statusMessage': %w", err)
+		}
+		delete(object, "statusMessage")
+	}
+
+	if raw, found := object["traceId"]; found {
+		err = json.Unmarshal(raw, &a.TraceId)
+		if err != nil {
+			return fmt.Errorf("error reading 'traceId': %w", err)
+		}
+		delete(object, "traceId")
+	}
+
+	if raw, found := object["type"]; found {
+		err = json.Unmarshal(raw, &a.Type)
+		if err != nil {
+			return fmt.Errorf("error reading 'type': %w", err)
+		}
+		delete(object, "type")
+	}
+
+	if raw, found := object["usageDetails"]; found {
+		err = json.Unmarshal(raw, &a.UsageDetails)
+		if err != nil {
+			return fmt.Errorf("error reading 'usageDetails': %w", err)
+		}
+		delete(object, "usageDetails")
+	}
+
+	if raw, found := object["version"]; found {
+		err = json.Unmarshal(raw, &a.Version)
+		if err != nil {
+			return fmt.Errorf("error reading 'version': %w", err)
+		}
+		delete(object, "version")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ImportLangfuseObservation to handle AdditionalProperties
+func (a ImportLangfuseObservation) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.CompletionStartTime != nil {
+		object["completionStartTime"], err = json.Marshal(a.CompletionStartTime)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'completionStartTime': %w", err)
+		}
+	}
+
+	if a.CostDetails != nil {
+		object["costDetails"], err = json.Marshal(a.CostDetails)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'costDetails': %w", err)
+		}
+	}
+
+	if a.EndTime != nil {
+		object["endTime"], err = json.Marshal(a.EndTime)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'endTime': %w", err)
+		}
+	}
+
+	if a.Environment != nil {
+		object["environment"], err = json.Marshal(a.Environment)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'environment': %w", err)
+		}
+	}
+
+	object["id"], err = json.Marshal(a.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'id': %w", err)
+	}
+
+	object["input"], err = json.Marshal(a.Input)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'input': %w", err)
+	}
+
+	if a.Level != nil {
+		object["level"], err = json.Marshal(a.Level)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'level': %w", err)
+		}
+	}
+
+	object["metadata"], err = json.Marshal(a.Metadata)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'metadata': %w", err)
+	}
+
+	if a.Model != nil {
+		object["model"], err = json.Marshal(a.Model)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'model': %w", err)
+		}
+	}
+
+	if a.ModelParameters != nil {
+		object["modelParameters"], err = json.Marshal(a.ModelParameters)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'modelParameters': %w", err)
+		}
+	}
+
+	if a.Name != nil {
+		object["name"], err = json.Marshal(a.Name)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'name': %w", err)
+		}
+	}
+
+	object["output"], err = json.Marshal(a.Output)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'output': %w", err)
+	}
+
+	if a.ParentObservationId != nil {
+		object["parentObservationId"], err = json.Marshal(a.ParentObservationId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'parentObservationId': %w", err)
+		}
+	}
+
+	if a.ProvidedModelName != nil {
+		object["providedModelName"], err = json.Marshal(a.ProvidedModelName)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'providedModelName': %w", err)
+		}
+	}
+
+	object["startTime"], err = json.Marshal(a.StartTime)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'startTime': %w", err)
+	}
+
+	if a.StatusMessage != nil {
+		object["statusMessage"], err = json.Marshal(a.StatusMessage)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'statusMessage': %w", err)
+		}
+	}
+
+	if a.TraceId != nil {
+		object["traceId"], err = json.Marshal(a.TraceId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'traceId': %w", err)
+		}
+	}
+
+	object["type"], err = json.Marshal(a.Type)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'type': %w", err)
+	}
+
+	if a.UsageDetails != nil {
+		object["usageDetails"], err = json.Marshal(a.UsageDetails)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'usageDetails': %w", err)
+		}
+	}
+
+	if a.Version != nil {
+		object["version"], err = json.Marshal(a.Version)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'version': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for ImportLangfuseTrace. Returns the specified
+// element and whether it was found
+func (a ImportLangfuseTrace) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for ImportLangfuseTrace
+func (a *ImportLangfuseTrace) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for ImportLangfuseTrace to handle AdditionalProperties
+func (a *ImportLangfuseTrace) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["environment"]; found {
+		err = json.Unmarshal(raw, &a.Environment)
+		if err != nil {
+			return fmt.Errorf("error reading 'environment': %w", err)
+		}
+		delete(object, "environment")
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &a.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+		delete(object, "id")
+	}
+
+	if raw, found := object["input"]; found {
+		err = json.Unmarshal(raw, &a.Input)
+		if err != nil {
+			return fmt.Errorf("error reading 'input': %w", err)
+		}
+		delete(object, "input")
+	}
+
+	if raw, found := object["name"]; found {
+		err = json.Unmarshal(raw, &a.Name)
+		if err != nil {
+			return fmt.Errorf("error reading 'name': %w", err)
+		}
+		delete(object, "name")
+	}
+
+	if raw, found := object["observations"]; found {
+		err = json.Unmarshal(raw, &a.Observations)
+		if err != nil {
+			return fmt.Errorf("error reading 'observations': %w", err)
+		}
+		delete(object, "observations")
+	}
+
+	if raw, found := object["output"]; found {
+		err = json.Unmarshal(raw, &a.Output)
+		if err != nil {
+			return fmt.Errorf("error reading 'output': %w", err)
+		}
+		delete(object, "output")
+	}
+
+	if raw, found := object["release"]; found {
+		err = json.Unmarshal(raw, &a.Release)
+		if err != nil {
+			return fmt.Errorf("error reading 'release': %w", err)
+		}
+		delete(object, "release")
+	}
+
+	if raw, found := object["sessionId"]; found {
+		err = json.Unmarshal(raw, &a.SessionId)
+		if err != nil {
+			return fmt.Errorf("error reading 'sessionId': %w", err)
+		}
+		delete(object, "sessionId")
+	}
+
+	if raw, found := object["tags"]; found {
+		err = json.Unmarshal(raw, &a.Tags)
+		if err != nil {
+			return fmt.Errorf("error reading 'tags': %w", err)
+		}
+		delete(object, "tags")
+	}
+
+	if raw, found := object["timestamp"]; found {
+		err = json.Unmarshal(raw, &a.Timestamp)
+		if err != nil {
+			return fmt.Errorf("error reading 'timestamp': %w", err)
+		}
+		delete(object, "timestamp")
+	}
+
+	if raw, found := object["userId"]; found {
+		err = json.Unmarshal(raw, &a.UserId)
+		if err != nil {
+			return fmt.Errorf("error reading 'userId': %w", err)
+		}
+		delete(object, "userId")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for ImportLangfuseTrace to handle AdditionalProperties
+func (a ImportLangfuseTrace) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Environment != nil {
+		object["environment"], err = json.Marshal(a.Environment)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'environment': %w", err)
+		}
+	}
+
+	object["id"], err = json.Marshal(a.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'id': %w", err)
+	}
+
+	object["input"], err = json.Marshal(a.Input)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'input': %w", err)
+	}
+
+	if a.Name != nil {
+		object["name"], err = json.Marshal(a.Name)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'name': %w", err)
+		}
+	}
+
+	if a.Observations != nil {
+		object["observations"], err = json.Marshal(a.Observations)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'observations': %w", err)
+		}
+	}
+
+	object["output"], err = json.Marshal(a.Output)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'output': %w", err)
+	}
+
+	if a.Release != nil {
+		object["release"], err = json.Marshal(a.Release)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'release': %w", err)
+		}
+	}
+
+	if a.SessionId != nil {
+		object["sessionId"], err = json.Marshal(a.SessionId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'sessionId': %w", err)
+		}
+	}
+
+	if a.Tags != nil {
+		object["tags"], err = json.Marshal(a.Tags)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'tags': %w", err)
+		}
+	}
+
+	if a.Timestamp != nil {
+		object["timestamp"], err = json.Marshal(a.Timestamp)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'timestamp': %w", err)
+		}
+	}
+
+	if a.UserId != nil {
+		object["userId"], err = json.Marshal(a.UserId)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'userId': %w", err)
+		}
 	}
 
 	for fieldName, field := range a.AdditionalProperties {
@@ -29521,6 +30734,1804 @@ func (t IdempotencyKeyOrNull) MarshalJSON() ([]byte, error) {
 }
 
 func (t *IdempotencyKeyOrNull) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsAdminUserId returns the union data inside the ImportDetails_CreatedByAdminUserId as a AdminUserId
+func (t ImportDetails_CreatedByAdminUserId) AsAdminUserId() (AdminUserId, error) {
+	var body AdminUserId
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAdminUserId overwrites any union data inside the ImportDetails_CreatedByAdminUserId as the provided AdminUserId
+func (t *ImportDetails_CreatedByAdminUserId) FromAdminUserId(v AdminUserId) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAdminUserId performs a merge with any union data inside the ImportDetails_CreatedByAdminUserId, using the provided AdminUserId
+func (t *ImportDetails_CreatedByAdminUserId) MergeAdminUserId(v AdminUserId) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportDetails_CreatedByAdminUserId as a Null
+func (t ImportDetails_CreatedByAdminUserId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportDetails_CreatedByAdminUserId as the provided Null
+func (t *ImportDetails_CreatedByAdminUserId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportDetails_CreatedByAdminUserId, using the provided Null
+func (t *ImportDetails_CreatedByAdminUserId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportDetails_CreatedByAdminUserId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportDetails_CreatedByAdminUserId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsApiTokenId returns the union data inside the ImportDetails_CreatedByApiTokenId as a ApiTokenId
+func (t ImportDetails_CreatedByApiTokenId) AsApiTokenId() (ApiTokenId, error) {
+	var body ApiTokenId
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromApiTokenId overwrites any union data inside the ImportDetails_CreatedByApiTokenId as the provided ApiTokenId
+func (t *ImportDetails_CreatedByApiTokenId) FromApiTokenId(v ApiTokenId) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeApiTokenId performs a merge with any union data inside the ImportDetails_CreatedByApiTokenId, using the provided ApiTokenId
+func (t *ImportDetails_CreatedByApiTokenId) MergeApiTokenId(v ApiTokenId) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportDetails_CreatedByApiTokenId as a Null
+func (t ImportDetails_CreatedByApiTokenId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportDetails_CreatedByApiTokenId as the provided Null
+func (t *ImportDetails_CreatedByApiTokenId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportDetails_CreatedByApiTokenId, using the provided Null
+func (t *ImportDetails_CreatedByApiTokenId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportDetails_CreatedByApiTokenId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportDetails_CreatedByApiTokenId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportDetailsFinishedAt0 returns the union data inside the ImportDetails_FinishedAt as a ImportDetailsFinishedAt0
+func (t ImportDetails_FinishedAt) AsImportDetailsFinishedAt0() (ImportDetailsFinishedAt0, error) {
+	var body ImportDetailsFinishedAt0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportDetailsFinishedAt0 overwrites any union data inside the ImportDetails_FinishedAt as the provided ImportDetailsFinishedAt0
+func (t *ImportDetails_FinishedAt) FromImportDetailsFinishedAt0(v ImportDetailsFinishedAt0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportDetailsFinishedAt0 performs a merge with any union data inside the ImportDetails_FinishedAt, using the provided ImportDetailsFinishedAt0
+func (t *ImportDetails_FinishedAt) MergeImportDetailsFinishedAt0(v ImportDetailsFinishedAt0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportDetails_FinishedAt as a Null
+func (t ImportDetails_FinishedAt) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportDetails_FinishedAt as the provided Null
+func (t *ImportDetails_FinishedAt) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportDetails_FinishedAt, using the provided Null
+func (t *ImportDetails_FinishedAt) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportDetails_FinishedAt) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportDetails_FinishedAt) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsAccountId returns the union data inside the ImportForCreate_AccountId as a AccountId
+func (t ImportForCreate_AccountId) AsAccountId() (AccountId, error) {
+	var body AccountId
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAccountId overwrites any union data inside the ImportForCreate_AccountId as the provided AccountId
+func (t *ImportForCreate_AccountId) FromAccountId(v AccountId) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAccountId performs a merge with any union data inside the ImportForCreate_AccountId, using the provided AccountId
+func (t *ImportForCreate_AccountId) MergeAccountId(v AccountId) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportForCreate_AccountId as a Null
+func (t ImportForCreate_AccountId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportForCreate_AccountId as the provided Null
+func (t *ImportForCreate_AccountId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportForCreate_AccountId, using the provided Null
+func (t *ImportForCreate_AccountId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportForCreate_AccountId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportForCreate_AccountId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportId returns the union data inside the ImportForCreate_Id as a ImportId
+func (t ImportForCreate_Id) AsImportId() (ImportId, error) {
+	var body ImportId
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportId overwrites any union data inside the ImportForCreate_Id as the provided ImportId
+func (t *ImportForCreate_Id) FromImportId(v ImportId) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportId performs a merge with any union data inside the ImportForCreate_Id, using the provided ImportId
+func (t *ImportForCreate_Id) MergeImportId(v ImportId) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportForCreate_Id as a Null
+func (t ImportForCreate_Id) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportForCreate_Id as the provided Null
+func (t *ImportForCreate_Id) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportForCreate_Id, using the provided Null
+func (t *ImportForCreate_Id) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportForCreate_Id) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportForCreate_Id) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationCompletionStartTime0 returns the union data inside the ImportLangfuseObservation_CompletionStartTime as a ImportLangfuseObservationCompletionStartTime0
+func (t ImportLangfuseObservation_CompletionStartTime) AsImportLangfuseObservationCompletionStartTime0() (ImportLangfuseObservationCompletionStartTime0, error) {
+	var body ImportLangfuseObservationCompletionStartTime0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationCompletionStartTime0 overwrites any union data inside the ImportLangfuseObservation_CompletionStartTime as the provided ImportLangfuseObservationCompletionStartTime0
+func (t *ImportLangfuseObservation_CompletionStartTime) FromImportLangfuseObservationCompletionStartTime0(v ImportLangfuseObservationCompletionStartTime0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationCompletionStartTime0 performs a merge with any union data inside the ImportLangfuseObservation_CompletionStartTime, using the provided ImportLangfuseObservationCompletionStartTime0
+func (t *ImportLangfuseObservation_CompletionStartTime) MergeImportLangfuseObservationCompletionStartTime0(v ImportLangfuseObservationCompletionStartTime0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_CompletionStartTime as a Null
+func (t ImportLangfuseObservation_CompletionStartTime) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_CompletionStartTime as the provided Null
+func (t *ImportLangfuseObservation_CompletionStartTime) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_CompletionStartTime, using the provided Null
+func (t *ImportLangfuseObservation_CompletionStartTime) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_CompletionStartTime) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_CompletionStartTime) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationCostDetails0 returns the union data inside the ImportLangfuseObservation_CostDetails as a ImportLangfuseObservationCostDetails0
+func (t ImportLangfuseObservation_CostDetails) AsImportLangfuseObservationCostDetails0() (ImportLangfuseObservationCostDetails0, error) {
+	var body ImportLangfuseObservationCostDetails0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationCostDetails0 overwrites any union data inside the ImportLangfuseObservation_CostDetails as the provided ImportLangfuseObservationCostDetails0
+func (t *ImportLangfuseObservation_CostDetails) FromImportLangfuseObservationCostDetails0(v ImportLangfuseObservationCostDetails0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationCostDetails0 performs a merge with any union data inside the ImportLangfuseObservation_CostDetails, using the provided ImportLangfuseObservationCostDetails0
+func (t *ImportLangfuseObservation_CostDetails) MergeImportLangfuseObservationCostDetails0(v ImportLangfuseObservationCostDetails0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_CostDetails as a Null
+func (t ImportLangfuseObservation_CostDetails) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_CostDetails as the provided Null
+func (t *ImportLangfuseObservation_CostDetails) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_CostDetails, using the provided Null
+func (t *ImportLangfuseObservation_CostDetails) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_CostDetails) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_CostDetails) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationEndTime0 returns the union data inside the ImportLangfuseObservation_EndTime as a ImportLangfuseObservationEndTime0
+func (t ImportLangfuseObservation_EndTime) AsImportLangfuseObservationEndTime0() (ImportLangfuseObservationEndTime0, error) {
+	var body ImportLangfuseObservationEndTime0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationEndTime0 overwrites any union data inside the ImportLangfuseObservation_EndTime as the provided ImportLangfuseObservationEndTime0
+func (t *ImportLangfuseObservation_EndTime) FromImportLangfuseObservationEndTime0(v ImportLangfuseObservationEndTime0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationEndTime0 performs a merge with any union data inside the ImportLangfuseObservation_EndTime, using the provided ImportLangfuseObservationEndTime0
+func (t *ImportLangfuseObservation_EndTime) MergeImportLangfuseObservationEndTime0(v ImportLangfuseObservationEndTime0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_EndTime as a Null
+func (t ImportLangfuseObservation_EndTime) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_EndTime as the provided Null
+func (t *ImportLangfuseObservation_EndTime) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_EndTime, using the provided Null
+func (t *ImportLangfuseObservation_EndTime) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_EndTime) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_EndTime) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationEnvironment0 returns the union data inside the ImportLangfuseObservation_Environment as a ImportLangfuseObservationEnvironment0
+func (t ImportLangfuseObservation_Environment) AsImportLangfuseObservationEnvironment0() (ImportLangfuseObservationEnvironment0, error) {
+	var body ImportLangfuseObservationEnvironment0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationEnvironment0 overwrites any union data inside the ImportLangfuseObservation_Environment as the provided ImportLangfuseObservationEnvironment0
+func (t *ImportLangfuseObservation_Environment) FromImportLangfuseObservationEnvironment0(v ImportLangfuseObservationEnvironment0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationEnvironment0 performs a merge with any union data inside the ImportLangfuseObservation_Environment, using the provided ImportLangfuseObservationEnvironment0
+func (t *ImportLangfuseObservation_Environment) MergeImportLangfuseObservationEnvironment0(v ImportLangfuseObservationEnvironment0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_Environment as a Null
+func (t ImportLangfuseObservation_Environment) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_Environment as the provided Null
+func (t *ImportLangfuseObservation_Environment) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_Environment, using the provided Null
+func (t *ImportLangfuseObservation_Environment) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_Environment) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_Environment) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationLevel0 returns the union data inside the ImportLangfuseObservation_Level as a ImportLangfuseObservationLevel0
+func (t ImportLangfuseObservation_Level) AsImportLangfuseObservationLevel0() (ImportLangfuseObservationLevel0, error) {
+	var body ImportLangfuseObservationLevel0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationLevel0 overwrites any union data inside the ImportLangfuseObservation_Level as the provided ImportLangfuseObservationLevel0
+func (t *ImportLangfuseObservation_Level) FromImportLangfuseObservationLevel0(v ImportLangfuseObservationLevel0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationLevel0 performs a merge with any union data inside the ImportLangfuseObservation_Level, using the provided ImportLangfuseObservationLevel0
+func (t *ImportLangfuseObservation_Level) MergeImportLangfuseObservationLevel0(v ImportLangfuseObservationLevel0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_Level as a Null
+func (t ImportLangfuseObservation_Level) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_Level as the provided Null
+func (t *ImportLangfuseObservation_Level) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_Level, using the provided Null
+func (t *ImportLangfuseObservation_Level) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_Level) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_Level) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationModel0 returns the union data inside the ImportLangfuseObservation_Model as a ImportLangfuseObservationModel0
+func (t ImportLangfuseObservation_Model) AsImportLangfuseObservationModel0() (ImportLangfuseObservationModel0, error) {
+	var body ImportLangfuseObservationModel0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationModel0 overwrites any union data inside the ImportLangfuseObservation_Model as the provided ImportLangfuseObservationModel0
+func (t *ImportLangfuseObservation_Model) FromImportLangfuseObservationModel0(v ImportLangfuseObservationModel0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationModel0 performs a merge with any union data inside the ImportLangfuseObservation_Model, using the provided ImportLangfuseObservationModel0
+func (t *ImportLangfuseObservation_Model) MergeImportLangfuseObservationModel0(v ImportLangfuseObservationModel0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_Model as a Null
+func (t ImportLangfuseObservation_Model) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_Model as the provided Null
+func (t *ImportLangfuseObservation_Model) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_Model, using the provided Null
+func (t *ImportLangfuseObservation_Model) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_Model) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_Model) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationModelParameters0 returns the union data inside the ImportLangfuseObservation_ModelParameters as a ImportLangfuseObservationModelParameters0
+func (t ImportLangfuseObservation_ModelParameters) AsImportLangfuseObservationModelParameters0() (ImportLangfuseObservationModelParameters0, error) {
+	var body ImportLangfuseObservationModelParameters0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationModelParameters0 overwrites any union data inside the ImportLangfuseObservation_ModelParameters as the provided ImportLangfuseObservationModelParameters0
+func (t *ImportLangfuseObservation_ModelParameters) FromImportLangfuseObservationModelParameters0(v ImportLangfuseObservationModelParameters0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationModelParameters0 performs a merge with any union data inside the ImportLangfuseObservation_ModelParameters, using the provided ImportLangfuseObservationModelParameters0
+func (t *ImportLangfuseObservation_ModelParameters) MergeImportLangfuseObservationModelParameters0(v ImportLangfuseObservationModelParameters0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_ModelParameters as a Null
+func (t ImportLangfuseObservation_ModelParameters) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_ModelParameters as the provided Null
+func (t *ImportLangfuseObservation_ModelParameters) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_ModelParameters, using the provided Null
+func (t *ImportLangfuseObservation_ModelParameters) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_ModelParameters) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_ModelParameters) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationName0 returns the union data inside the ImportLangfuseObservation_Name as a ImportLangfuseObservationName0
+func (t ImportLangfuseObservation_Name) AsImportLangfuseObservationName0() (ImportLangfuseObservationName0, error) {
+	var body ImportLangfuseObservationName0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationName0 overwrites any union data inside the ImportLangfuseObservation_Name as the provided ImportLangfuseObservationName0
+func (t *ImportLangfuseObservation_Name) FromImportLangfuseObservationName0(v ImportLangfuseObservationName0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationName0 performs a merge with any union data inside the ImportLangfuseObservation_Name, using the provided ImportLangfuseObservationName0
+func (t *ImportLangfuseObservation_Name) MergeImportLangfuseObservationName0(v ImportLangfuseObservationName0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_Name as a Null
+func (t ImportLangfuseObservation_Name) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_Name as the provided Null
+func (t *ImportLangfuseObservation_Name) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_Name, using the provided Null
+func (t *ImportLangfuseObservation_Name) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_Name) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_Name) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationParentObservationId0 returns the union data inside the ImportLangfuseObservation_ParentObservationId as a ImportLangfuseObservationParentObservationId0
+func (t ImportLangfuseObservation_ParentObservationId) AsImportLangfuseObservationParentObservationId0() (ImportLangfuseObservationParentObservationId0, error) {
+	var body ImportLangfuseObservationParentObservationId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationParentObservationId0 overwrites any union data inside the ImportLangfuseObservation_ParentObservationId as the provided ImportLangfuseObservationParentObservationId0
+func (t *ImportLangfuseObservation_ParentObservationId) FromImportLangfuseObservationParentObservationId0(v ImportLangfuseObservationParentObservationId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationParentObservationId0 performs a merge with any union data inside the ImportLangfuseObservation_ParentObservationId, using the provided ImportLangfuseObservationParentObservationId0
+func (t *ImportLangfuseObservation_ParentObservationId) MergeImportLangfuseObservationParentObservationId0(v ImportLangfuseObservationParentObservationId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_ParentObservationId as a Null
+func (t ImportLangfuseObservation_ParentObservationId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_ParentObservationId as the provided Null
+func (t *ImportLangfuseObservation_ParentObservationId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_ParentObservationId, using the provided Null
+func (t *ImportLangfuseObservation_ParentObservationId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_ParentObservationId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_ParentObservationId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationProvidedModelName0 returns the union data inside the ImportLangfuseObservation_ProvidedModelName as a ImportLangfuseObservationProvidedModelName0
+func (t ImportLangfuseObservation_ProvidedModelName) AsImportLangfuseObservationProvidedModelName0() (ImportLangfuseObservationProvidedModelName0, error) {
+	var body ImportLangfuseObservationProvidedModelName0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationProvidedModelName0 overwrites any union data inside the ImportLangfuseObservation_ProvidedModelName as the provided ImportLangfuseObservationProvidedModelName0
+func (t *ImportLangfuseObservation_ProvidedModelName) FromImportLangfuseObservationProvidedModelName0(v ImportLangfuseObservationProvidedModelName0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationProvidedModelName0 performs a merge with any union data inside the ImportLangfuseObservation_ProvidedModelName, using the provided ImportLangfuseObservationProvidedModelName0
+func (t *ImportLangfuseObservation_ProvidedModelName) MergeImportLangfuseObservationProvidedModelName0(v ImportLangfuseObservationProvidedModelName0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_ProvidedModelName as a Null
+func (t ImportLangfuseObservation_ProvidedModelName) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_ProvidedModelName as the provided Null
+func (t *ImportLangfuseObservation_ProvidedModelName) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_ProvidedModelName, using the provided Null
+func (t *ImportLangfuseObservation_ProvidedModelName) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_ProvidedModelName) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_ProvidedModelName) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationStatusMessage0 returns the union data inside the ImportLangfuseObservation_StatusMessage as a ImportLangfuseObservationStatusMessage0
+func (t ImportLangfuseObservation_StatusMessage) AsImportLangfuseObservationStatusMessage0() (ImportLangfuseObservationStatusMessage0, error) {
+	var body ImportLangfuseObservationStatusMessage0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationStatusMessage0 overwrites any union data inside the ImportLangfuseObservation_StatusMessage as the provided ImportLangfuseObservationStatusMessage0
+func (t *ImportLangfuseObservation_StatusMessage) FromImportLangfuseObservationStatusMessage0(v ImportLangfuseObservationStatusMessage0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationStatusMessage0 performs a merge with any union data inside the ImportLangfuseObservation_StatusMessage, using the provided ImportLangfuseObservationStatusMessage0
+func (t *ImportLangfuseObservation_StatusMessage) MergeImportLangfuseObservationStatusMessage0(v ImportLangfuseObservationStatusMessage0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_StatusMessage as a Null
+func (t ImportLangfuseObservation_StatusMessage) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_StatusMessage as the provided Null
+func (t *ImportLangfuseObservation_StatusMessage) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_StatusMessage, using the provided Null
+func (t *ImportLangfuseObservation_StatusMessage) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_StatusMessage) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_StatusMessage) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationTraceId0 returns the union data inside the ImportLangfuseObservation_TraceId as a ImportLangfuseObservationTraceId0
+func (t ImportLangfuseObservation_TraceId) AsImportLangfuseObservationTraceId0() (ImportLangfuseObservationTraceId0, error) {
+	var body ImportLangfuseObservationTraceId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationTraceId0 overwrites any union data inside the ImportLangfuseObservation_TraceId as the provided ImportLangfuseObservationTraceId0
+func (t *ImportLangfuseObservation_TraceId) FromImportLangfuseObservationTraceId0(v ImportLangfuseObservationTraceId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationTraceId0 performs a merge with any union data inside the ImportLangfuseObservation_TraceId, using the provided ImportLangfuseObservationTraceId0
+func (t *ImportLangfuseObservation_TraceId) MergeImportLangfuseObservationTraceId0(v ImportLangfuseObservationTraceId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_TraceId as a Null
+func (t ImportLangfuseObservation_TraceId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_TraceId as the provided Null
+func (t *ImportLangfuseObservation_TraceId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_TraceId, using the provided Null
+func (t *ImportLangfuseObservation_TraceId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_TraceId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_TraceId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationUsageDetails0 returns the union data inside the ImportLangfuseObservation_UsageDetails as a ImportLangfuseObservationUsageDetails0
+func (t ImportLangfuseObservation_UsageDetails) AsImportLangfuseObservationUsageDetails0() (ImportLangfuseObservationUsageDetails0, error) {
+	var body ImportLangfuseObservationUsageDetails0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationUsageDetails0 overwrites any union data inside the ImportLangfuseObservation_UsageDetails as the provided ImportLangfuseObservationUsageDetails0
+func (t *ImportLangfuseObservation_UsageDetails) FromImportLangfuseObservationUsageDetails0(v ImportLangfuseObservationUsageDetails0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationUsageDetails0 performs a merge with any union data inside the ImportLangfuseObservation_UsageDetails, using the provided ImportLangfuseObservationUsageDetails0
+func (t *ImportLangfuseObservation_UsageDetails) MergeImportLangfuseObservationUsageDetails0(v ImportLangfuseObservationUsageDetails0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_UsageDetails as a Null
+func (t ImportLangfuseObservation_UsageDetails) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_UsageDetails as the provided Null
+func (t *ImportLangfuseObservation_UsageDetails) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_UsageDetails, using the provided Null
+func (t *ImportLangfuseObservation_UsageDetails) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_UsageDetails) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_UsageDetails) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseObservationVersion0 returns the union data inside the ImportLangfuseObservation_Version as a ImportLangfuseObservationVersion0
+func (t ImportLangfuseObservation_Version) AsImportLangfuseObservationVersion0() (ImportLangfuseObservationVersion0, error) {
+	var body ImportLangfuseObservationVersion0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseObservationVersion0 overwrites any union data inside the ImportLangfuseObservation_Version as the provided ImportLangfuseObservationVersion0
+func (t *ImportLangfuseObservation_Version) FromImportLangfuseObservationVersion0(v ImportLangfuseObservationVersion0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseObservationVersion0 performs a merge with any union data inside the ImportLangfuseObservation_Version, using the provided ImportLangfuseObservationVersion0
+func (t *ImportLangfuseObservation_Version) MergeImportLangfuseObservationVersion0(v ImportLangfuseObservationVersion0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseObservation_Version as a Null
+func (t ImportLangfuseObservation_Version) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseObservation_Version as the provided Null
+func (t *ImportLangfuseObservation_Version) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseObservation_Version, using the provided Null
+func (t *ImportLangfuseObservation_Version) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseObservation_Version) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseObservation_Version) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceEnvironment0 returns the union data inside the ImportLangfuseTrace_Environment as a ImportLangfuseTraceEnvironment0
+func (t ImportLangfuseTrace_Environment) AsImportLangfuseTraceEnvironment0() (ImportLangfuseTraceEnvironment0, error) {
+	var body ImportLangfuseTraceEnvironment0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceEnvironment0 overwrites any union data inside the ImportLangfuseTrace_Environment as the provided ImportLangfuseTraceEnvironment0
+func (t *ImportLangfuseTrace_Environment) FromImportLangfuseTraceEnvironment0(v ImportLangfuseTraceEnvironment0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceEnvironment0 performs a merge with any union data inside the ImportLangfuseTrace_Environment, using the provided ImportLangfuseTraceEnvironment0
+func (t *ImportLangfuseTrace_Environment) MergeImportLangfuseTraceEnvironment0(v ImportLangfuseTraceEnvironment0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Environment as a Null
+func (t ImportLangfuseTrace_Environment) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Environment as the provided Null
+func (t *ImportLangfuseTrace_Environment) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Environment, using the provided Null
+func (t *ImportLangfuseTrace_Environment) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Environment) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Environment) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceName0 returns the union data inside the ImportLangfuseTrace_Name as a ImportLangfuseTraceName0
+func (t ImportLangfuseTrace_Name) AsImportLangfuseTraceName0() (ImportLangfuseTraceName0, error) {
+	var body ImportLangfuseTraceName0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceName0 overwrites any union data inside the ImportLangfuseTrace_Name as the provided ImportLangfuseTraceName0
+func (t *ImportLangfuseTrace_Name) FromImportLangfuseTraceName0(v ImportLangfuseTraceName0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceName0 performs a merge with any union data inside the ImportLangfuseTrace_Name, using the provided ImportLangfuseTraceName0
+func (t *ImportLangfuseTrace_Name) MergeImportLangfuseTraceName0(v ImportLangfuseTraceName0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Name as a Null
+func (t ImportLangfuseTrace_Name) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Name as the provided Null
+func (t *ImportLangfuseTrace_Name) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Name, using the provided Null
+func (t *ImportLangfuseTrace_Name) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Name) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Name) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceObservations0 returns the union data inside the ImportLangfuseTrace_Observations as a ImportLangfuseTraceObservations0
+func (t ImportLangfuseTrace_Observations) AsImportLangfuseTraceObservations0() (ImportLangfuseTraceObservations0, error) {
+	var body ImportLangfuseTraceObservations0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceObservations0 overwrites any union data inside the ImportLangfuseTrace_Observations as the provided ImportLangfuseTraceObservations0
+func (t *ImportLangfuseTrace_Observations) FromImportLangfuseTraceObservations0(v ImportLangfuseTraceObservations0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceObservations0 performs a merge with any union data inside the ImportLangfuseTrace_Observations, using the provided ImportLangfuseTraceObservations0
+func (t *ImportLangfuseTrace_Observations) MergeImportLangfuseTraceObservations0(v ImportLangfuseTraceObservations0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Observations as a Null
+func (t ImportLangfuseTrace_Observations) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Observations as the provided Null
+func (t *ImportLangfuseTrace_Observations) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Observations, using the provided Null
+func (t *ImportLangfuseTrace_Observations) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Observations) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Observations) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceRelease0 returns the union data inside the ImportLangfuseTrace_Release as a ImportLangfuseTraceRelease0
+func (t ImportLangfuseTrace_Release) AsImportLangfuseTraceRelease0() (ImportLangfuseTraceRelease0, error) {
+	var body ImportLangfuseTraceRelease0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceRelease0 overwrites any union data inside the ImportLangfuseTrace_Release as the provided ImportLangfuseTraceRelease0
+func (t *ImportLangfuseTrace_Release) FromImportLangfuseTraceRelease0(v ImportLangfuseTraceRelease0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceRelease0 performs a merge with any union data inside the ImportLangfuseTrace_Release, using the provided ImportLangfuseTraceRelease0
+func (t *ImportLangfuseTrace_Release) MergeImportLangfuseTraceRelease0(v ImportLangfuseTraceRelease0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Release as a Null
+func (t ImportLangfuseTrace_Release) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Release as the provided Null
+func (t *ImportLangfuseTrace_Release) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Release, using the provided Null
+func (t *ImportLangfuseTrace_Release) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Release) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Release) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceSessionId0 returns the union data inside the ImportLangfuseTrace_SessionId as a ImportLangfuseTraceSessionId0
+func (t ImportLangfuseTrace_SessionId) AsImportLangfuseTraceSessionId0() (ImportLangfuseTraceSessionId0, error) {
+	var body ImportLangfuseTraceSessionId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceSessionId0 overwrites any union data inside the ImportLangfuseTrace_SessionId as the provided ImportLangfuseTraceSessionId0
+func (t *ImportLangfuseTrace_SessionId) FromImportLangfuseTraceSessionId0(v ImportLangfuseTraceSessionId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceSessionId0 performs a merge with any union data inside the ImportLangfuseTrace_SessionId, using the provided ImportLangfuseTraceSessionId0
+func (t *ImportLangfuseTrace_SessionId) MergeImportLangfuseTraceSessionId0(v ImportLangfuseTraceSessionId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_SessionId as a Null
+func (t ImportLangfuseTrace_SessionId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_SessionId as the provided Null
+func (t *ImportLangfuseTrace_SessionId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_SessionId, using the provided Null
+func (t *ImportLangfuseTrace_SessionId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_SessionId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_SessionId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceTags0 returns the union data inside the ImportLangfuseTrace_Tags as a ImportLangfuseTraceTags0
+func (t ImportLangfuseTrace_Tags) AsImportLangfuseTraceTags0() (ImportLangfuseTraceTags0, error) {
+	var body ImportLangfuseTraceTags0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceTags0 overwrites any union data inside the ImportLangfuseTrace_Tags as the provided ImportLangfuseTraceTags0
+func (t *ImportLangfuseTrace_Tags) FromImportLangfuseTraceTags0(v ImportLangfuseTraceTags0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceTags0 performs a merge with any union data inside the ImportLangfuseTrace_Tags, using the provided ImportLangfuseTraceTags0
+func (t *ImportLangfuseTrace_Tags) MergeImportLangfuseTraceTags0(v ImportLangfuseTraceTags0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Tags as a Null
+func (t ImportLangfuseTrace_Tags) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Tags as the provided Null
+func (t *ImportLangfuseTrace_Tags) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Tags, using the provided Null
+func (t *ImportLangfuseTrace_Tags) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Tags) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Tags) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceTimestamp0 returns the union data inside the ImportLangfuseTrace_Timestamp as a ImportLangfuseTraceTimestamp0
+func (t ImportLangfuseTrace_Timestamp) AsImportLangfuseTraceTimestamp0() (ImportLangfuseTraceTimestamp0, error) {
+	var body ImportLangfuseTraceTimestamp0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceTimestamp0 overwrites any union data inside the ImportLangfuseTrace_Timestamp as the provided ImportLangfuseTraceTimestamp0
+func (t *ImportLangfuseTrace_Timestamp) FromImportLangfuseTraceTimestamp0(v ImportLangfuseTraceTimestamp0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceTimestamp0 performs a merge with any union data inside the ImportLangfuseTrace_Timestamp, using the provided ImportLangfuseTraceTimestamp0
+func (t *ImportLangfuseTrace_Timestamp) MergeImportLangfuseTraceTimestamp0(v ImportLangfuseTraceTimestamp0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_Timestamp as a Null
+func (t ImportLangfuseTrace_Timestamp) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_Timestamp as the provided Null
+func (t *ImportLangfuseTrace_Timestamp) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_Timestamp, using the provided Null
+func (t *ImportLangfuseTrace_Timestamp) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_Timestamp) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_Timestamp) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportLangfuseTraceUserId0 returns the union data inside the ImportLangfuseTrace_UserId as a ImportLangfuseTraceUserId0
+func (t ImportLangfuseTrace_UserId) AsImportLangfuseTraceUserId0() (ImportLangfuseTraceUserId0, error) {
+	var body ImportLangfuseTraceUserId0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportLangfuseTraceUserId0 overwrites any union data inside the ImportLangfuseTrace_UserId as the provided ImportLangfuseTraceUserId0
+func (t *ImportLangfuseTrace_UserId) FromImportLangfuseTraceUserId0(v ImportLangfuseTraceUserId0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportLangfuseTraceUserId0 performs a merge with any union data inside the ImportLangfuseTrace_UserId, using the provided ImportLangfuseTraceUserId0
+func (t *ImportLangfuseTrace_UserId) MergeImportLangfuseTraceUserId0(v ImportLangfuseTraceUserId0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportLangfuseTrace_UserId as a Null
+func (t ImportLangfuseTrace_UserId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportLangfuseTrace_UserId as the provided Null
+func (t *ImportLangfuseTrace_UserId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportLangfuseTrace_UserId, using the provided Null
+func (t *ImportLangfuseTrace_UserId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportLangfuseTrace_UserId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportLangfuseTrace_UserId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsAgentInstanceId returns the union data inside the ImportTraceResult_AgentInstanceId as a AgentInstanceId
+func (t ImportTraceResult_AgentInstanceId) AsAgentInstanceId() (AgentInstanceId, error) {
+	var body AgentInstanceId
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromAgentInstanceId overwrites any union data inside the ImportTraceResult_AgentInstanceId as the provided AgentInstanceId
+func (t *ImportTraceResult_AgentInstanceId) FromAgentInstanceId(v AgentInstanceId) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeAgentInstanceId performs a merge with any union data inside the ImportTraceResult_AgentInstanceId, using the provided AgentInstanceId
+func (t *ImportTraceResult_AgentInstanceId) MergeAgentInstanceId(v AgentInstanceId) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportTraceResult_AgentInstanceId as a Null
+func (t ImportTraceResult_AgentInstanceId) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportTraceResult_AgentInstanceId as the provided Null
+func (t *ImportTraceResult_AgentInstanceId) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportTraceResult_AgentInstanceId, using the provided Null
+func (t *ImportTraceResult_AgentInstanceId) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportTraceResult_AgentInstanceId) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportTraceResult_AgentInstanceId) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsImportTraceResultReason0 returns the union data inside the ImportTraceResult_Reason as a ImportTraceResultReason0
+func (t ImportTraceResult_Reason) AsImportTraceResultReason0() (ImportTraceResultReason0, error) {
+	var body ImportTraceResultReason0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromImportTraceResultReason0 overwrites any union data inside the ImportTraceResult_Reason as the provided ImportTraceResultReason0
+func (t *ImportTraceResult_Reason) FromImportTraceResultReason0(v ImportTraceResultReason0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeImportTraceResultReason0 performs a merge with any union data inside the ImportTraceResult_Reason, using the provided ImportTraceResultReason0
+func (t *ImportTraceResult_Reason) MergeImportTraceResultReason0(v ImportTraceResultReason0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNull returns the union data inside the ImportTraceResult_Reason as a Null
+func (t ImportTraceResult_Reason) AsNull() (Null, error) {
+	var body Null
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNull overwrites any union data inside the ImportTraceResult_Reason as the provided Null
+func (t *ImportTraceResult_Reason) FromNull(v Null) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNull performs a merge with any union data inside the ImportTraceResult_Reason, using the provided Null
+func (t *ImportTraceResult_Reason) MergeNull(v Null) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ImportTraceResult_Reason) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ImportTraceResult_Reason) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -42208,6 +45219,52 @@ type ClientInterface interface {
 	// Corresponds with PUT /api/v1/environment/{environment_id} (the `ActionEnvironmentUpdate` operationId).
 	ActionEnvironmentUpdate(ctx context.Context, environmentId EnvironmentId, body ActionEnvironmentUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ActionImportCreateWithBody Start an import
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+	ActionImportCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ActionImportCreate Start an import
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+	ActionImportCreate(ctx context.Context, body ActionImportCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ActionImportFinishWithBody Finish an import
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+	ActionImportFinishWithBody(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ActionImportFinish Finish an import
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+	ActionImportFinish(ctx context.Context, importId ImportId, body ActionImportFinishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ActionImportAddTracesWithBody Add Langfuse traces to an open import
+	//
+	// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+	ActionImportAddTracesWithBody(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ActionImportAddTraces Add Langfuse traces to an open import
+	//
+	// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+	ActionImportAddTraces(ctx context.Context, importId ImportId, body ActionImportAddTracesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// QueryKnowledgebaseList List knowledgebases
 	//
 	// Corresponds with GET /api/v1/knowledgebase (the `QueryKnowledgebaseList` operationId).
@@ -45621,6 +48678,112 @@ func (c *Client) ActionEnvironmentUpdateWithBody(ctx context.Context, environmen
 // Corresponds with PUT /api/v1/environment/{environment_id} (the `ActionEnvironmentUpdate` operationId).
 func (c *Client) ActionEnvironmentUpdate(ctx context.Context, environmentId EnvironmentId, body ActionEnvironmentUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewActionEnvironmentUpdateRequest(c.Server, environmentId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportCreateWithBody Start an import
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+func (c *Client) ActionImportCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportCreateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportCreate Start an import
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+func (c *Client) ActionImportCreate(ctx context.Context, body ActionImportCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportCreateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportFinishWithBody Finish an import
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+func (c *Client) ActionImportFinishWithBody(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportFinishRequestWithBody(c.Server, importId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportFinish Finish an import
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+func (c *Client) ActionImportFinish(ctx context.Context, importId ImportId, body ActionImportFinishJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportFinishRequest(c.Server, importId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportAddTracesWithBody Add Langfuse traces to an open import
+//
+// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+func (c *Client) ActionImportAddTracesWithBody(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportAddTracesRequestWithBody(c.Server, importId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ActionImportAddTraces Add Langfuse traces to an open import
+//
+// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+func (c *Client) ActionImportAddTraces(ctx context.Context, importId ImportId, body ActionImportAddTracesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActionImportAddTracesRequest(c.Server, importId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -54046,6 +57209,140 @@ func NewActionEnvironmentUpdateRequestWithBody(server string, environmentId Envi
 	return req, nil
 }
 
+// NewActionImportCreateRequest calls the generic ActionImportCreate builder with application/json body
+func NewActionImportCreateRequest(server string, body ActionImportCreateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActionImportCreateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewActionImportCreateRequestWithBody constructs an http.Request for the ActionImportCreate method, with any body, and a specified content type
+func NewActionImportCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/import")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewActionImportFinishRequest calls the generic ActionImportFinish builder with application/json body
+func NewActionImportFinishRequest(server string, importId ImportId, body ActionImportFinishJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActionImportFinishRequestWithBody(server, importId, "application/json", bodyReader)
+}
+
+// NewActionImportFinishRequestWithBody constructs an http.Request for the ActionImportFinish method, with any body, and a specified content type
+func NewActionImportFinishRequestWithBody(server string, importId ImportId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "import_id", importId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/import/%s/finish", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewActionImportAddTracesRequest calls the generic ActionImportAddTraces builder with application/json body
+func NewActionImportAddTracesRequest(server string, importId ImportId, body ActionImportAddTracesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActionImportAddTracesRequestWithBody(server, importId, "application/json", bodyReader)
+}
+
+// NewActionImportAddTracesRequestWithBody constructs an http.Request for the ActionImportAddTraces method, with any body, and a specified content type
+func NewActionImportAddTracesRequestWithBody(server string, importId ImportId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "import_id", importId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/import/%s/traces", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewQueryKnowledgebaseListRequest constructs an http.Request for the QueryKnowledgebaseList method
 func NewQueryKnowledgebaseListRequest(server string, params *QueryKnowledgebaseListParams) (*http.Request, error) {
 	var err error
@@ -59023,6 +62320,52 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PUT /api/v1/environment/{environment_id} (the `ActionEnvironmentUpdate` operationId).
 	ActionEnvironmentUpdateWithResponse(ctx context.Context, environmentId EnvironmentId, body ActionEnvironmentUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionEnvironmentUpdateResponse, error)
+
+	// ActionImportCreateWithBodyWithResponse Start an import
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+	ActionImportCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportCreateResponse, error)
+
+	// ActionImportCreateWithResponse Start an import
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+	ActionImportCreateWithResponse(ctx context.Context, body ActionImportCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportCreateResponse, error)
+
+	// ActionImportFinishWithBodyWithResponse Finish an import
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+	ActionImportFinishWithBodyWithResponse(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportFinishResponse, error)
+
+	// ActionImportFinishWithResponse Finish an import
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+	ActionImportFinishWithResponse(ctx context.Context, importId ImportId, body ActionImportFinishJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportFinishResponse, error)
+
+	// ActionImportAddTracesWithBodyWithResponse Add Langfuse traces to an open import
+	//
+	// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+	ActionImportAddTracesWithBodyWithResponse(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportAddTracesResponse, error)
+
+	// ActionImportAddTracesWithResponse Add Langfuse traces to an open import
+	//
+	// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+	ActionImportAddTracesWithResponse(ctx context.Context, importId ImportId, body ActionImportAddTracesJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportAddTracesResponse, error)
 
 	// QueryKnowledgebaseListWithResponse List knowledgebases
 	//
@@ -65610,6 +68953,204 @@ func (r ActionEnvironmentUpdateResponse) ContentType() string {
 	return ""
 }
 
+type ActionImportCreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		// Details Full details of an import
+		Details ImportDetails `json:"details"`
+
+		// Status Response status when the operation succeeds
+		//
+		// Example: success
+		Status ActionImportCreate200JSONResponseBodyStatus `json:"status"`
+	}
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *ApiError
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ActionImportCreateResponse) GetJSON200() *struct {
+	// Details Full details of an import
+	Details ImportDetails `json:"details"`
+
+	// Status Response status when the operation succeeds
+	//
+	// Example: success
+	Status ActionImportCreate200JSONResponseBodyStatus `json:"status"`
+} {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r ActionImportCreateResponse) GetJSONDefault() *ApiError {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r ActionImportCreateResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ActionImportCreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ActionImportCreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ActionImportCreateResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ActionImportFinishResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		// Details Full details of an import
+		Details ImportDetails `json:"details"`
+
+		// Status Response status when the operation succeeds
+		//
+		// Example: success
+		Status ActionImportFinish200JSONResponseBodyStatus `json:"status"`
+	}
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *ApiError
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ActionImportFinishResponse) GetJSON200() *struct {
+	// Details Full details of an import
+	Details ImportDetails `json:"details"`
+
+	// Status Response status when the operation succeeds
+	//
+	// Example: success
+	Status ActionImportFinish200JSONResponseBodyStatus `json:"status"`
+} {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r ActionImportFinishResponse) GetJSONDefault() *ApiError {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r ActionImportFinishResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ActionImportFinishResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ActionImportFinishResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ActionImportFinishResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ActionImportAddTracesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		// Details Full details of an import
+		Details ImportDetails `json:"details"`
+
+		// Results One result for each trace sent, in the order sent
+		Results []ImportTraceResult `json:"results"`
+
+		// Status Response status when the operation succeeds
+		//
+		// Example: success
+		Status ActionImportAddTraces200JSONResponseBodyStatus `json:"status"`
+	}
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *ApiError
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ActionImportAddTracesResponse) GetJSON200() *struct {
+	// Details Full details of an import
+	Details ImportDetails `json:"details"`
+
+	// Results One result for each trace sent, in the order sent
+	Results []ImportTraceResult `json:"results"`
+
+	// Status Response status when the operation succeeds
+	//
+	// Example: success
+	Status ActionImportAddTraces200JSONResponseBodyStatus `json:"status"`
+} {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r ActionImportAddTracesResponse) GetJSONDefault() *ApiError {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r ActionImportAddTracesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ActionImportAddTracesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ActionImportAddTracesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ActionImportAddTracesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type QueryKnowledgebaseListResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -72151,6 +75692,88 @@ func (c *ClientWithResponses) ActionEnvironmentUpdateWithResponse(ctx context.Co
 	return ParseActionEnvironmentUpdateResponse(rsp)
 }
 
+// ActionImportCreateWithBodyWithResponse Start an import
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+func (c *ClientWithResponses) ActionImportCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportCreateResponse, error) {
+	rsp, err := c.ActionImportCreateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportCreateResponse(rsp)
+}
+
+// ActionImportCreateWithResponse Start an import
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import (the `ActionImportCreate` operationId).
+func (c *ClientWithResponses) ActionImportCreateWithResponse(ctx context.Context, body ActionImportCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportCreateResponse, error) {
+	rsp, err := c.ActionImportCreate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportCreateResponse(rsp)
+}
+
+// ActionImportFinishWithBodyWithResponse Finish an import
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+func (c *ClientWithResponses) ActionImportFinishWithBodyWithResponse(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportFinishResponse, error) {
+	rsp, err := c.ActionImportFinishWithBody(ctx, importId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportFinishResponse(rsp)
+}
+
+// ActionImportFinishWithResponse Finish an import
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import/{import_id}/finish (the `ActionImportFinish` operationId).
+func (c *ClientWithResponses) ActionImportFinishWithResponse(ctx context.Context, importId ImportId, body ActionImportFinishJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportFinishResponse, error) {
+	rsp, err := c.ActionImportFinish(ctx, importId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportFinishResponse(rsp)
+}
+
+// ActionImportAddTracesWithBodyWithResponse Add Langfuse traces to an open import
+//
+// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+func (c *ClientWithResponses) ActionImportAddTracesWithBodyWithResponse(ctx context.Context, importId ImportId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActionImportAddTracesResponse, error) {
+	rsp, err := c.ActionImportAddTracesWithBody(ctx, importId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportAddTracesResponse(rsp)
+}
+
+// ActionImportAddTracesWithResponse Add Langfuse traces to an open import
+//
+// Writes each trace as an imported agent run with one span per observation. A trace already imported into the account is skipped, and a trace that cannot be written is rejected without stopping the rest of the batch. The request body must be under 8MB; send about 20 traces per request.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/v1/import/{import_id}/traces (the `ActionImportAddTraces` operationId).
+func (c *ClientWithResponses) ActionImportAddTracesWithResponse(ctx context.Context, importId ImportId, body ActionImportAddTracesJSONRequestBody, reqEditors ...RequestEditorFn) (*ActionImportAddTracesResponse, error) {
+	rsp, err := c.ActionImportAddTraces(ctx, importId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActionImportAddTracesResponse(rsp)
+}
+
 // QueryKnowledgebaseListWithResponse List knowledgebases
 //
 // Returns a wrapper object for the known response body format(s).
@@ -77405,6 +81028,132 @@ func ParseActionEnvironmentUpdateResponse(rsp *http.Response) (*ActionEnvironmen
 
 			// Status Example: success
 			Status ActionEnvironmentUpdate200JSONResponseBodyStatus `json:"status"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseActionImportCreateResponse parses an HTTP response from a ActionImportCreateWithResponse call
+func ParseActionImportCreateResponse(rsp *http.Response) (*ActionImportCreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ActionImportCreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Details Full details of an import
+			Details ImportDetails `json:"details"`
+
+			// Status Response status when the operation succeeds
+			//
+			// Example: success
+			Status ActionImportCreate200JSONResponseBodyStatus `json:"status"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseActionImportFinishResponse parses an HTTP response from a ActionImportFinishWithResponse call
+func ParseActionImportFinishResponse(rsp *http.Response) (*ActionImportFinishResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ActionImportFinishResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Details Full details of an import
+			Details ImportDetails `json:"details"`
+
+			// Status Response status when the operation succeeds
+			//
+			// Example: success
+			Status ActionImportFinish200JSONResponseBodyStatus `json:"status"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ApiError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseActionImportAddTracesResponse parses an HTTP response from a ActionImportAddTracesWithResponse call
+func ParseActionImportAddTracesResponse(rsp *http.Response) (*ActionImportAddTracesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ActionImportAddTracesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Details Full details of an import
+			Details ImportDetails `json:"details"`
+
+			// Results One result for each trace sent, in the order sent
+			Results []ImportTraceResult `json:"results"`
+
+			// Status Response status when the operation succeeds
+			//
+			// Example: success
+			Status ActionImportAddTraces200JSONResponseBodyStatus `json:"status"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err

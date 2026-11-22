@@ -37,12 +37,12 @@ type helpSection struct {
 // helpSections orders the root help's commands under headings. Every
 // command must be in one; TestEveryCommandIsInAHelpSection checks.
 var helpSections = []helpSection{
-	{"Get started", []string{"login", "setup", "profiles", "ping"}},
+	{"Get started", []string{"login", "setup", "import", "profiles", "ping"}},
 	{"Agents & runs", []string{"agents", "agent-versions", "agent-schema-versions", "agent-deployments", "agent-instances", "agent-spans", "alerts", "agent-risk-versions"}},
 	{"Judges", []string{"judges", "agent-associations", "agent-instance-associations", "llm-providers", "llm-provider-models"}},
 	{"Knowledge", []string{"knowledgebases", "knowledgebase-documents", "knowledgebase-document-revisions", "knowledgebase-revisions", "agent-knowledgebase-links"}},
 	{"Account & access", []string{"accounts", "environments", "teams", "people", "risk-profiles", "integrations", "api-tokens", "admin-users", "admin-user-invites"}},
-	{"Tools", []string{"import", "bulk", "utils", "pfid", "version"}},
+	{"Tools", []string{"bulk", "utils", "pfid", "version"}},
 	{"Install", []string{"install", "update", "uninstall", "doctor", "skills"}},
 }
 
