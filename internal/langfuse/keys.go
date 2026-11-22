@@ -223,6 +223,9 @@ func envValues(lookupEnv func(string) (string, bool), names ...string) map[strin
 // hipaaHost is Langfuse Cloud's HIPAA region.
 const hipaaHost = "hipaa.cloud.langfuse.com"
 
+// maxKeyFileSize is the largest .env file FindKeys reads.
+const maxKeyFileSize = 1024 * 1024
+
 // CheckRegion refuses Langfuse's HIPAA region, which Prefactor cannot
 // import from.
 func CheckRegion(baseURL string) error {
@@ -241,7 +244,8 @@ func NormalizeBaseURL(raw string) (string, error) {
 		return "", errors.New("the URL must not contain a user name or password")
 	}
 	if err != nil || (parsed.Scheme != "https" && parsed.Scheme != "http") || parsed.Host == "" {
-		return "", fmt.Errorf("%q is not an http or https URL", raw)
+		// The value is not repeated, in case it holds a key by mistake.
+		return "", errors.New("the value is not an http or https URL")
 	}
 	parsed.RawQuery, parsed.Fragment = "", ""
 	return strings.TrimRight(parsed.String(), "/"), nil
@@ -268,13 +272,25 @@ func searchDirs(dir string) []string {
 	}
 }
 
-// readKeyFile reads the variables a .env file sets.
+// readKeyFile reads the variables a .env file sets. A path that is not a
+// regular file, such as a Python virtual environment called .env, counts
+// as missing.
 func readKeyFile(path string) (map[string]string, error) {
-	raw, err := os.ReadFile(path)
+	info, err := os.Stat(path)
+	if err == nil && !info.Mode().IsRegular() {
+		err = os.ErrNotExist
+	}
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil, fmt.Errorf("%s does not exist: %w", path, os.ErrNotExist)
 		}
+		return nil, fmt.Errorf("Unable to read %s: %w", path, err)
+	}
+	if info.Size() > maxKeyFileSize {
+		return nil, fmt.Errorf("%s is larger than 1 MB, so it was not read.", path)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
 		return nil, fmt.Errorf("Unable to read %s: %w", path, err)
 	}
 	return parseDotenv(string(raw)), nil

@@ -289,3 +289,70 @@ func TestTraceCountsGivesUpOnAWindowTooShortToSplit(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestRedirectsToAnotherHostOrSchemeAreRefused(t *testing.T) {
+	other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, _, ok := r.BasicAuth(); ok {
+			t.Errorf("the keys followed the redirect to %s", r.Host)
+		}
+		_, _ = io.WriteString(w, `{"data":[]}`)
+	}))
+	t.Cleanup(other.Close)
+	c, _ := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, other.URL+r.URL.Path, http.StatusFound)
+	})
+
+	_, err := c.Projects(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "redirected") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestRedirectsOnTheSameHostAreFollowed(t *testing.T) {
+	c, _ := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/public/projects" {
+			http.Redirect(w, r, "/moved/api/public/projects", http.StatusFound)
+			return
+		}
+		if _, _, ok := r.BasicAuth(); !ok {
+			t.Error("no keys after a same-host redirect")
+		}
+		_, _ = io.WriteString(w, `{"data":[]}`)
+	})
+
+	if _, err := c.Projects(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTraceCountsRefusesAMissingCount(t *testing.T) {
+	c, _ := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, `{"data":[{"traceName":"a","environment":"production","count":5}]}`)
+	})
+
+	from := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+	if _, err := c.TraceCounts(context.Background(), from, from.AddDate(0, 0, 1)); err == nil || !strings.Contains(err.Error(), "no count") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestTraceCountsStopsSplittingAfterMaxSplitDepth(t *testing.T) {
+	requests := 0
+	c, _ := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		requests++
+		parts := make([]string, metricsRowLimit)
+		for i := range parts {
+			parts[i] = fmt.Sprintf(`{"traceName":"chat-%d-%d","environment":"production","count_count":1}`, requests, i)
+		}
+		_, _ = io.WriteString(w, `{"data":[`+strings.Join(parts, ",")+`]}`)
+	})
+
+	from := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+	_, err := c.TraceCounts(context.Background(), from, from.AddDate(0, 0, 30))
+	if err == nil || !strings.Contains(err.Error(), "trace names often contain an ID") {
+		t.Fatalf("err = %v", err)
+	}
+	if limit := 1<<(maxSplitDepth+1) - 1; requests > limit {
+		t.Fatalf("%d requests, more than %d", requests, limit)
+	}
+}

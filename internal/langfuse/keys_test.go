@@ -272,3 +272,44 @@ func TestCheckRegionRefusesHIPAA(t *testing.T) {
 		}
 	}
 }
+
+func TestFindKeysErrorsNeverRepeatTheHost(t *testing.T) {
+	for _, base := range []string{
+		"sk-lf-REALSECRET",
+		"https://cloud.langfuse.com LANGFUSE_SECRET_KEY=sk-lf-REALSECRET",
+		"https://user:REALSECRET%zz@cloud.langfuse.com",
+	} {
+		_, err := FindKeys(FindOptions{LookupEnv: envOf(map[string]string{PublicKeyVar: "pk", SecretKeyVar: "sk", HostVar: base})})
+		if err == nil {
+			t.Errorf("%s: no error", base)
+		} else if strings.Contains(err.Error(), "REALSECRET") {
+			t.Errorf("error repeats the host: %v", err)
+		}
+	}
+}
+
+func TestFindKeysSkipsADotenvThatIsNotAFile(t *testing.T) {
+	root, dir := repoWithDir(t)
+	writeFile(t, filepath.Join(root, ".env"), dotenvKeys)
+	// A Python virtual environment is often called .env.
+	if err := os.MkdirAll(filepath.Join(dir, ".env", "bin"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	keys, err := FindKeys(FindOptions{LookupEnv: envOf(nil), Dir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if keys.Source.Path != filepath.Join(root, ".env") {
+		t.Fatalf("keys from %v", keys.Source)
+	}
+}
+
+func TestFindKeysRefusesADotenvOver1MB(t *testing.T) {
+	root, dir := repoWithDir(t)
+	writeFile(t, filepath.Join(root, ".env"), dotenvKeys+strings.Repeat("# padding\n", 110_000))
+
+	if _, err := FindKeys(FindOptions{LookupEnv: envOf(nil), Dir: dir}); err == nil || !strings.Contains(err.Error(), "larger than 1 MB") {
+		t.Fatalf("err = %v", err)
+	}
+}

@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +31,16 @@ const (
 	metricsRowLimit = 1000
 	// minCountWindow is the shortest window TraceCounts splits.
 	minCountWindow = time.Second
+	// maxSplitDepth is how many times TraceCounts halves a window, which
+	// caps it at 2^(maxSplitDepth+1)-1 Metrics queries.
+	maxSplitDepth = 5
+	// maxRedirects is how many same-host redirects a request follows.
+	maxRedirects = 10
 )
+
+// errRedirect refuses a redirect that would send the keys to another host
+// or over another scheme.
+var errRedirect = errors.New("Langfuse redirected the request to another host or scheme, so the keys were not sent there")
 
 // APIError is a response from Langfuse other than 2xx. Message is
 // Langfuse's own message when the body has one.
@@ -59,9 +67,23 @@ func NewClient(keys Keys, version string) *Client {
 	return &Client{
 		keys:      keys,
 		userAgent: "prefactor-cli/" + version,
-		http:      &http.Client{Timeout: requestTimeout},
+		http:      &http.Client{Timeout: requestTimeout, CheckRedirect: sameOriginRedirect},
 		sleep:     sleepContext,
 	}
+}
+
+// sameOriginRedirect follows a redirect only to the scheme and host of
+// the first request. Go keeps the Authorization header on a redirect to
+// the same host name over http, or to another port on it.
+func sameOriginRedirect(req *http.Request, via []*http.Request) error {
+	first := via[0].URL
+	if req.URL.Scheme != first.Scheme || req.URL.Host != first.Host {
+		return errRedirect
+	}
+	if len(via) >= maxRedirects {
+		return fmt.Errorf("Langfuse redirected the request more than %d times", maxRedirects)
+	}
+	return nil
 }
 
 // Organization is the organisation a project belongs to.
@@ -114,38 +136,55 @@ type TraceCount struct {
 // between from and to, both inclusive, with the Metrics API. That API
 // returns at most metricsRowLimit rows and cannot page, so a window that
 // fills them is split in two and each half counted on its own.
+//
+// It halves a window at most maxSplitDepth times. Needing more usually
+// means trace names contain an ID, which would make every run its own
+// agent.
 func (c *Client) TraceCounts(ctx context.Context, from, to time.Time) ([]TraceCount, error) {
+	return c.traceCounts(ctx, from, to, 0)
+}
+
+func (c *Client) traceCounts(ctx context.Context, from, to time.Time, depth int) ([]TraceCount, error) {
 	counts, err := c.traceCountsQuery(ctx, from, to)
 	if err != nil || len(counts) < metricsRowLimit {
 		return counts, err
+	}
+	if depth >= maxSplitDepth {
+		return nil, fmt.Errorf("Langfuse has more than %d trace name and environment pairs between %s and %s, which is too many to import. Each trace name becomes an agent, and trace names often contain an ID such as a session or user ID.",
+			metricsRowLimit, Timestamp(from), Timestamp(to))
 	}
 	if to.Sub(from) <= minCountWindow {
 		return nil, fmt.Errorf("Langfuse has more than %d trace name and environment pairs between %s and %s, which is too many to count.",
 			metricsRowLimit, Timestamp(from), Timestamp(to))
 	}
 	mid := from.Add(to.Sub(from) / 2).Truncate(time.Millisecond)
-	first, err := c.TraceCounts(ctx, from, mid)
+	first, err := c.traceCounts(ctx, from, mid, depth+1)
 	if err != nil {
 		return nil, err
 	}
-	second, err := c.TraceCounts(ctx, mid.Add(time.Millisecond), to)
+	second, err := c.traceCounts(ctx, mid.Add(time.Millisecond), to, depth+1)
 	if err != nil {
 		return nil, err
 	}
 	return addCounts(first, second), nil
 }
 
-// addCounts adds b's counts to a's, by trace name and environment.
+// addCounts adds b's counts to a's, by trace name and environment, keeping
+// a's order and appending pairs only b has.
 func addCounts(a, b []TraceCount) []TraceCount {
+	type pair struct{ traceName, environment string }
+	index := make(map[pair]int, len(a))
+	for i, tc := range a {
+		index[pair{tc.TraceName, tc.Environment}] = i
+	}
 	for _, count := range b {
-		i := slices.IndexFunc(a, func(tc TraceCount) bool {
-			return tc.TraceName == count.TraceName && tc.Environment == count.Environment
-		})
-		if i < 0 {
-			a = append(a, count)
+		key := pair{count.TraceName, count.Environment}
+		if i, ok := index[key]; ok {
+			a[i].Count += count.Count
 			continue
 		}
-		a[i].Count += count.Count
+		index[key] = len(a)
+		a = append(a, count)
 	}
 	return a
 }
@@ -182,11 +221,12 @@ func (c *Client) traceCountsQuery(ctx context.Context, from, to time.Time) ([]Tr
 	for _, row := range response.Data {
 		// ClickHouse may send counts as strings or as numbers, which
 		// json.Number accepts alike.
-		count := 0.0
-		if row.Count != "" {
-			if count, err = row.Count.Float64(); err != nil {
-				return nil, fmt.Errorf("Langfuse metrics response has a count that is not a number: %q", row.Count)
-			}
+		if row.Count == "" {
+			return nil, errors.New("Langfuse metrics response has a row with no count.")
+		}
+		count, err := row.Count.Float64()
+		if err != nil {
+			return nil, fmt.Errorf("Langfuse metrics response has a count that is not a number: %q", row.Count)
 		}
 		tc := TraceCount{Count: int(count)}
 		if row.TraceName != nil {
@@ -221,7 +261,7 @@ func (c *Client) get(ctx context.Context, path string, query url.Values, out any
 
 		resp, err := c.http.Do(req)
 		if err != nil {
-			if ctx.Err() == nil && failed < maxRetries {
+			if ctx.Err() == nil && failed < maxRetries && !errors.Is(err, errRedirect) {
 				failed++
 				if err := c.sleep(ctx, retryBaseDelay*time.Duration(failed)); err != nil {
 					return err
