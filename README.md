@@ -76,6 +76,7 @@ The skills for instrumenting an agent with the SDK are in the [Prefactor TypeScr
 | `prefactor profiles remove <name>` | Remove a profile |
 | `prefactor setup [agent_id] [--create --name <name> [--description <text>]]` | Mint a deployment token for an agent and print `PREFACTOR_*` setup values, or JSON with `--json` |
 | `prefactor ping [--api-token <token>] [--api-url <url>]` | Verify the selected or supplied API token |
+| `prefactor import langfuse --dry-run [--env <file>] [--days <n>]` | Show the agents and runs an import from Langfuse would bring in, sending nothing to Prefactor (see [`import langfuse`](#import-langfuse)) |
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |
 | `prefactor install`, `update`, `doctor`, `uninstall` | Manage the installed CLI (see [Install](#install)) |
@@ -100,6 +101,29 @@ The CLI is interactive only when stdin and stdout are terminals and no coding ag
 `setup <agent_id>` checks the agent exists, chooses an environment, creates a deployment token for the agent there, pings with it to check it, and prints the values an SDK reads: `PREFACTOR_API_URL`, `PREFACTOR_API_TOKEN`, `PREFACTOR_AGENT_ID` and `PREFACTOR_AGENT_IDENTIFIER`. `--create --name <name>` creates the agent first. The environment is that of the agent's only deployment, or of its only deployment with a current version; an agent with no deployment uses the first environment of the first account.
 
 In interactive mode, `setup` with no agent shows a picker of agents with a choice to create one, and asks for the new agent's name and description. It asks which environment to use instead of choosing when the agent has several deployments, or, with no deployment, when there are several accounts or environments. Outside interactive mode it fails or chooses as above, like the TypeScript CLI.
+
+### `import langfuse`
+
+`import langfuse --dry-run` shows what an import from Langfuse would bring in. It needs no Prefactor login and sends nothing to Prefactor. Without `--dry-run` the command stops and says uploading is not available yet.
+
+It reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_BASE_URL` (or `LANGFUSE_HOST`, defaulting to `https://cloud.langfuse.com`) from the first of these that sets both keys, and says which one it used:
+1. The shell environment. When mise is active, this includes its `[env]` section.
+2. The nearest `.env`, from the current directory up to the root of its git repository.
+
+Quoted values are accepted. `--env <file>` reads the keys only from that file, in `.env` format. When the file that gave the keys sets no host, the host comes from `LANGFUSE_BASE_URL` or `LANGFUSE_HOST` in the shell, or is the default. The command says which source gave the host.
+
+When no source sets both keys, the command stops, says where it looked and which variables to set, and does not ask for the keys.
+
+Prefactor cannot import from Langfuse's HIPAA region: when the host is `hipaa.cloud.langfuse.com`, the command stops before sending any request.
+
+The command then:
+1. Shows the Langfuse project and organisation the keys belong to. A `401` usually means the keys are for another region, so it says how to set `LANGFUSE_BASE_URL`.
+2. Checks the keys can read traces, with a one-row Observations API v2 query, because the projects call succeeds even for keys that cannot. When Langfuse answers `403` (no `traces:read` permission), it stops, explains how to create a Viewer key (Project Settings > API Keys > Create new API keys > Viewer; Full access and Developer keys also work) and says which variables to set to it.
+3. Counts runs (root observations) by trace name and environment over the last `--days` days (30 by default), with the Metrics API v2. That API returns at most 1,000 rows and cannot page, so when a query fills them the command splits the window in two and counts each half.
+4. In interactive mode, lists the trace names busiest first, all ticked, and lets you untick them. Each trace name becomes one agent.
+5. Prints the plan: each agent with its runs per environment, the total, and a rough estimate of how long reading the runs takes at the Langfuse Hobby plan's 30 requests a minute. Outside interactive mode, and with `--json`, the plan is JSON, without the estimate.
+
+The CLI never prints or logs the keys, including in errors and JSON. Requests that get `429` wait as `Retry-After` asks.
 
 ### Output
 
