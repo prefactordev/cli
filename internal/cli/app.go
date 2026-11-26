@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -42,6 +43,8 @@ type App struct {
 	// Lifecycle, when set, replaces the dependencies of install, update,
 	// uninstall and doctor, which print to stdout and stderr.
 	Lifecycle func(stdout, stderr io.Writer) lifecycle.Deps
+	// Now returns the current time. Nil uses time.Now.
+	Now func() time.Time
 
 	session *session
 	// resolvedArgs are the positional arguments after pickers and @latest.

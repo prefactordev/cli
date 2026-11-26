@@ -66,6 +66,78 @@ npx skills add https://github.com/prefactordev/cli
 
 The skills for instrumenting an agent with the SDK are in the [Prefactor TypeScript SDK](https://github.com/prefactordev/typescript-sdk/tree/main/skills).
 
+## MCP server for AI assistants
+
+Prefactor serves a read-only MCP server at `<base URL>/mcp` over Streamable HTTP. It lets Claude Code, Codex, Cursor and VS Code answer questions about your agents, runs, judge verdicts and alerts. Add it to the clients on this machine with:
+
+```sh
+prefactor mcp install
+```
+
+`mcp install` finds Claude Code, Codex and Cursor by their directories in your home directory, as `skills install` does, and VS Code by its settings directory. `--client` (repeatable) picks them instead: `claude-code`, `codex`, `cursor` or `vscode`. Each client gets an entry named `prefactor` whose URL is the selected profile's base URL followed by `/mcp`. Without a saved `default` profile it uses `PREFACTOR_API_URL`, or `https://app.prefactorai.com`. Restart the client, or reload its MCP servers, afterwards. Cursor asks you to approve a server in a project's `.cursor/mcp.json` before it starts it.
+
+| Client | `--global` (the default) | `--project` |
+|--------|--------------------------|-------------|
+| Claude Code | `~/.claude.json` (user scope) | `.mcp.json` |
+| Codex | `~/.codex/config.toml` (or `$CODEX_HOME/config.toml`) | `.codex/config.toml`, which Codex reads in trusted projects |
+| Cursor | `~/.cursor/mcp.json` | `.cursor/mcp.json` |
+| VS Code | `mcp.json` in the VS Code user directory | `.vscode/mcp.json` |
+
+The project is the git repository that contains the current directory. Only the `prefactor` entry changes: other servers, settings and the order of keys stay as they were. Each file is copied to `<file>.prefactor.bak` before it changes, and running the command again changes nothing. A file the CLI cannot edit safely, such as JSON with comments, is left alone and reported; `prefactor mcp config` prints the entry to add by hand.
+
+| Command | Effect |
+|---------|--------|
+| `prefactor mcp install [--client <client>]... [--project\|--global] [--auth oauth\|api-token]` | Add the server to the clients found, or those given |
+| `prefactor mcp config --client <client> [--project\|--global] [--auth oauth\|api-token]` | Print the entry for one client without writing it, for teams that manage client configuration themselves. It makes no request to Prefactor |
+| `prefactor mcp uninstall [--client <client>]... [--project\|--global]` | Remove only the `prefactor` entry, from every client or those given |
+| `prefactor mcp token [--config <file>]` | Print the profile's read-only token, creating it if there is none, for `--auth api-token` |
+
+All of them take `--profile`.
+
+### Signing in with OAuth (the default)
+
+By default the entry holds only the URL. The client signs you in to Prefactor in the browser the first time it connects, and keeps its own sign-in. Prefactor is the OAuth authorisation server, so the client needs no token from the CLI and `mcp install` makes no request to Prefactor.
+
+| Client | Entry | How to sign in |
+|--------|-------|----------------|
+| Claude Code | `"prefactor": {"type": "http", "url": "<base URL>/mcp"}` in `mcpServers` | Run `/mcp` in Claude Code, choose `prefactor`, then Authenticate |
+| Codex | `[mcp_servers.prefactor]` with `url = "<base URL>/mcp"` | Run `codex mcp login prefactor` |
+| Cursor | `"prefactor": {"url": "<base URL>/mcp"}` in `mcpServers` | Open Cursor Settings, then MCP, and choose Connect |
+| VS Code | `"prefactor": {"type": "http", "url": "<base URL>/mcp"}` in `servers` | Start the server, then accept the sign-in prompt |
+
+### Signing in with a read-only API token
+
+`--auth api-token` is for clients, or CI, that cannot sign in through a browser. The client sends a read-only account API token as a bearer token. The MCP server refuses a full-access token, such as the one `prefactor login` creates.
+
+No command writes a token into a client's configuration. Codex, Cursor and Claude Code read it from the `PREFACTOR_MCP_TOKEN` environment variable, which you set before starting them:
+
+```sh
+export PREFACTOR_MCP_TOKEN="$(prefactor mcp token)"
+```
+
+| Client | Entry |
+|--------|-------|
+| Claude Code | `"type": "http"`, `"url"` and `"headers": {"Authorization": "Bearer ${PREFACTOR_MCP_TOKEN}"}` |
+| Codex | `url` and `bearer_token_env_var = "PREFACTOR_MCP_TOKEN"` |
+| Cursor | `"url"` and `"headers": {"Authorization": "Bearer ${env:PREFACTOR_MCP_TOKEN}"}` |
+| VS Code | `"type": "http"`, `"url"` and `"headers": {"Authorization": "Bearer ${input:prefactor-mcp-token}"}`, with a password input that asks for the token the first time the server starts and keeps it in VS Code's secret storage |
+
+The first time `mcp install --auth api-token` or `mcp token` runs for a profile, it creates a read-only account API token for the profile's account (`api-tokens create --token-scope account --role read_only`), which expires after 90 days. It keeps the token in the profile, in `prefactor.json` next to the profile's own token, as `mcp_api_key`, `mcp_api_key_id` and `mcp_api_key_expires_at`. The file keeps its `0600` permissions. Later runs check the token with Prefactor and reuse it. When Prefactor refuses it (it was revoked or has expired), or it expires within 7 days, the CLI creates a new one, stores it and revokes the old one. `mcp install` prints the token's ID; revoke it with `prefactor api-tokens revoke <id>`. When the token is replaced, export `PREFACTOR_MCP_TOKEN` again.
+
+If Prefactor refuses to create a token because the profile's own token cannot create tokens, for example because it is already read-only, the commands use the profile's own token, but only after Prefactor confirms it is read-only.
+
+`prefactor login` and `prefactor profiles add` replace the whole profile, so the next run creates a new read-only token; the old one still works until it expires or you revoke it. The TypeScript CLI does not know the `mcp_*` keys and drops them when it saves `prefactor.json`, with the same effect.
+
+`--auth api-token` needs a saved profile to keep the token in; `PREFACTOR_API_TOKEN` is not enough.
+
+### Upgrading from the local server
+
+Earlier versions of `mcp install` set clients up to start a local server with `prefactor mcp serve`. That command has been removed. Run `prefactor mcp install` again to replace those entries with the remote one, or `prefactor mcp uninstall` to remove them.
+
+### MCP tools or CLI commands
+
+Use the MCP tools to ask questions: what agents exist, how their runs went, what a judge said about a run, which alerts are open. Use the CLI's other commands to make changes (creating agents, judges and deployment tokens, editing knowledge bases), in scripts and in CI, and for data the MCP tools do not cover, such as writing a run's full context to a file with `agent-instances agent-context --output`. The bundled skills say the same to coding agents.
+
 ## Commands
 
 | Command | Description |
@@ -76,6 +148,7 @@ The skills for instrumenting an agent with the SDK are in the [Prefactor TypeScr
 | `prefactor profiles remove <name>` | Remove a profile |
 | `prefactor setup [agent_id] [--create --name <name> [--description <text>]]` | Mint a deployment token for an agent and print `PREFACTOR_*` setup values, or JSON with `--json` |
 | `prefactor ping [--api-token <token>] [--api-url <url>]` | Verify the selected or supplied API token |
+| `prefactor mcp install`, `config`, `uninstall`, `serve`, `token` | Connect AI assistants to the read-only Prefactor MCP server (see [MCP server for AI assistants](#mcp-server-for-ai-assistants)) |
 | `prefactor import langfuse --dry-run [--env <file>] [--days <n>]` | Show the agents and runs an import from Langfuse would bring in, sending nothing to Prefactor (see [`import langfuse`](#import-langfuse)) |
 | `prefactor pfid generate [--count <n>] [--account-id <id>]` | Generate Prefactor IDs |
 | `prefactor version` | Print the CLI version |

@@ -25,7 +25,7 @@ Run this skill from the repository that deployed the agent under investigation �
 
 Spans show runtime behavior. The agent's codebase holds the prompts, tool implementations, schemas, guardrails, and wiring that explain *why* the system behaved that way. Root-cause analysis needs both:
 
-- **Prefactor CLI** — fetch spans, timelines, token use, linked instances.
+- **Prefactor CLI or MCP tools** — fetch spans, timelines, token use, linked instances, judge verdicts.
 - **Local source** — read the code and config that produced those spans.
 
 When a span points at a tool call, find that tool's handler in this repo. When an LLM span shows a bloated prompt, find where that context is assembled. When schema fields look wrong or missing, find the registered span types here. Human-factor whys often resolve in this codebase even when spans only show the symptom.
@@ -72,6 +72,7 @@ Collect before starting:
 
 - **Agent's repository** — the project that runs the instrumented agent (current workspace should be this repo).
 - The Prefactor CLI (`prefactor`). If it is missing, ask the human to install it from https://github.com/prefactordev/cli.
+- The Prefactor MCP tools, when the coding agent has them; see below.
 - Profile name or `PREFACTOR_API_URL` / `PREFACTOR_API_TOKEN`.
 - Agent ID from the user.
 - Agent Instance ID when you need to list instances or disambiguate runs.
@@ -85,6 +86,27 @@ prefactor --profile <profile> agent-instances list --agent-id <agent-id> --sort-
 ```
 
 `<agent-id>/@latest` names an agent's newest instance wherever an instance ID is expected, for example `prefactor agent-instances agent-context <agent-id>/@latest`.
+
+## MCP tools or CLI commands
+
+If the Prefactor MCP server is connected (its tools include `get_run`, `get_run_steps` and `list_judges`), use it to ask questions:
+
+- Find the run and its outcome: `search`, `list_runs`, `get_run`.
+- Walk through the run: `get_run_steps`, then `get_step` for one step's input and output.
+- Read the judges' verdicts and criteria, the risk profile and open alerts: `get_run`, `list_judges`, `get_risk_profile`, `list_alerts`.
+
+Use the CLI for what the MCP tools do not do:
+
+- Export a run's full context to a file for close reading: `agent-instances agent-context --output`, below.
+- Change anything in Prefactor, such as agents, judges or knowledge bases. The MCP server only reads, and this skill does not change Prefactor at all.
+
+If neither is set up and the human wants the MCP tools, they can run this in a terminal, restart the coding agent and sign in to Prefactor in the browser when it asks:
+
+```bash
+prefactor mcp install
+```
+
+Do not run it yourself unless the human asks; it changes their client configuration.
 
 ## CLI workflow
 

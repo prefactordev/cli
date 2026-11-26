@@ -32,6 +32,10 @@ After this skill completes:
 
 Do not run `prefactor login`, `prefactor profiles add`, or invent API tokens. If setup fails because the CLI is not signed in, stop and ask the human to run `prefactor login`.
 
+## CLI, not MCP tools
+
+Use the CLI for this skill even when the Prefactor MCP tools are available. The MCP server only reads Prefactor and cannot create agents or tokens. Use MCP tools to ask about agents and runs once the agent is instrumented.
+
 ## CLI workflow
 
 Use one setup command. Pass `--json` so you can parse fields reliably; JSON output and a coding agent's shell both turn off the CLI's prompts, so setup never waits for input.

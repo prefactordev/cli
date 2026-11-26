@@ -1,9 +1,12 @@
 package profile
 
 import (
+	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 )
 
 func writeFile(t *testing.T, path, contents string) {
@@ -241,4 +244,99 @@ func TestASymlinkedWorkingDirectoryFindsTheRealRepository(t *testing.T) {
 	if got := l.ConfigPath(); got != want {
 		t.Fatalf("ConfigPath = %s, want %s", got, want)
 	}
+}
+
+// TestMCPTokenRoundTrips stores a profile's read-only MCP token next to its
+// credentials, keeps it through a reload, and leaves profiles without one
+// in the TypeScript CLI's format.
+func TestMCPTokenRoundTrips(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "prefactor.json")
+	store := Load(path)
+	if err := store.Set("plain", Profile{APIKey: "p", BaseURL: "https://p.example"}); err != nil {
+		t.Fatal(err)
+	}
+	withToken := Profile{
+		APIKey:  "full",
+		BaseURL: "https://app.example",
+		MCP:     &MCPToken{Token: "ro", ID: "tok_1", ExpiresAt: "2027-01-01T00:00:00Z"},
+	}
+	if err := store.Set("acme", withToken); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{
+  "plain": {
+    "api_key": "p",
+    "base_url": "https://p.example"
+  },
+  "acme": {
+    "api_key": "full",
+    "base_url": "https://app.example",
+    "mcp_api_key": "ro",
+    "mcp_api_key_id": "tok_1",
+    "mcp_api_key_expires_at": "2027-01-01T00:00:00Z"
+  }
+}`
+	if string(raw) != want {
+		t.Fatalf("file:\n%s\nwant:\n%s", raw, want)
+	}
+	if info, err := os.Stat(path); err != nil || info.Mode().Perm() != 0o600 {
+		t.Fatalf("mode = %v, %v; want 0600", info.Mode().Perm(), err)
+	}
+
+	got, ok := Load(path).Get("acme")
+	if !ok || got.MCP == nil || *got.MCP != *withToken.MCP || got.APIKey != "full" {
+		t.Fatalf("reloaded = %+v (MCP %+v)", got, got.MCP)
+	}
+	if plain, _ := Load(path).Get("plain"); plain.MCP != nil {
+		t.Fatalf("plain profile has an MCP token: %+v", plain.MCP)
+	}
+}
+
+// TestMCPTokenNeedsAToken ignores MCP fields without a token string.
+func TestMCPTokenNeedsAToken(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "prefactor.json")
+	writeFile(t, path, `{"a": {"api_key": "k", "base_url": "https://a.example", "mcp_api_key": 5, "mcp_api_key_id": "x"}}`)
+	got, ok := Load(path).Get("a")
+	if !ok || got.MCP != nil {
+		t.Fatalf("got %+v, MCP %+v", got, got.MCP)
+	}
+}
+
+func TestLockWaitsForTheHolderAndBreaksStaleLocks(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "prefactor.json")
+	unlock, err := Lock(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+	if _, err := Lock(ctx, path); err == nil || !strings.Contains(err.Error(), "locked by another prefactor command") {
+		t.Fatalf("second lock: %v", err)
+	}
+
+	unlock()
+	again, err := Lock(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// A lock left behind by a process that died is broken.
+	old := time.Now().Add(-time.Minute)
+	if err := os.Chtimes(path+".lock", old, old); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	stale, err := Lock(ctx, path)
+	if err != nil {
+		t.Fatalf("stale lock not broken: %v", err)
+	}
+	stale()
+	again()
 }
