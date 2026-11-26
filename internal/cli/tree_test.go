@@ -45,6 +45,7 @@ var laterCommands = map[string]string{
 var goOnlyCommands = map[string]string{
 	"prefactor skills": "installs the skills built into the CLI",
 	"prefactor import": "reads from Langfuse and sends nothing to Prefactor yet",
+	"prefactor mcp":    "configures MCP clients for Prefactor's read-only MCP server",
 }
 
 // goOnlyFlags are the session flags this CLI adds to every command.

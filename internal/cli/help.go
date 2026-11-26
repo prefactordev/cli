@@ -77,7 +77,11 @@ func formatHelp(cmd *cobra.Command, width int, theme *human.Theme) string {
 		usage = theme.Heading.Render("Usage:") + " " + theme.Command.Render(commandUsage(cmd))
 	}
 	lines := []string{usage, ""}
-	if cmd.Short != "" {
+	// Commands the TypeScript CLI lacks may describe themselves at length;
+	// the others have a one-line description, as there.
+	if description := cmd.Long; description != "" {
+		lines = append(lines, boxWrap(description, width), "")
+	} else if cmd.Short != "" {
 		lines = append(lines, boxWrap(cmd.Short, width), "")
 	}
 	lines = append(lines, formatItemList("Options:", options, termWidth, width, theme)...)

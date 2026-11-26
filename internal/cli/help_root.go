@@ -43,7 +43,7 @@ var helpSections = []helpSection{
 	{"Knowledge", []string{"knowledgebases", "knowledgebase-documents", "knowledgebase-document-revisions", "knowledgebase-revisions", "agent-knowledgebase-links"}},
 	{"Account & access", []string{"accounts", "environments", "teams", "people", "risk-profiles", "integrations", "api-tokens", "admin-users", "admin-user-invites"}},
 	{"Tools", []string{"import", "bulk", "utils", "pfid", "version"}},
-	{"Install", []string{"install", "update", "uninstall", "doctor", "skills"}},
+	{"Install", []string{"install", "update", "uninstall", "doctor", "skills", "mcp"}},
 }
 
 // environmentHelp describes the environment variables the CLI reads.

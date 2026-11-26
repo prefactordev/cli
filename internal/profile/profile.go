@@ -31,6 +31,20 @@ const (
 type Profile struct {
 	APIKey  string `json:"api_key"`
 	BaseURL string `json:"base_url"`
+	// MCP is the read-only token prefactor mcp creates for this profile's
+	// account, or nil before it has created one.
+	MCP *MCPToken `json:"-"`
+}
+
+// MCPToken is a read-only account API token kept for the MCP server, so it
+// never runs with the profile's full-access token. It is stored in the
+// profile as mcp_api_key, mcp_api_key_id and mcp_api_key_expires_at. The
+// TypeScript CLI does not know these keys and drops them when it saves the
+// file; prefactor mcp then creates a new token.
+type MCPToken struct {
+	Token     string
+	ID        string
+	ExpiresAt string
 }
 
 // Entry is a named profile.
@@ -133,7 +147,7 @@ func Load(path string) *Store {
 		apiKey, apiKeyOK := field(entry, "api_key")
 		baseURL, baseURLOK := field(entry, "base_url")
 		if apiKeyOK && baseURLOK {
-			store.profiles.Set(name, profileObject(Profile{APIKey: apiKey, BaseURL: baseURL}))
+			store.profiles.Set(name, profileObject(Profile{APIKey: apiKey, BaseURL: baseURL, MCP: mcpToken(entry)}))
 		}
 	}
 	return store
@@ -170,10 +184,27 @@ func field(obj *jsjson.Object, key string) (string, bool) {
 	return text, ok
 }
 
+// mcpToken reads the MCP token fields of a profile entry, or returns nil
+// when it has no token string.
+func mcpToken(entry *jsjson.Object) *MCPToken {
+	token, ok := field(entry, "mcp_api_key")
+	if !ok || token == "" {
+		return nil
+	}
+	id, _ := field(entry, "mcp_api_key_id")
+	expiresAt, _ := field(entry, "mcp_api_key_expires_at")
+	return &MCPToken{Token: token, ID: id, ExpiresAt: expiresAt}
+}
+
 func profileObject(p Profile) *jsjson.Object {
 	obj := jsjson.NewObject()
 	obj.Set("api_key", p.APIKey)
 	obj.Set("base_url", p.BaseURL)
+	if p.MCP != nil && p.MCP.Token != "" {
+		obj.Set("mcp_api_key", p.MCP.Token)
+		obj.Set("mcp_api_key_id", p.MCP.ID)
+		obj.Set("mcp_api_key_expires_at", p.MCP.ExpiresAt)
+	}
 	return obj
 }
 
@@ -201,7 +232,7 @@ func (s *Store) Get(name string) (Profile, bool) {
 	obj := value.(*jsjson.Object)
 	apiKey, _ := field(obj, "api_key")
 	baseURL, _ := field(obj, "base_url")
-	return Profile{APIKey: apiKey, BaseURL: baseURL}, true
+	return Profile{APIKey: apiKey, BaseURL: baseURL, MCP: mcpToken(obj)}, true
 }
 
 // Set adds or replaces the named profile and saves the file. A replaced
@@ -268,6 +299,12 @@ func ensureGitignoreEntry(configPath string) error {
 	}
 
 	return os.WriteFile(gitignorePath, append(contents, []byte(separator+configFilename+"\n")...), 0o644)
+}
+
+// ProjectRoot returns the root of the git repository that contains dir, or
+// dir outside a repository. It is where project configuration lives.
+func ProjectRoot(dir string) string {
+	return findDirectoryRoot(dir)
 }
 
 // findDirectoryRoot returns the nearest directory at or above start that
